@@ -649,6 +649,7 @@ h4.sub:first-child{margin-top:0}
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-course" aria-selected="false" data-view="course">Course</button>
       <button class="tab" role="tab" id="tab-frames" aria-selected="false" data-view="frames">Frames</button>
+      <button class="tab" role="tab" id="tab-camera" aria-selected="false" data-view="camera">Camera</button>
     </nav>
     <button class="iconbtn a11y" data-act="a11y" aria-label="Text size and contrast" title="Text size and contrast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16.5 15.5h3"/></svg></button>
   </div>
@@ -658,7 +659,7 @@ h4.sub:first-child{margin-top:0}
       <button class="mitem" id="tab-lib" data-view="library"><b>Shot library</b><span class="count" id="libcount">0</span></button>
       <button class="mitem" id="tab-light" data-view="lighting"><b>Lighting</b><span class="count" id="lightcount">0</span></button>
       <button class="mitem" id="tab-edit" data-view="editing"><b>Editing</b><span class="count" id="editcount">0</span></button>
-      <button class="mitem" id="tab-camera" data-view="camera"><b>Camera</b><span>FX3 setup and settings</span></button>
+      <button class="mitem" id="tab-camera-m" data-view="camera"><b>Camera</b><span>FX3 setup and settings</span></button>
       <button class="mitem" id="tab-lists" data-view="lists"><b>Shot lists</b><span class="count" id="listcount">0</span></button>
       <button class="mitem" id="tab-treat" data-view="treat"><b>Treatments</b><span>Plan a video</span></button>
       <button class="mitem" id="tab-learn" data-view="learn"><b>Learn</b><span class="count" id="learncount">0</span></button>
@@ -3898,7 +3899,7 @@ function renderList() {
 function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length + EDITS.length); $('#lightcount').textContent = LIGHTS.length; }
 function rerender() {
   updateCounts();
-  $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
+  $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-camera-m').setAttribute('aria-selected', ui.view === 'camera'); $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
   $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-edit').setAttribute('aria-selected', ui.view === 'editing'); $('#editcount').textContent = EDITS.length; $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
   prefs.tab = ui.view === 'list' ? 'lists' : ui.view; savePrefs();
   if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
