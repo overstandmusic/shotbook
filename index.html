@@ -48,7 +48,18 @@ h1,h2,h3{text-wrap:balance;margin:0}
 /* top bar */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:20px;height:60px}
-.brand{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.04em;text-transform:uppercase;line-height:1;display:flex;align-items:center;gap:10px}
+.brand{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.04em;text-transform:uppercase;line-height:1;display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;color:var(--ink)}
+.menubtn{margin-right:2px}
+.menu{position:absolute;left:0;right:0;top:100%;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow);z-index:30}
+.menugrid{max-width:1360px;margin:0 auto;padding:12px 20px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.mitem{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.mitem b{font-size:15px}
+.mitem span{font-size:12.5px;color:var(--muted)}
+.mitem .count{align-self:flex-start}
+.mitem:hover{border-color:var(--accent)}
+.mitem.on{border-color:var(--accent);background:var(--accent-soft)}
+.top{position:sticky}
+.tabs{margin-left:auto}
 .brand i{display:inline-block;width:22px;height:16px;border:2px solid var(--accent);border-radius:3px;position:relative}
 .brand i:after{content:"";position:absolute;inset:3px 5px;border-left:2px solid var(--accent);border-right:2px solid var(--accent)}
 .tabs{display:flex;gap:4px;margin-left:auto}
@@ -529,7 +540,7 @@ h4.sub:first-child{margin-top:0}
 .mvnote{background:var(--cyan-soft);border-radius:var(--r);padding:12px 14px;margin-top:14px}
 .mvnote .label{color:var(--cyan)}
 .mvnote p{margin:4px 0 0;font-size:14px}
-@media (max-width:760px){.tab{padding:8px 7px;font-size:13.5px}.top .wrap{overflow-x:auto}}
+
 </style>
 <style>
 .galgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
@@ -613,24 +624,47 @@ h4.sub:first-child{margin-top:0}
 .takes .iconbtn{width:30px;height:30px}
 .takes .btn.on{border-color:var(--good);color:var(--good)}
 </style>
+<style>
+.camtabs{align-self:flex-start;flex-wrap:wrap}
+.daylist{display:flex;flex-direction:column;gap:6px}
+.dayrow{display:grid;grid-template-columns:32px 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.dayrow .dn{font-family:var(--display);font-weight:800;font-size:24px;color:var(--accent);line-height:1}
+.dayrow b{display:block;font-size:15px}
+.dayrow span{font-size:14px;color:var(--muted)}
+.refgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.refrow{display:grid;grid-template-columns:120px 1fr;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14px}
+.refrow:first-child{border-top:0}
+.refrow b{font-family:var(--mono);font-weight:500;font-size:13px}
+.refrow span{color:var(--muted)}
+@media (max-width:560px){.brand{font-size:22px}.sync{display:none}.refrow{grid-template-columns:1fr}.top .wrap .a11y{display:none}.tab{padding:8px 8px}}
+.menua11y{display:none}
+@media (max-width:560px){.menua11y{display:flex}}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
-    <div class="brand"><i></i>Shotbook</div>
+    <button class="iconbtn menubtn" data-act="menu" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="brand" data-act="gohome" aria-label="Home"><i></i>Shotbook</button>
     <span class="sync" id="sync"></span>
-    <button class="iconbtn a11y" data-act="a11y" aria-label="Text size and contrast" title="Text size and contrast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16.5 15.5h3"/></svg></button>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tab-home" aria-selected="false" data-view="home">Home</button>
-      <button class="tab" role="tab" id="tab-lib" aria-selected="true" data-view="library">Library <span class="count" id="libcount">0</span></button>
-      <button class="tab" role="tab" id="tab-light" aria-selected="false" data-view="lighting">Lighting <span class="count" id="lightcount">0</span></button>
-      <button class="tab" role="tab" id="tab-edit" aria-selected="false" data-view="editing">Editing <span class="count" id="editcount">0</span></button>
-      <button class="tab" role="tab" id="tab-lists" aria-selected="false" data-view="lists">Shot lists <span class="count" id="listcount">0</span></button>
-      <button class="tab" role="tab" id="tab-learn" aria-selected="false" data-view="learn">Learn <span class="count" id="learncount">0</span></button>
       <button class="tab" role="tab" id="tab-course" aria-selected="false" data-view="course">Course</button>
-      <button class="tab" role="tab" id="tab-kit" aria-selected="false" data-view="kit">Kit</button>
       <button class="tab" role="tab" id="tab-frames" aria-selected="false" data-view="frames">Frames</button>
-      <button class="tab" role="tab" id="tab-treat" aria-selected="false" data-view="treat">Treatments</button>
     </nav>
+    <button class="iconbtn a11y" data-act="a11y" aria-label="Text size and contrast" title="Text size and contrast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16.5 15.5h3"/></svg></button>
+  </div>
+  <div class="menu" id="menu" hidden>
+    <div class="menugrid">
+      <button class="mitem" id="tab-home" data-view="home"><b>Home</b><span>Today, progress, recipes</span></button>
+      <button class="mitem" id="tab-lib" data-view="library"><b>Shot library</b><span class="count" id="libcount">0</span></button>
+      <button class="mitem" id="tab-light" data-view="lighting"><b>Lighting</b><span class="count" id="lightcount">0</span></button>
+      <button class="mitem" id="tab-edit" data-view="editing"><b>Editing</b><span class="count" id="editcount">0</span></button>
+      <button class="mitem" id="tab-camera" data-view="camera"><b>Camera</b><span>FX3 setup and settings</span></button>
+      <button class="mitem" id="tab-lists" data-view="lists"><b>Shot lists</b><span class="count" id="listcount">0</span></button>
+      <button class="mitem" id="tab-treat" data-view="treat"><b>Treatments</b><span>Plan a video</span></button>
+      <button class="mitem" id="tab-learn" data-view="learn"><b>Learn</b><span class="count" id="learncount">0</span></button>
+      <button class="mitem" id="tab-kit" data-view="kit"><b>Kit</b><span>What to buy, when</span></button>
+      <button class="mitem menua11y" data-act="a11y"><b>Text size and contrast</b><span>Make it easier to read</span></button>
+    </div>
   </div>
 </header>
 <main id="app"></main>
@@ -2883,6 +2917,7 @@ function renderCourse() {
             <h4 class="sub">Practice</h4><div class="checklist">${P.practice.map((t, i) => task(`${P.id}.p${i}`, t)).join('')}</div></div>
           <div>
             <div class="gate ${pp.gate ? 'on' : ''}"><h4 class="sub">The gate</h4><p>${esc(P.gate)}</p><button class="btn ${pp.gate ? '' : 'primary'}" data-act="gate" data-id="${P.id}">${I.check} ${pp.gate ? 'Gate passed. Undo' : 'I passed this gate'}</button></div>
+            ${P.id === 'p1' || P.id === 'p0' ? `<div class="gate" style="margin-bottom:12px"><h4 class="sub">Camera guide</h4><p style="font-weight:400;color:var(--muted)">FX3 set-up steps, the shoot-day card and the settings reference.</p><button class="btn" data-act="gocamera">${I.list} Open the camera guide</button></div>` : ''}
             ${P.id === 'p7' ? `<div class="gate" style="margin-bottom:12px"><h4 class="sub">Treatment builder</h4><p style="font-weight:400;color:var(--muted)">Write the one-page treatment, then build the shot list from it.</p><button class="btn" data-act="gotreat">${I.list} Open treatments</button></div>` : ''}
             ${P.mv ? `<div class="mvnote"><span class="label">Music video note</span><p>${esc(P.mv)}</p></div>` : ''}
             ${(P.compares || []).length ? `<h4 class="sub">Watch side by side</h4><div class="pairs">${P.compares.map(cid => { const cc = COMPARES.find(x => x.id === cid); return cc ? `<button data-act="compare" data-id="${cid}">${esc(cc.title)}</button>` : ''; }).join('')}</div>` : ''}
@@ -3098,7 +3133,7 @@ function renderHome() {
     <section class="lsec"><div class="lsechead"><h2>Music-video recipes</h2><p>Ready-made coverage sets, each shot paired with a lighting setup. Add one as a shot list and adapt it.</p></div>
       <div class="recipes">${RECIPES.map(r => `<article class="recipe"><div class="rtop"><h3>${esc(r.name)}</h3><span class="mono">${r.items.length} shots</span></div><p>${esc(r.blurb)}</p><div class="ritems">${r.items.map(([s, l, n]) => `<div class="ritem"><canvas data-shot="${s}"></canvas><div><b>${esc(BY_ID[s].name)}</b><span>💡 ${esc(BY_ID[l].name)}</span></div></div>`).join('')}</div><p class="rwhen"><span class="label">When</span> ${esc(r.when)}</p><button class="btn primary sm" data-act="recipeadd" data-id="${r.id}">${I.plus} Add as shot list</button></article>`).join('')}</div></section>
     <div class="twocol wide">
-      <section class="lsec"><div class="lsechead"><h2>Camera cheat sheet</h2><p>The FX3 settings from the roadmap, in one place. Check before every shoot until it is automatic.</p></div><div class="cheat">${CHEATSHEET.map(([k, v]) => `<div><span class="label">${esc(k)}</span><span>${esc(v)}</span></div>`).join('')}</div></section>
+      <section class="lsec"><div class="lsechead"><h2>Camera cheat sheet</h2><p>The FX3 settings from the roadmap, in one place. The full set-up guide, shoot-day card and settings reference are under <button class="gl" data-act="gocamera" style="text-decoration:underline solid var(--accent)">Camera</button> in the menu.</p></div><div class="cheat">${CHEATSHEET.map(([k, v]) => `<div><span class="label">${esc(k)}</span><span>${esc(v)}</span></div>`).join('')}</div></section>
       <section class="lsec"><div class="lsechead"><h2>Pick up where you left off</h2></div>${rec.length ? `<div class="recent">${rec.map(s => `<button class="recrow" data-act="openshot" data-id="${s.id}"><canvas data-shot="${s.id}"></canvas><div><b>${esc(s.name)}</b><span>${isLearned(s.id) ? '✓ Learned' : esc(s.cat)}</span></div></button>`).join('')}</div>` : '<div class="empty" style="padding:16px">Open any lesson and it will appear here.</div>'}
         <div class="lsechead" style="margin-top:22px"><h2>How to use this app</h2></div>
         <ol class="howto"><li><b>Every day:</b> take the frame, tick it here.</li><li><b>Most days:</b> open the next lesson, play it, do the quiz, mark it learned.</li><li><b>Every week:</b> one study with the sound off, one shoot, logged.</li><li><b>Per phase:</b> work the theory and practice list, pass the gate honestly.</li><li><b>Before a shoot:</b> write a <button class="gl" data-act="gotreat" style="text-decoration:underline solid var(--accent)">treatment</button>, build the shot list from it, assign locations and lighting, use Shoot mode on set.</li><li><b>Monthly:</b> copy the review pack from the Course tab into a chat with Claude for critique.</li></ol></section>
@@ -3619,6 +3654,86 @@ const PREROLL = ['Cards formatted, two in the bag', 'Batteries charged, spare in
 function scoutHTML(l, loc) { const s = loc.scout || {}; const open = cv.scoutOpen === loc.id; return `<div class="scout ${open ? 'open' : ''}">${open ? `<form data-form="scout" data-locid="${loc.id}" class="scoutform"><div class="label" style="margin-bottom:4px">Scouting card · ${esc(loc.name)}</div>${SCOUT_FIELDS.map(([k, label, ph]) => `<label class="ifield"><span>${esc(label)}</span><input class="field" name="${k}" value="${esc(s[k] || '')}" placeholder="${esc(ph)}"></label>`).join('')}<label class="ifield"><span>Photo</span><input class="field" type="file" name="photo" accept="image/*"></label>${s.img ? `<div class="scoutimg"><img data-scout="${loc.id}" alt=""></div>` : ''}<div style="display:flex;gap:6px"><button class="btn primary sm" type="submit">Save card</button><button class="btn sm" type="button" data-act="scoutclose">Close</button></div></form>` : ''}</div>`; }
 function schedHTML(l) { if (!l.items.length) return ''; const G = groupsOf(l); const rows = G.map(g => { const mins = g.all.reduce((a, i) => a + (i.mins == null ? 15 : +i.mins), 0); const loc = l.locations.find(x => x.id === g.id); const win = loc && loc.window ? +loc.window : 0; const done = g.all.filter(i => i.done).reduce((a, i) => a + (i.mins == null ? 15 : +i.mins), 0); return { name: g.name == null ? 'All shots' : g.name, mins, win, over: win && mins > win, done }; }); const total = rows.reduce((a, r) => a + r.mins, 0);
   return `<div class="box sched"><h4>Schedule <span class="count">${Math.round(total / 60 * 10) / 10}h</span></h4><p>Minutes per shot (default 15) against each location's window. Setups take longer than you think; the first one takes twice as long.</p><div class="fl">${rows.map(r => `<div class="covrow ${r.over ? 'bad' : 'ok'}"><b>${esc(r.name)}</b><span class="mono">${r.mins} min${r.win ? ' / ' + r.win : ''}</span><span>${r.over ? `Over the window by ${r.mins - r.win} min: cut ${Math.ceil((r.mins - r.win) / 15)} shot${Math.ceil((r.mins - r.win) / 15) > 1 ? 's' : ''} or shorten` : r.win ? `${r.win - r.mins} min spare` : 'no window set'}${r.done ? ` · ${r.done} min done` : ''}</span></div>`).join('')}</div></div>`; }
+/* ---------- Camera guide: Sony FX3 + FE 24-70mm f/2.8 GM II, set up once, then shoot ---------- */
+const CAM_SETUP = [
+  { t: 'Do these once, in this order', steps: [
+    ['Format both cards in the camera', 'Menu → Shooting → Media → Format. Do it in the camera, not on the PC, every time you start a project.'],
+    ['Set the file format', 'Shooting → Image Quality → File Format → XAVC S-I 4K. Every frame is complete, so your PC edits it smoothly. About 1.9GB a minute.'],
+    ['Set the frame rate', 'Movie Settings → Rec Frame Rate → 25p. Switch to 50p or 100p (Slow & Quick mode) only for shots you will slow down.'],
+    ['Set the picture profile', 'Exposure/Color → Picture Profile → PP8 or PP9 (S-Log3, S-Gamut3.Cine). This is your recording look for everything. For a quick social clip with no grade, PP11 (S-Cinetone) looks good straight out of camera.'],
+    ['Turn on the monitor LUT', 'Display → Gamma Display Assist → On, S-Log3 → 709. The screen shows a normal picture while the file stays log. Without this, log looks grey and you will overexpose by eye.'],
+    ['Exposure tools', 'Zebra → On, level 70 for skin in log (check the number in your firmware; the aim is a zebra that appears on correctly exposed skin). Peaking → On, level Mid, colour red.'],
+    ['Autofocus', 'Focus → AF Transition Speed 3, AF Subject Shift Sensitivity 3, Face/Eye AF → On, Human. Touch the screen to pick a face.'],
+    ['Stabilisation', 'SteadyShot → Active for handheld (a slight crop). Off on the tripod.'],
+    ['Breathing compensation', 'Shooting → Breathing Comp → On. The GM II supports it; it keeps the frame size steady when focus racks.'],
+    ['Custom buttons', 'Set C1 = Zebra on/off, C2 = Focus magnifier, C3 = Gamma Display Assist on/off, C4 = White balance. Put ISO on the rear dial and shutter on the front dial.'],
+    ['Audio', 'With the XLR handle: Input 1 = the hot-shoe mic or a scratch feed, level Auto for now. Record audio on every take, even for music video: it is what you sync to.'],
+    ['Fan and heat', 'Fan Control → Auto. For long takes in a warm room, Minimum on Standby. Keep the screen open a little from the body.'],
+  ] },
+];
+const CAM_DAY = [
+  ['Arrive', 'Cards in, batteries in, lens cap off, hood on. Shoot 10 seconds of the room and check playback.'],
+  ['White balance', 'Set Kelvin for the main light: 5600 daylight, 6500 overcast, 2700–3200 tungsten lamps. Never Auto: it drifts mid-take.'],
+  ['ISO', 'Bright: 800. Dark: 12,800. Nothing in between if you can help it. In log, these two are the clean ones.'],
+  ['Shutter', '1/50 at 25p, 1/100 at 50p, 1/200 at 100p. Set it and forget it.'],
+  ['Aperture', 'f/2.8 for a soft background and low light. f/4–5.6 when two people need to be sharp. f/8 outdoors for deep focus.'],
+  ['ND', 'Outdoors, put the variable ND on and turn it until the exposure is right at your chosen aperture and shutter. Indoors, take it off.'],
+  ['Exposure check', 'Zebras on skin should just appear (log). Or use the Shinobi\'s false colour: skin in the mid band. If in doubt, brighter.'],
+  ['Focus', 'Face/Eye AF on for performance. For a locked frame or a rack, switch the lens to MF and use peaking and the magnifier.'],
+  ['Master first', 'Wide, locked off, whole section. Then mediums, closes, then the weird one.'],
+  ['Every take', 'Say the take number on camera. Start playback from the top of the section. Watch the tally lamp.'],
+];
+const CAM_REF = [
+  { name: 'Frame rate', rows: [['25p', 'Everything, by default. The cinema look for UK delivery.'], ['50p', 'Shots you will slow to half speed. Needs 1/100 shutter and one more stop of light.'], ['100p / 120p (S&Q)', 'Shots you will slow to a quarter: jumps, hair, water. 1/200 shutter, two more stops of light. Audio is not recorded in S&Q.']] },
+  { name: 'Shutter', rows: [['1/50 at 25p', 'Natural motion blur (180°). Your default.'], ['Faster (1/200+)', 'Crisp, staccato motion. Action and a "wartime" look. Needs more light.'], ['Slower (1/25)', 'Smeary, dreamy. Only on a tripod, only on purpose.']] },
+  { name: 'ISO (log)', rows: [['800', 'Daylight, lit rooms. The cleanest setting.'], ['12,800', 'Night, practicals only, dim rooms. Also clean: this is the second base.'], ['Anything else', 'Noisier than the nearest base. If 800 is too dark, add light or go straight to 12,800 and stop down.']] },
+  { name: 'Aperture (24-70 GM II)', rows: [['f/2.8', 'Portraits, lip-sync, low light. Thin focus: nail the eye.'], ['f/4', 'Two people, moving subjects, safer focus.'], ['f/5.6–f/8', 'Wides, groups, deep focus in daylight.'], ['f/11+', 'Rarely. Diffraction softens the image and you will need a lot of light.']] },
+  { name: 'Focal length (24-70)', rows: [['24mm', 'Wides, establishing, energy, small rooms. Exaggerates anything close.'], ['35mm', 'Walk-and-sing, mediums with context, handheld.'], ['50mm', 'Natural mediums and MCUs. The "normal" look.'], ['70mm', 'Close-ups and flattering faces from further back. Compresses the background.']] },
+  { name: 'Picture profile', rows: [['PP8/PP9 S-Log3', 'Everything you will grade. Expose bright, use the LUT to judge.'], ['PP11 S-Cinetone', 'Fast turnaround social clips with no grade. Expose normally.'], ['Off / Standard', 'Never for this work.']] },
+  { name: 'White balance', rows: [['5600K', 'Daylight, the LED at daylight setting.'], ['6500K', 'Overcast, shade, blue hour.'], ['2700–3200K', 'Tungsten lamps, fairy lights, warm practicals.'], ['Mixed sources', 'Pick the one that hits the face; let the other go blue or orange on purpose.']] },
+  { name: 'Autofocus', rows: [['Face/Eye AF, Human', 'Performance, interviews, anything with a face.'], ['Spot / touch tracking', 'Objects, hands, instruments.'], ['MF + peaking', 'Locked frames, rack focus, macro inserts, low light where AF hunts.']] },
+  { name: 'SteadyShot', rows: [['Active', 'Handheld. Small crop, big improvement.'], ['Standard', 'Handheld on a wide lens when you need the full frame.'], ['Off', 'Tripod, slider, gimbal. On a tripod it can drift.']] },
+  { name: 'Lens switches (GM II)', rows: [['AF / MF', 'Flip to MF for racks and locked frames.'], ['Aperture ring + click switch', 'Clicks off for smooth iris pulls during a take.'], ['Iris lock', 'Lock at A to control aperture from the camera, or lock a ring value so it cannot be knocked.'], ['Zoom smoothness', 'Tight for gimbal work so the barrel does not creep; smooth for zoom moves.'], ['Focus hold buttons', 'Assign to AF-on or eye AF in the camera menu.'], ['82mm filter thread', 'Your variable ND size. Keep the ND in its case in the bag pocket.']] },
+];
+const CAM_GLOSS = [
+  ['Base ISO', 'The two sensitivity settings where the FX3 sensor is cleanest in log: 800 and 12,800. Between them it switches circuits, so 4,000 is noisier than either.'],
+  ['Log (S-Log3)', 'A flat recording curve that keeps the most highlight and shadow detail. Looks grey on screen; needs a grade or a LUT to look right.'],
+  ['LUT', 'A look-up table: a preset transform from log to a normal picture. On the camera it is only a preview (Gamma Display Assist); in Resolve it is the start of a grade.'],
+  ['Picture profile (PP)', 'A saved set of colour and gamma settings. PP8/9 are S-Log3; PP11 is S-Cinetone.'],
+  ['S-Cinetone', 'Sony\'s ready-to-use cinematic colour. Good straight out of camera, less room to grade.'],
+  ['S-Gamut3.Cine', 'The colour space paired with S-Log3. Leave it as the profile sets it.'],
+  ['Zebras', 'Stripes over parts of the image at a chosen brightness. Set for skin so you can see correct exposure at a glance.'],
+  ['False colour', 'A monitor mode (on the Shinobi) that paints every brightness a colour. Skin belongs in the mid band.'],
+  ['Peaking', 'Coloured edges on whatever is in focus. Essential for manual focus.'],
+  ['180° shutter', 'Shutter speed equal to twice the frame rate (1/50 at 25p). Gives natural motion blur.'],
+  ['ND filter', 'Sunglasses for the lens. Cuts light without changing colour, so you can keep f/2.8 and 1/50 in daylight. The FX3 has none built in, so it screws onto the lens.'],
+  ['Variable ND (VND)', 'An ND you turn to change strength. Hard stops prevent the X-pattern at the extremes.'],
+  ['XAVC S-I', 'All-intra codec: every frame stored complete. Big files, easy editing.'],
+  ['XAVC S / HS', 'Long-GOP codecs: smaller files, harder to edit. HS (H.265) is the hardest on your PC.'],
+  ['S&Q (Slow & Quick)', 'The mode for shooting 100p or 120p to play back slow. No audio recorded.'],
+  ['Active SteadyShot', 'In-body stabilisation plus a digital crop. Best handheld mode.'],
+  ['Breathing', 'The image zooming slightly as focus changes. The GM II plus Breathing Comp removes it.'],
+  ['Parfocal', 'A zoom that holds focus as you zoom. The GM II is close to it; check focus after a zoom anyway.'],
+  ['Focus rack / pull', 'Changing focus during a shot, from one subject to another.'],
+  ['Face/Eye AF', 'Autofocus that finds and tracks a face or eye. Your default for people.'],
+  ['Dual base ISO', 'See Base ISO. Two clean sensitivities instead of one.'],
+  ['Kelvin (K)', 'The colour of white light. Lower is warmer (orange), higher is cooler (blue).'],
+  ['Scratch audio', 'Camera audio recorded only for syncing to the real track later.'],
+  ['Tally lamp', 'The red light that shows the camera is recording. Check it every take.'],
+  ['Proxy', 'A small copy of a clip for smooth editing; Resolve swaps the full file back in for export.'],
+];
+function renderCamera() {
+  $('#app').innerHTML = `<div class="wrap learn">
+    <div class="pagehead"><div><div class="label">Sony FX3 · FE 24-70mm f/2.8 GM II</div><h1>Camera</h1></div><p style="margin:0;max-width:52ch;color:var(--muted)">Set it up once, then use the shoot-day card. The reference and glossary are for when a setting confuses you. Menu names can differ slightly between firmware versions.</p></div>
+    <div class="camtabs seg" role="group">${[['setup', 'Set up once'], ['day', 'Shoot day'], ['ref', 'Settings reference'], ['gloss', 'Camera glossary']].map(([k, l]) => `<button data-act="camtab" data-v="${k}" aria-pressed="${(cv.camTab || 'setup') === k}">${l}</button>`).join('')}</div>
+    ${(cv.camTab || 'setup') === 'setup' ? CAM_SETUP.map(g => `<section class="lsec"><div class="lsechead"><h2>${esc(g.t)}</h2><p>About twenty minutes with the camera on the kitchen table. Tick each one as it is done; it stays ticked.</p></div><div class="checklist">${g.steps.map(([a, b], i) => { const k = 'cam.' + i; const on = ensureCourse().tasks[k]; return `<label class="ck ${on ? 'on' : ''}"><input type="checkbox" data-task="${k}" ${on ? 'checked' : ''}><div><b>${i + 1}. ${esc(a)}</b><span>${esc(b)}</span></div></label>`; }).join('')}</div></section>`).join('') : ''}
+    ${(cv.camTab || 'setup') === 'day' ? `<section class="lsec"><div class="lsechead"><h2>Shoot day, in order</h2><p>The same ten things every time, until they are automatic.</p></div><div class="daylist">${CAM_DAY.map(([a, b], i) => `<div class="dayrow"><span class="dn">${i + 1}</span><div><b>${esc(a)}</b><span>${esc(b)}</span></div></div>`).join('')}</div>
+      <div class="box" style="margin-top:8px"><h4>The one-line recipe</h4><p style="font-family:var(--mono);color:var(--ink);font-size:14px">4K · XAVC S-I · 25p · 1/50 · S-Log3 (PP8) · ISO 800 or 12,800 · Kelvin set · ND for daylight · Face AF · Active on handheld</p></div></section>` : ''}
+    ${(cv.camTab || 'setup') === 'ref' ? `<section class="lsec"><div class="lsechead"><h2>Settings reference</h2><p>What each setting does and when to use it.</p></div><div class="refgrid">${CAM_REF.map(r => `<div class="box"><h4>${esc(r.name)}</h4><div class="fl">${r.rows.map(([a, b]) => `<div class="refrow"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div></div>`).join('')}</div></section>` : ''}
+    ${(cv.camTab || 'setup') === 'gloss' ? `<section class="lsec"><div class="lsechead"><h2>Camera glossary</h2><p>The words the menus and the tutorials use.</p></div><div class="glossbody" style="padding:0">${CAM_GLOSS.map(([a, b]) => `<div class="gterm"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div></section>` : ''}
+  </div>`;
+  $$('[data-task]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.tasks[cb.dataset.task] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); });
+}
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3783,9 +3898,10 @@ function renderList() {
 function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length + EDITS.length); $('#lightcount').textContent = LIGHTS.length; }
 function rerender() {
   updateCounts();
+  $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
   $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-edit').setAttribute('aria-selected', ui.view === 'editing'); $('#editcount').textContent = EDITS.length; $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
   prefs.tab = ui.view === 'list' ? 'lists' : ui.view; savePrefs();
-  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
+  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
 }
 function go(view, listId) { ui.view = view; ui.listId = listId || null; ui.confirmDel = null; ui.editRow = null; ui.editHead = false; closePop(); rerender(); scrollTo(0, 0); }
 
@@ -3793,7 +3909,8 @@ document.addEventListener('click', e => {
   const pop = $('#pop');
   if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-act="addto"]') && !e.target.closest('[data-act="a11y"]')) closePop();
   const gl = e.target.closest('.gl'); if (gl) { if (closePop.anchor === gl) closePop(); else showGloss(gl); return; }
-  const tab = e.target.closest('.tab'); if (tab) { if (!$('#sheet').hidden) closeShot(); go(tab.dataset.view); return; }
+  const menu = $('#menu'); if (!menu.hidden && !menu.contains(e.target) && !e.target.closest('[data-act="menu"]')) toggleMenu(false);
+  const tab = e.target.closest('.tab, .mitem'); if (tab) { toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go(tab.dataset.view); return; }
   const b = e.target.closest('[data-act]'); if (!b) { if (e.target.id === 'sheet') closeShot(); return; }
   const a = b.dataset.act, id = b.dataset.id, l = ui.listId && getList(ui.listId);
   const F = ui.f;
@@ -3863,9 +3980,13 @@ document.addEventListener('click', e => {
     case 'hometask': { const c = ensureCourse(); c.tasks[b.dataset.k] = true; save(); toast('Task done'); rerender(); break; }
     case 'gocourse': cv.phase = b.dataset.phase; go('course'); break;
     case 'gokit': go('kit'); break;
+    case 'menu': toggleMenu(); break;
+    case 'gocamera': go('camera'); break;
+    case 'gohome': toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go('home'); break;
+    case 'camtab': cv.camTab = b.dataset.v; renderCamera(); break;
     case 'export': exportBackup(false); break;
     case 'crit': critique(b.dataset.kind, id, b); break;
-    case 'a11y': if (closePop.anchor === b) closePop(); else openA11y(b); break;
+    case 'a11y': toggleMenu(false); if (closePop.anchor === b) closePop(); else openA11y(b.classList.contains('menua11y') ? $('.menubtn') : b); break;
     case 'a11ytext': prefs.text = b.dataset.v; savePrefs(); applyA11y(); openA11y(closePop.anchor); break;
     case 'a11ycon': prefs.contrast = b.dataset.v; savePrefs(); applyA11y(); openA11y(closePop.anchor); break;
     case 'drill': startHomeDrill(b.dataset.mode); break;
@@ -3936,7 +4057,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
   setSync('Saved in this browser');
   ensureLearn();
   if (prefs.libFilters) { const p = prefs.libFilters; ui.f.q = p.q || ''; ui.f.fav = !!p.fav; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) ui.f[k] = new Set(p[k] || []); ui.sort = p.sort || 'curated'; }
-  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat', 'editing'].includes(prefs.tab)) ui.view = prefs.tab;
+  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat', 'editing', 'camera'].includes(prefs.tab)) ui.view = prefs.tab;
   Img.init(); setTimeout(() => checkInbox(true), 1500); Crit.init().then(() => { if (ui.view === 'frames' || ui.view === 'course') rerender(); });
   lv.finder = null;
   rerender();
@@ -3944,5 +4065,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
 })();
 
 function saveTreatForm() { const f = $('form[data-form="treat"]'); if (!f) return; const T = ensureTools().treatments.find(t => t.id === tb.id); if (!T) return; const fd = new FormData(f); for (const k of ['song', 'artist', 'length', 'deliver', 'idea', 'mood', 'palette', 'lighting', 'refs', 'locs']) T[k] = String(fd.get(k) || '').trim(); T.sections = {}; for (const sn of SECTIONS) { const what = String(fd.get(`s_${sn}_what`) || '').trim(), recipe = String(fd.get(`s_${sn}_recipe`) || ''), loc = String(fd.get(`s_${sn}_loc`) || ''); if (what || recipe || loc) T.sections[sn] = { what, recipe, loc }; } T.updated = Date.now(); save(); }
+
+function toggleMenu(force) { const m = $('#menu'), b = $('.menubtn'); const open = force == null ? m.hidden : force; m.hidden = !open; b.setAttribute('aria-expanded', open); $$('.mitem').forEach(x => x.classList.toggle('on', x.getAttribute('aria-selected') === 'true')); }
 </script>
 <script>if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script></body></html>
