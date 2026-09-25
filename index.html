@@ -562,6 +562,7 @@ h4.sub:first-child{margin-top:0}
 @media (max-width:980px){.sbbody{display:block;overflow:auto}.sbside{border-left:0;border-top:1px solid var(--line)}}
 </style>
 <style>.gact{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:6px}.gitem figcaption .iconbtn{position:static}.critbox{grid-column:1/-1;background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;margin:0 10px 10px}.logrow .critbox{margin:8px 0 0}.logrow{grid-template-columns:200px 1fr auto;}</style>
+<style>.pastebox{grid-column:1/-1;margin:8px 10px 10px}.pastebox textarea{background:var(--surface);border:1px solid var(--line);width:100%}.logrow .pastebox{margin:8px 0 0}</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -2833,7 +2834,7 @@ function renderCourse() {
 
     <section class="lsec"><div class="lsechead"><h2>Shoot log</h2><p>Every shoot, however small. It is what the monthly review is measured against.</p></div>
       ${cv.logOpen ? `<form class="box logform" data-form="log"><div class="lgrid"><label class="ifield"><span>Date</span><input class="field" name="date" type="date" value="${today()}" required></label><label class="ifield"><span>Location</span><input class="field" name="loc" placeholder="Kitchen window"></label><label class="ifield"><span>Lens</span><input class="field" name="lens" placeholder="24-70 at 35mm"></label><label class="ifield"><span>Settings</span><input class="field" name="settings" placeholder="25p 1/50 f/2.8 ISO 800 S-Log3"></label></div><label class="ifield"><span>What went wrong</span><textarea class="field" name="wrong" rows="2"></textarea></label><label class="ifield"><span>What I'd change</span><textarea class="field" name="change" rows="2"></textarea></label><div style="display:flex;gap:6px"><button class="btn primary sm" type="submit">Save entry</button><button class="btn sm" type="button" data-act="logclose">Cancel</button></div></form>` : `<div><button class="btn primary" data-act="logopen">${I.plus} Log a shoot</button></div>`}
-      ${c.log.length ? `<div class="logrows">${[...c.log].sort((a, b) => b.date.localeCompare(a.date)).map(e => `<div class="logrow"><div class="lmeta"><b>${esc(e.date)}</b><span>${esc(e.loc || '')}</span><span class="mono">${esc([e.lens, e.settings].filter(Boolean).join(' · '))}</span></div><div class="lbody">${e.wrong ? `<p><span class="label">Went wrong</span>${esc(e.wrong)}</p>` : ''}${e.change ? `<p><span class="label">Change next time</span>${esc(e.change)}</p>` : ''}</div><div class="rowact"><button class="btn sm" data-act="crit" data-kind="log" data-id="${e.id}">${critButtonLabel()}</button><button class="iconbtn" data-act="logdel" data-id="${e.id}" aria-label="Delete entry">${I.trash}</button></div>${e.critique ? `<div class="critbox">${esc(e.critique)}</div>` : ''}</div>`).join('')}</div>` : ''}
+      ${c.log.length ? `<div class="logrows">${[...c.log].sort((a, b) => b.date.localeCompare(a.date)).map(e => `<div class="logrow"><div class="lmeta"><b>${esc(e.date)}</b><span>${esc(e.loc || '')}</span><span class="mono">${esc([e.lens, e.settings].filter(Boolean).join(' · '))}</span></div><div class="lbody">${e.wrong ? `<p><span class="label">Went wrong</span>${esc(e.wrong)}</p>` : ''}${e.change ? `<p><span class="label">Change next time</span>${esc(e.change)}</p>` : ''}</div><div class="rowact"><button class="btn sm" data-act="crit" data-kind="log" data-id="${e.id}">${critButtonLabel()}</button>${Crit.sample ? '' : `<button class="btn sm" data-act="paste" data-kind="log" data-id="${e.id}" title="Paste Claude's reply">${I.edit}</button>`}<button class="iconbtn" data-act="logdel" data-id="${e.id}" aria-label="Delete entry">${I.trash}</button></div>${e.critique ? `<div class="critbox">${esc(e.critique)}</div>` : ''}</div>`).join('')}</div>` : ''}
       <div class="box" style="margin-top:4px"><h4>Monthly review</h4><p>Send Claude the month's daily frames, five frame grabs from shoots with their settings, and a Resolve timeline screenshot. Use "Copy review pack" to paste your log and progress into the chat.</p><button class="btn sm" data-act="copyreview">${I.copy} Copy review pack</button></div></section>
 
     <section class="lsec"><div class="lsechead"><h2>Study list</h2><p>Watch with the sound off first.</p></div><div class="studylist">${STUDY.map(s => `<div class="studyrow"><span class="label">${esc(s[0])}</span><b>${esc(s[1])}</b><span>${esc(s[2])}</span></div>`).join('')}</div></section>
@@ -3070,8 +3071,8 @@ function renderGallery() {
       <form data-form="frame" class="frameform"><div class="lgrid"><label class="ifield"><span>Photo</span><input class="field" type="file" name="file" accept="image/*" required></label><label class="ifield"><span>Kind</span><select class="field" name="kind"><option value="daily">Daily frame</option><option value="study">Study frame</option></select></label><label class="ifield"><span>Date</span><input class="field" type="date" name="date" value="${today()}"></label></div>
       <label class="ifield"><span>What I saw</span><input class="field" name="saw" placeholder="Daily: the shape or light you noticed. Study: what the director saw in that place"></label><label class="ifield"><span>Study only: what they left out</span><input class="field" name="left" placeholder="Everything outside the frame that the director chose not to show"></label>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" type="submit">${I.plus} Add frame</button><span class="mono" style="font-size:12px;color:var(--faint)">Photos are shrunk to 900px and stored ${Img.assets ? 'with the app' : 'in this browser'}.</span></div></form></div>
-    <div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button></div>
-    ${items.length ? Object.keys(months).sort().reverse().map(m => `<section class="lsec"><div class="lsechead"><h2>${new Date(m + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h2><p>${esc(monthConstraintFor(m))}</p></div><div class="galgrid">${months[m].map(g => `<figure class="gitem ${g.kind}"><div class="gimg"><img data-gid="${g.id}" alt="${esc(g.saw || g.kind)}"><span class="gkind">${g.kind}</span></div><figcaption><b>${esc(g.date)}</b>${g.saw ? `<span>${esc(g.saw)}</span>` : ''}${g.left ? `<span class="gleft">Left out: ${esc(g.left)}</span>` : ''}<div class="gact"><button class="btn sm primary" data-act="crit" data-kind="frame" data-id="${g.id}">${I.play} ${critButtonLabel()}</button><button class="iconbtn" data-act="galdel" data-id="${g.id}" aria-label="Delete">${I.trash}</button></div></figcaption>${g.critique ? `<div class="critbox">${esc(g.critique)}</div>` : ''}</figure>`).join('')}</div></section>`).join('') : '<div class="empty"><b>No frames yet</b>Add today\'s daily frame above. After a month you will see what your eye keeps returning to.</div>'}
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${Crit.sample ? '' : `<button class="btn sm" data-act="inbox">${I.next} Check for critiques</button>`}<div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button></div></div>
+    ${items.length ? Object.keys(months).sort().reverse().map(m => `<section class="lsec"><div class="lsechead"><h2>${new Date(m + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h2><p>${esc(monthConstraintFor(m))}</p></div><div class="galgrid">${months[m].map(g => `<figure class="gitem ${g.kind}"><div class="gimg"><img data-gid="${g.id}" alt="${esc(g.saw || g.kind)}"><span class="gkind">${g.kind}</span></div><figcaption><b>${esc(g.date)}</b>${g.saw ? `<span>${esc(g.saw)}</span>` : ''}${g.left ? `<span class="gleft">Left out: ${esc(g.left)}</span>` : ''}<div class="gact"><button class="btn sm primary" data-act="crit" data-kind="frame" data-id="${g.id}">${I.play} ${critButtonLabel()}</button>${Crit.sample ? '' : `<button class="btn sm" data-act="paste" data-kind="frame" data-id="${g.id}" title="Paste Claude's reply">${I.edit}</button>`}<button class="iconbtn" data-act="galdel" data-id="${g.id}" aria-label="Delete">${I.trash}</button></div></figcaption>${g.critique ? `<div class="critbox">${esc(g.critique)}</div>` : ''}</figure>`).join('')}</div></section>`).join('') : '<div class="empty"><b>No frames yet</b>Add today\'s daily frame above. After a month you will see what your eye keeps returning to.</div>'}
   </div>`;
   $$('img[data-gid]').forEach(async im => { const g = store.gallery.find(x => x.id === im.dataset.gid); if (!g) return; const u = await Img.url(g.img); if (u) im.src = u; else im.closest('.gimg').classList.add('missing'); });
 }
@@ -3196,17 +3197,36 @@ async function critique(kind, id, anchor) {
     } catch (e) { box.textContent = e && e.code === 'not_granted' ? 'You declined, so nothing was sent.' : e && e.code === 'rate_limited' ? 'Claude is busy. Try again in a minute.' : 'Could not reach Claude from here. Use the share button on your phone instead, or copy the prompt.'; }
     return;
   }
-  // 2. On the phone: share sheet to the Claude app
+  // 2. On the phone: share sheet to the Claude app, with delivery instructions
+  const full = prompt + deliveryNote(kind, g);
   if (Crit.canShareFiles()) {
-    const data = { title: 'Shotbook critique', text: prompt }; if (blob) { const f = new File([blob], `frame-${g.date}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) data.files = [f]; }
+    const data = { title: 'Shotbook critique', text: full }; if (blob) { const f = new File([blob], `frame-${g.date}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) data.files = [f]; }
     try { await navigator.share(data); toast('Shared. Pick Claude in the sheet if it did not open.'); return; } catch (e) { if (e && e.name === 'AbortError') return; }
   }
   // 3. Fallback: copy the prompt (and download the image)
-  await copyText(prompt, 'Prompt copied. Paste it into Claude and attach the photo.');
+  await copyText(full, 'Prompt copied. Paste it into Claude and attach the photo.');
   if (blob) { try { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `frame-${g.date}.jpg`; a.click(); } catch { } }
 }
 function openCritBox(anchor, txt) { let box = anchor.closest('.gitem, .logrow')?.querySelector('.critbox'); if (!box) { box = document.createElement('div'); box.className = 'critbox'; (anchor.closest('.gitem') || anchor.closest('.logrow')).appendChild(box); } box.textContent = txt; return box; }
 function critButtonLabel() { return Crit.sample ? 'Ask Claude' : Crit.canShareFiles() ? 'Send to Claude app' : 'Copy for Claude'; }
+/* ---------- Critique inbox: the phone app reads critiques Claude committed to data/critiques.json in the repo ---------- */
+const REPO = 'overstandmusic/shotbook', CRIT_FILE = 'data/critiques.json';
+function deliveryNote(kind, g) { return `\n\nWHERE TO PUT THE ANSWER: this critique belongs to ${kind === 'frame' ? 'frame' : 'shoot log entry'} id "${g.id}" in my Shotbook app. If you have access to the GitHub repository ${REPO}, please append an object to the JSON array in ${CRIT_FILE} on the main branch (create the file with [] if it does not exist), shaped exactly like {"id":"${g.id}","kind":"${kind}","date":"${today()}","text":"<your critique as one string>"}, keep the file valid JSON, and commit it with the message "critique ${g.id}". The app will pick it up automatically. If you cannot reach the repository, just give me the critique here and I will paste it in.`; }
+async function checkInbox(quiet) {
+  if (location.protocol === 'file:') return 0;
+  let arr; try { const r = await fetch(`${CRIT_FILE}?t=${Date.now()}`, { cache: 'no-store' }); if (!r.ok) return 0; arr = await r.json(); } catch { return 0; }
+  if (!Array.isArray(arr)) return 0; ensureTools(); let n = 0;
+  for (const c of arr) { if (!c || !c.id || !c.text) continue; const target = c.kind === 'log' ? ensureCourse().log.find(x => x.id === c.id) : store.gallery.find(x => x.id === c.id); if (target && target.critique !== c.text) { target.critique = c.text; n++; } }
+  if (n) { save(); toast(`${n} critique${n === 1 ? '' : 's'} arrived from Claude`); rerender(); } else if (!quiet) toast('No new critiques yet');
+  return n;
+}
+function pasteCritique(kind, id, anchor) {
+  const g = kind === 'frame' ? store.gallery.find(x => x.id === id) : ensureCourse().log.find(x => x.id === id); if (!g) return;
+  const host = anchor.closest('.gitem') || anchor.closest('.logrow'); let box = host.querySelector('.pastebox'); if (box) { box.remove(); return; }
+  box = document.createElement('form'); box.className = 'pastebox'; box.innerHTML = `<textarea class="field" rows="4" placeholder="Paste Claude's reply here"></textarea><div style="display:flex;gap:6px;margin-top:6px"><button class="btn primary sm" type="submit">Save critique</button><button class="btn sm" type="button" data-act="pastecancel">Cancel</button></div>`;
+  box.onsubmit = e => { e.preventDefault(); const v = box.querySelector('textarea').value.trim(); if (!v) return; g.critique = v; save(); toast('Critique saved'); rerender(); };
+  host.appendChild(box); box.querySelector('textarea').focus();
+}
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3438,6 +3458,9 @@ document.addEventListener('click', e => {
     case 'gokit': go('kit'); break;
     case 'export': exportBackup(false); break;
     case 'crit': critique(b.dataset.kind, id, b); break;
+    case 'paste': pasteCritique(b.dataset.kind, id, b); break;
+    case 'pastecancel': b.closest('.pastebox').remove(); break;
+    case 'inbox': checkInbox(false); break;
     case 'exportp': exportBackup(true); break;
     case 'gogallery': go('frames'); break;
     case 'gotreat': go('treat'); break;
@@ -3500,7 +3523,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
   ensureLearn();
   if (prefs.libFilters) { const p = prefs.libFilters; ui.f.q = p.q || ''; ui.f.fav = !!p.fav; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) ui.f[k] = new Set(p[k] || []); ui.sort = p.sort || 'curated'; }
   ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat'].includes(prefs.tab)) ui.view = prefs.tab;
-  Img.init(); Crit.init().then(() => { if (ui.view === 'frames' || ui.view === 'course') rerender(); });
+  Img.init(); setTimeout(() => checkInbox(true), 1500); Crit.init().then(() => { if (ui.view === 'frames' || ui.view === 'course') rerender(); });
   lv.finder = null;
   rerender();
   connect();
