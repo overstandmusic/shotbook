@@ -3241,8 +3241,12 @@ async function critique(kind, id, anchor) {
   // 2. On the phone: share sheet to the Claude app, with delivery instructions
   const full = prompt + deliveryNote(kind, g);
   if (Crit.canShareFiles()) {
-    const data = { title: 'Shotbook critique', text: full }; if (blob) { const f = new File([blob], `frame-${g.date}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) data.files = [f]; }
-    try { await navigator.share(data); toast('Shared. Pick Claude in the sheet if it did not open.'); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    // Share targets often drop the text when a file is attached, so bake the prompt into the image itself.
+    const data = { title: 'Shotbook critique', text: full };
+    const composed = blob ? await composeCard(blob, full, g) : await composeCard(null, full, g);
+    if (composed) { const f = new File([composed], `shotbook-${kind}-${g.id}.jpg`, { type: 'image/jpeg' }); if (navigator.canShare({ files: [f] })) data.files = [f]; }
+    try { navigator.clipboard && navigator.clipboard.writeText(full).catch(() => {}); } catch { }
+    try { await navigator.share(data); toast('Shared. The prompt is written under the photo, and also on your clipboard.'); return; } catch (e) { if (e && e.name === 'AbortError') return; }
   }
   // 3. Fallback: copy the prompt (and download the image)
   await copyText(full, 'Prompt copied. Paste it into Claude and attach the photo.');
@@ -3250,9 +3254,17 @@ async function critique(kind, id, anchor) {
 }
 function openCritBox(anchor, txt) { let box = anchor.closest('.gitem, .logrow')?.querySelector('.critbox'); if (!box) { box = document.createElement('div'); box.className = 'critbox'; (anchor.closest('.gitem') || anchor.closest('.logrow')).appendChild(box); } box.textContent = txt; return box; }
 function critButtonLabel() { return Crit.sample ? 'Ask Claude' : Crit.canShareFiles() ? 'Send to Claude app' : 'Copy for Claude'; }
+
+/* Render photo + prompt into one JPEG so a single share carries both */
+function composeCard(blob, text, g) { return new Promise(res => { const W = 1080, pad = 40, fs = 30, lh = 40; const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+  const draw = (img) => { const ih = img ? Math.round(img.height * (W - pad * 2) / img.width) : 0; ctx.font = `${fs}px system-ui, sans-serif`; const lines = []; for (const para of text.split('\n')) { if (!para.trim()) { lines.push(''); continue; } let line = ''; for (const w of para.split(' ')) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > W - pad * 2) { lines.push(line); line = w; } else line = t; } lines.push(line); }
+    c.width = W; c.height = pad + ih + pad + lines.length * lh + pad + 60; ctx.fillStyle = '#F6F4EE'; ctx.fillRect(0, 0, c.width, c.height); if (img) ctx.drawImage(img, pad, pad, W - pad * 2, ih);
+    ctx.fillStyle = '#111418'; ctx.font = `${fs}px system-ui, sans-serif`; ctx.textBaseline = 'top'; let y = pad + ih + pad; ctx.fillStyle = '#B4600C'; ctx.font = `bold ${fs}px system-ui, sans-serif`; ctx.fillText('SHOTBOOK · please read the request below the photo', pad, y); y += lh + 10; ctx.fillStyle = '#111418'; ctx.font = `${fs}px system-ui, sans-serif`; for (const l of lines) { ctx.fillText(l, pad, y); y += lh; }
+    c.toBlob(b => res(b), 'image/jpeg', .86); };
+  if (!blob) return draw(null); const img = new Image(); img.onload = () => { draw(img); URL.revokeObjectURL(img.src); }; img.onerror = () => draw(null); img.src = URL.createObjectURL(blob); }); }
 /* ---------- Critique inbox: the phone app reads critiques Claude committed to data/critiques.json in the repo ---------- */
 const REPO = 'overstandmusic/shotbook', CRIT_FILE = 'data/critiques.json';
-function deliveryNote(kind, g) { return `\n\nWHERE TO PUT THE ANSWER: this critique belongs to ${kind === 'frame' ? 'frame' : 'shoot log entry'} id "${g.id}" in my Shotbook app. If you have access to the GitHub repository ${REPO}, please append an object to the JSON array in ${CRIT_FILE} on the main branch (create the file with [] if it does not exist), shaped exactly like {"id":"${g.id}","kind":"${kind}","date":"${today()}","text":"<your critique as one string>"}, keep the file valid JSON, and commit it with the message "critique ${g.id}". The app will pick it up automatically. If you cannot reach the repository, just give me the critique here and I will paste it in.`; }
+function deliveryNote(kind, g) { return `\n\nDELIVERY: this critique belongs to ${kind === 'frame' ? 'frame' : 'shoot log entry'} id "${g.id}" in my Shotbook app. If you have access to the GitHub repository ${REPO}, please append an object to the JSON array in ${CRIT_FILE} on the main branch (create the file with [] if it does not exist), shaped exactly like {"id":"${g.id}","kind":"${kind}","date":"${today()}","text":"<your critique as one string>"}, keep the file valid JSON, and commit it with the message "critique ${g.id}". The app will pick it up automatically. If you cannot reach the repository, just give me the critique here and I will paste it in.`; }
 async function checkInbox(quiet) {
   if (location.protocol === 'file:') return 0;
   let arr; try { const r = await fetch(`${CRIT_FILE}?t=${Date.now()}`, { cache: 'no-store' }); if (!r.ok) return 0; arr = await r.json(); } catch { return 0; }
