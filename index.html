@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#E9ECEF; --surface:#F8F9FA; --surface2:#EEF1F4; --ink:#15181D; --muted:#5A616C; --faint:#8A919C;
+  --bg:#E9ECEF; --surface:#FBFBFC; --surface2:#EEF1F4; --ink:#111418; --muted:#454C57; --faint:#6E7580;
   --line:#D2D7DE; --accent:#B4600C; --accent-ink:#FFFFFF; --accent-soft:#F6E3CC; --cyan:#23798A; --cyan-soft:#D5ECF0;
   --good:#2F7D4F; --good-soft:#DBEFE2; --bad:#B23A3A; --bad-soft:#F6DCDC;
   --shadow:0 1px 2px rgba(20,24,30,.06),0 8px 24px rgba(20,24,30,.08);
@@ -16,14 +16,14 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
-  --bg:#111317; --surface:#191C22; --surface2:#20242B; --ink:#ECE9E2; --muted:#A0A6B0; --faint:#6F7680;
+  --bg:#111317; --surface:#191C22; --surface2:#20242B; --ink:#F2EFE8; --muted:#B9BFC9; --faint:#8A919C;
   --line:#2C3139; --accent:#EFA23E; --accent-ink:#1A1206; --accent-soft:#3A2A14; --cyan:#6CC3D1; --cyan-soft:#16343A;
   --good:#6CC08A; --good-soft:#18301F; --bad:#E07A7A; --bad-soft:#3A1C1C;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#111317; --surface:#191C22; --surface2:#20242B; --ink:#ECE9E2; --muted:#A0A6B0; --faint:#6F7680;
+  --bg:#111317; --surface:#191C22; --surface2:#20242B; --ink:#F2EFE8; --muted:#B9BFC9; --faint:#8A919C;
   --line:#2C3139; --accent:#EFA23E; --accent-ink:#1A1206; --accent-soft:#3A2A14; --cyan:#6CC3D1; --cyan-soft:#16343A;
   --good:#6CC08A; --good-soft:#18301F; --bad:#E07A7A; --bad-soft:#3A1C1C;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
@@ -31,7 +31,13 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+:root[data-text="large"] #app,:root[data-text="large"] #sheet,:root[data-text="large"] #pop{zoom:1.15}
+:root[data-text="xl"] #app,:root[data-text="xl"] #sheet,:root[data-text="xl"] #pop{zoom:1.32}
+:root[data-contrast="high"]{--muted:#20242B;--faint:#3E444E;--line:#9AA1AB;--bg:#F4F5F7;--surface:#FFFFFF}
+@media (prefers-color-scheme:dark){:root[data-contrast="high"]:not([data-theme="light"]){--muted:#E6E3DC;--faint:#C2C7CF;--line:#5A616C;--bg:#0B0D10;--surface:#15181D;--ink:#FFFFFF}}
+:root[data-theme="dark"][data-contrast="high"]{--muted:#E6E3DC;--faint:#C2C7CF;--line:#5A616C;--bg:#0B0D10;--surface:#15181D;--ink:#FFFFFF}
+:root[data-contrast="high"] .label,:root[data-contrast="high"] .tag{font-weight:600}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -70,11 +76,11 @@ textarea.field{resize:vertical;min-height:64px}
 .search{position:relative;flex:1;min-width:0}
 .search svg{position:absolute;left:11px;top:50%;translate:0 -50%;width:16px;height:16px;color:var(--faint)}
 .search input{padding-left:34px}
-.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 10px;font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
 .chip:hover{border-color:var(--faint);color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.tag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.tag{font-family:var(--mono);font-size:12px;padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--muted);white-space:nowrap}
 .tag.mood{background:var(--accent-soft);color:var(--accent)}
 .tag.gear{background:var(--cyan-soft);color:var(--cyan)}
 .empty{padding:48px 20px;text-align:center;color:var(--muted)}
@@ -100,7 +106,7 @@ textarea.field{resize:vertical;min-height:64px}
 .ctitle{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .ctitle h3{font-family:var(--display);font-weight:800;font-size:22px;line-height:1.05;letter-spacing:.01em;text-transform:uppercase;cursor:pointer}
 .ctitle .abbr{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap;padding-top:3px}
-.csum{color:var(--muted);font-size:13.5px;line-height:1.45;margin:0}
+.csum{color:var(--muted);font-size:14.5px;line-height:1.45;margin:0}
 .ctags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
 .cact{display:flex;gap:6px;padding:0 14px 14px}
 .cact .btn{flex:1;justify-content:center}
@@ -151,23 +157,23 @@ textarea.field{resize:vertical;min-height:64px}
 .guides button{border:1px solid #2D333D;background:#15181D;color:#9CA3AE;border-radius:99px;font-size:12px;padding:3px 10px}
 .guides button[aria-pressed="true"]{color:#EFA23E;border-color:#EFA23E}
 .beats{display:flex;flex-direction:column;gap:2px;border-top:1px solid #262A31;padding-top:10px}
-.beat{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:6px 8px;border-radius:6px;font-size:13.5px;line-height:1.45;color:#8E959F;border:0;background:none;text-align:left;transition:background .2s,color .2s}
+.beat{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:6px 8px;border-radius:6px;font-size:14.5px;line-height:1.45;color:#A9B0BA;border:0;background:none;text-align:left;transition:background .2s,color .2s}
 .beat .t{font-family:var(--mono);font-size:11px;color:#6B727C;padding-top:2px}
 .beat.on{background:#1C2027;color:#F3EEE3}
 .beat.on .t{color:#EFA23E}
 .params{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .param{background:#15181D;border-radius:6px;padding:6px 8px}
-.param .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#6B727C}
+.param .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6B727C}
 .param .v{font-family:var(--mono);font-size:13px;color:#F3EEE3;font-variant-numeric:tabular-nums}
 .infocol{padding:26px 28px 34px;display:flex;flex-direction:column;gap:22px;min-width:0;overflow:auto;position:relative}
 .infohead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .infohead h2{font-family:var(--display);font-weight:800;font-size:44px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
 .infohead .aka{color:var(--muted);font-size:13px;margin-top:6px}
 .infoact{display:flex;gap:8px;flex-wrap:wrap}
-.lede{font-size:17px;line-height:1.5;margin:0;max-width:62ch}
+.lede{font-size:18px;line-height:1.55;margin:0;max-width:62ch}
 .sec{display:flex;flex-direction:column;gap:8px}
 .sec h4{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:500}
-.sec p{margin:0;max-width:65ch;color:var(--ink)}
+.sec p{margin:0;max-width:65ch;color:var(--ink);font-size:15.5px}
 .sec ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;max-width:65ch}
 .implies{background:var(--accent-soft);border-radius:var(--r);padding:14px 16px}
 .implies .reads{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
@@ -585,15 +591,23 @@ h4.sub:first-child{margin-top:0}
 .covrow span:last-child{grid-column:1/-1;color:var(--muted);font-size:12.5px}
 @media (max-width:560px){.drillopts{grid-template-columns:1fr}}
 </style>
+<style>
+.a11y{margin-left:6px}
+.a11ypop h5{font-size:14px}
+.a11yrow{display:flex;gap:6px;flex-wrap:wrap}
+.a11yrow .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
     <div class="brand"><i></i>Shotbook</div>
     <span class="sync" id="sync"></span>
+    <button class="iconbtn a11y" data-act="a11y" aria-label="Text size and contrast" title="Text size and contrast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16.5 15.5h3"/></svg></button>
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-home" aria-selected="false" data-view="home">Home</button>
       <button class="tab" role="tab" id="tab-lib" aria-selected="true" data-view="library">Library <span class="count" id="libcount">0</span></button>
       <button class="tab" role="tab" id="tab-light" aria-selected="false" data-view="lighting">Lighting <span class="count" id="lightcount">0</span></button>
+      <button class="tab" role="tab" id="tab-edit" aria-selected="false" data-view="editing">Editing <span class="count" id="editcount">0</span></button>
       <button class="tab" role="tab" id="tab-lists" aria-selected="false" data-view="lists">Shot lists <span class="count" id="listcount">0</span></button>
       <button class="tab" role="tab" id="tab-learn" aria-selected="false" data-view="learn">Learn <span class="count" id="learncount">0</span></button>
       <button class="tab" role="tab" id="tab-course" aria-selected="false" data-view="course">Course</button>
@@ -2684,7 +2698,7 @@ function closeShot() { const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = 
 /* ---------- Shotbook app, part 3: learning layer, finder, compare, shoot mode ---------- */
 const Learn = {};
 const PREF_KEY = 'shotbook.prefs';
-let prefs = { welcomeSeen: true, tab: 'home', libFilters: null, checklist: {} };
+let prefs = { welcomeSeen: true, tab: 'home', libFilters: null, checklist: {}, text: 'normal', contrast: 'normal' };
 try { const v = localStorage.getItem(PREF_KEY); if (v) prefs = Object.assign(prefs, JSON.parse(v)); } catch {}
 function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch {} }
 function ensureLearn() { store.learned = store.learned || []; store.quiz = store.quiz || {}; store.recent = store.recent || []; }
@@ -2798,6 +2812,10 @@ function welcomeHTML() {
   const p = PATHS[0];
   return `<div class="welcome"><div><div class="label" style="color:var(--accent)">New here?</div><h2>Learn the language of the camera, one shot at a time.</h2><p>Every shot has an animated lesson showing what the audience sees and where the camera is. Start with the basics, or jump into the library and filter by the feeling you want.</p></div><div class="welact"><button class="btn primary" data-act="openpath" data-path="${p.id}" data-id="${nextInPath(p) || p.shots[0]}">${I.play} Start the basics (${p.shots.length} shots)</button><button class="btn" data-act="golearn">See all guided paths</button><button class="btn ghost" data-act="dismisswelcome">Not now</button></div></div>`;
 }
+
+function applyA11y() { const r = document.documentElement; r.setAttribute('data-text', prefs.text || 'normal'); r.setAttribute('data-contrast', prefs.contrast || 'normal'); }
+function openA11y(anchor) { const p = $('#pop'); p.innerHTML = `<h5>Text size</h5><div class="a11yrow">${[['normal', 'Normal'], ['large', 'Large'], ['xl', 'Extra large']].map(([k, l]) => `<button class="chip" data-act="a11ytext" data-v="${k}" aria-pressed="${(prefs.text || 'normal') === k}">${l}</button>`).join('')}</div><h5>Contrast</h5><div class="a11yrow">${[['normal', 'Normal'], ['high', 'High contrast']].map(([k, l]) => `<button class="chip" data-act="a11ycon" data-v="${k}" aria-pressed="${(prefs.contrast || 'normal') === k}">${l}</button>`).join('')}</div><p style="margin:0;font-size:13px;color:var(--muted)">Saved on this device.</p>`; p.hidden = false; closePop.anchor = anchor; const r = anchor.getBoundingClientRect(); p.style.left = Math.min(innerWidth - p.offsetWidth - 16, Math.max(16, r.left)) + 'px'; p.style.top = (r.bottom + 8) + 'px'; }
+applyA11y();
 /* ---------- Shotbook app, part 4: course, seeing strand, kit tracker, shoot log ---------- */
 function ensureCourse() { store.course = store.course || { tasks: {}, gates: {}, frames: [], studies: [], kit: {}, log: [], start: null }; const c = store.course; c.tasks = c.tasks || {}; c.gates = c.gates || {}; c.frames = c.frames || []; c.studies = c.studies || []; c.kit = c.kit || {}; c.log = c.log || []; return c; }
 const today = () => new Date().toISOString().slice(0, 10);
@@ -3260,11 +3278,11 @@ const _markLearned = markLearned; markLearned = function (id, on) { _markLearned
 
 /* a drill question: recognition (which shot / which lighting is this?) or the lesson quiz */
 function makeQuestion(id, mode) {
-  const s = BY_ID[id]; const isL = s.kind === 'light'; const pool = (isL ? LIGHTS : SHOTS).filter(x => x.id !== id && !x.custom);
+  const s = BY_ID[id]; const isL = s.kind === 'light', isE = s.kind === 'edit'; const pool = (isE ? EDITS : isL ? LIGHTS : SHOTS).filter(x => x.id !== id && !x.custom);
   const same = pool.filter(x => x.cat === s.cat); const pick = []; const src = [...same.sort(() => Math.random() - .5), ...pool.sort(() => Math.random() - .5)];
   for (const x of src) { if (pick.length >= 3) break; if (!pick.includes(x)) pick.push(x); }
   if (mode === 'quiz' && s.quiz && s.quiz.q) return { id, kind: 'quiz', q: s.quiz.q, opts: s.quiz.opts.map((o, i) => ({ t: o, ok: i === s.quiz.a })).sort(() => Math.random() - .5), why: s.quiz.why };
-  const q = isL ? 'Which lighting setup is this?' : s.cat === 'Movement' ? 'Which camera move is this?' : 'Which shot is this?';
+  const q = isE ? 'Which cut pattern is this? Watch the timeline markers.' : isL ? 'Which lighting setup is this?' : s.cat === 'Movement' ? 'Which camera move is this?' : 'Which shot is this?';
   return { id, kind: 'see', q, opts: [{ t: s.name, ok: true }, ...pick.map(x => ({ t: x.name, ok: false }))].sort(() => Math.random() - .5), why: s.summary, anim: true };
 }
 const drill = { qs: [], i: 0, score: 0, active: false, raf: 0, t: 0, last: 0, answered: false };
@@ -3284,7 +3302,7 @@ function drawDrill() {
       <div class="why" id="dwhy" hidden></div>
       <div class="drillnext" id="dnext" hidden><button class="btn primary" data-act="drillnext">${drill.i + 1 < drill.qs.length ? 'Next' : 'Finish'} ${I.next}</button><button class="btn ghost" data-act="openshot" data-id="${q.id}">Open the lesson</button></div></div></div>`;
   drill.answered = false;
-  if (q.anim) { const cv = $('#dcv'); fit(cv); cancelAnimationFrame(drill.raf); drill.last = performance.now(); drill.t = 0; const loop = now => { if ($('#sheet').hidden || !$('#dcv')) return; const dt = Math.min(.1, (now - drill.last) / 1000); drill.last = now; drill.t = (drill.t + dt / (s.dur || 6)) % 1; if (s.kind === 'light') LightEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false }); else Engine.render(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false, guides: {} }); drill.raf = requestAnimationFrame(loop); }; drill.raf = requestAnimationFrame(loop); }
+  if (q.anim) { const cv = $('#dcv'); fit(cv); cancelAnimationFrame(drill.raf); drill.last = performance.now(); drill.t = 0; const loop = now => { if ($('#sheet').hidden || !$('#dcv')) return; const dt = Math.min(.1, (now - drill.last) / 1000); drill.last = now; drill.t = (drill.t + dt / (s.dur || 6)) % 1; if (s.kind === 'edit') { EditEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t); } else if (s.kind === 'light') LightEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false }); else Engine.render(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false, guides: {} }); drill.raf = requestAnimationFrame(loop); }; drill.raf = requestAnimationFrame(loop); }
 }
 function drillAnswer(i) {
   if (drill.answered) return; drill.answered = true; const q = drill.qs[drill.i]; const ok = q.opts[i].ok; if (ok) drill.score++; else q.miss = true;
@@ -3316,6 +3334,255 @@ function coverageCheck(l) {
   return out;
 }
 function coverageHTML(l) { if (!l.items.length) return ''; const r = coverageCheck(l); const bad = r.filter(x => x.miss.length); return `<div class="box cover"><h4>Coverage check ${bad.length ? `<span class="count" style="background:var(--bad-soft);color:var(--bad)">${bad.length}</span>` : '<span class="count" style="background:var(--good-soft);color:var(--good)">ok</span>'}</h4><p>Each section wants a wide, a medium, a close-up, one move, a lighting decision and a location.</p><div class="fl">${r.map(x => `<div class="covrow ${x.miss.length ? 'bad' : 'ok'}"><b>${esc(x.k)}</b><span class="mono">${x.n} shots</span><span>${x.miss.length ? esc(x.miss.join(' · ')) : 'covered'}</span></div>`).join('')}</div></div>`; }
+/* ---------- Editing library: cut patterns shown as a real cut between engine shots, with a timeline ---------- */
+const EditEngine = (() => {
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  // pattern: { bpm, bars, clips:[{shot, start(beat), end(beat), t0, t1, trans?('cut'|'dissolve'), audioLead?}] , sfx? }
+  function clipAt(pat, beat) { let cur = null; for (const c of pat.clips) if (beat >= c.start && beat < c.end) cur = c; return cur || pat.clips[pat.clips.length - 1]; }
+  const totalBeats = pat => pat.bars * 4;
+  function renderShot(ctx, W, H, c, u, sh) { const s = BY_ID[c.shot]; const t = (c.t0 == null ? 0 : c.t0) + ((c.t1 == null ? 1 : c.t1) - (c.t0 == null ? 0 : c.t0)) * u; if (s.kind === 'light') LightEngine.frame(ctx, W, H, s, t % 1, { notes: false }); else Engine.render(ctx, W, H, s, t % 1, { notes: false, guides: {}, mini: sh }); }
+  let off = null;
+  function frame(ctx, W, H, pat, t, opts = {}) {
+    const TB = totalBeats(pat), beat = t * TB; const c = clipAt(pat, beat); const u = (beat - c.start) / (c.end - c.start);
+    renderShot(ctx, W, H, c, u, opts.mini);
+    // dissolve: blend the next clip in over the last beat
+    const nx = pat.clips[pat.clips.indexOf(c) + 1];
+    if (nx && nx.trans === 'dissolve' && beat > c.end - 1) { if (!off) off = document.createElement('canvas'); off.width = W; off.height = H; renderShot(off.getContext('2d'), W, H, nx, 0, opts.mini); ctx.globalAlpha = beat - (c.end - 1); ctx.drawImage(off, 0, 0); ctx.globalAlpha = 1; }
+    // flash on cut for the first few frames (a subtle white edge) so cuts read in motion
+    const since = beat - c.start; if (since < .08 && c !== pat.clips[0] && !opts.mini) { ctx.fillStyle = `rgba(255,255,255,${(1 - since / .08) * .18})`; ctx.fillRect(0, 0, W, H); }
+    if (!opts.mini) { const fs = Math.max(10, W * .017); ctx.font = `${fs}px ${MONO}`; const lab = c.label || `Clip ${pat.clips.indexOf(c) + 1}: ${BY_ID[c.shot].name}`; const w = ctx.measureText(lab).width; ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(8, H - fs - 14, w + 12, fs + 8); ctx.fillStyle = '#EFA23E'; ctx.fillText(lab, 14, H - 10);
+      // beat flash dot
+      const inBeat = beat % 1; const strong = Math.floor(beat) % 4 === 0; ctx.fillStyle = `rgba(108,195,209,${Math.max(0, 1 - inBeat * 3) * (strong ? 1 : .55)})`; ctx.beginPath(); ctx.arc(W - 18, 18, strong ? 7 : 5, 0, 7); ctx.fill(); }
+    return { beat, clip: c };
+  }
+  // timeline: video track (clips), audio track (waveform with beats), playhead, cut markers
+  function timeline(ctx, W, H, pat, t) {
+    const TB = totalBeats(pat), beat = t * TB; ctx.fillStyle = '#0B0D11'; ctx.fillRect(0, 0, W, H);
+    const L = 54, R = W - 14, X = b => L + (R - L) * b / TB; const vy = H * .18, vh = H * .3, ay = H * .58, ah = H * .26;
+    const lab = (txt, x, y, col, al = 'left') => { ctx.fillStyle = col; ctx.font = `${Math.max(9, W * .02)}px ${MONO}`; ctx.textAlign = al; ctx.fillText(txt, x, y); ctx.textAlign = 'left'; };
+    lab('VIDEO', 10, vy + vh / 2 + 4, '#8E959F'); lab('AUDIO', 10, ay + ah / 2 + 4, '#8E959F');
+    // bars and beats
+    for (let b = 0; b <= TB; b++) { const x = X(b); const bar = b % 4 === 0; ctx.strokeStyle = bar ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.08)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, vy - 8); ctx.lineTo(x, ay + ah + 6); ctx.stroke(); if (bar && b < TB) lab(`bar ${b / 4 + 1}`, x + 3, vy - 12, '#6B727C'); }
+    // audio waveform: pulses on beats, bigger on the downbeat, plus the song's "sections"
+    ctx.fillStyle = '#23798A';
+    for (let x = L; x < R; x += 2) { const b = (x - L) / (R - L) * TB; const ib = b % 1; const strong = Math.floor(b) % 4 === 0; const env = Math.exp(-ib * 5) * (strong ? 1 : .55); const hit = pat.hits && pat.hits.some(h => Math.abs(h - b) < .12) ? 1.6 : 1; const n = (Math.sin(x * 12.9898) * 43758.5453) % 1; const amp = (.18 + .82 * env) * hit * (0.6 + .4 * Math.abs(n)) * ah / 2 * (pat.quiet && b < pat.quiet ? .18 : 1); ctx.fillRect(x, ay + ah / 2 - amp, 2, amp * 2); }
+    // audio overlap for J/L cuts: draw audio clip regions
+    for (const c of pat.clips) { const a0 = c.audioStart == null ? c.start : c.audioStart, a1 = c.audioEnd == null ? c.end : c.audioEnd; if (a0 !== c.start || a1 !== c.end) { ctx.strokeStyle = c.col || '#EFA23E'; ctx.lineWidth = 2; ctx.setLineDash([4, 3]); ctx.strokeRect(X(a0), ay - 4, X(a1) - X(a0), ah + 8); ctx.setLineDash([]); lab('audio', X(a0) + 4, ay - 8, c.col || '#EFA23E'); } }
+    // video clips
+    pat.clips.forEach((c, i) => { const x0 = X(c.start), x1 = X(c.end); const col = c.col || (i % 2 ? '#4AA3B2' : '#D98A3D'); ctx.fillStyle = col; ctx.globalAlpha = .8; ctx.fillRect(x0 + 1, vy, x1 - x0 - 2, vh); ctx.globalAlpha = 1; if (c.trans === 'dissolve') { ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.moveTo(X(c.start - 1), vy); ctx.lineTo(x0 + 1, vy); ctx.lineTo(x0 + 1, vy + vh); ctx.closePath(); ctx.fill(); } const name = BY_ID[c.shot].abbr; if (x1 - x0 > 30) lab(name, x0 + 5, vy + vh / 2 + 4, '#111418'); });
+    // cut markers
+    pat.clips.slice(1).forEach(c => { const x = X(c.start); ctx.strokeStyle = '#F3EEE3'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, vy - 4); ctx.lineTo(x, vy + vh + 4); ctx.stroke(); const onBeat = Math.abs(c.start - Math.round(c.start)) < .05; ctx.fillStyle = onBeat ? '#6CC3D1' : '#EFA23E'; ctx.beginPath(); ctx.moveTo(x - 5, vy - 10); ctx.lineTo(x + 5, vy - 10); ctx.lineTo(x, vy - 3); ctx.closePath(); ctx.fill(); });
+    // playhead
+    const px = X(beat); ctx.strokeStyle = '#FF4F7A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(px, vy - 16); ctx.lineTo(px, ay + ah + 10); ctx.stroke(); ctx.fillStyle = '#FF4F7A'; ctx.beginPath(); ctx.moveTo(px - 6, vy - 22); ctx.lineTo(px + 6, vy - 22); ctx.lineTo(px, vy - 14); ctx.closePath(); ctx.fill();
+    lab(`${pat.bpm} bpm · bar ${Math.floor(beat / 4) + 1} beat ${Math.floor(beat % 4) + 1}`, R, H - 8, '#8E959F', 'right');
+    lab('▲ cut on the beat', L, H - 8, '#6CC3D1'); lab('▲ cut off the beat', L + W * .22, H - 8, '#EFA23E');
+    return { beat };
+  }
+  return { frame, timeline, totalBeats };
+})();
+
+const EDITS = [
+{ id: 'e-onbeat', name: 'Cut on the beat', abbr: 'ON BEAT', cat: 'Rhythm', kind: 'edit', dur: 8, bpm: 120, bars: 4,
+  tags: { mood: ['energetic', 'playful'], use: ['performance', 'chorus'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'Every cut lands on a beat. The edit becomes the drum kit.', lede: 'Cutting on the beat means the picture changes exactly where the music hits. It is the simplest music-video rhythm and the most satisfying: the audience feels the edit as part of the track. It also gets tiring fast if it is all you do.',
+  how: ['Sync every take to the master track by waveform first.', 'Add markers on the beats in Resolve (or tap them in while the track plays).', 'Snap each cut to a marker. Start with cuts on the downbeat (beat 1) of each bar, then add cuts on 3.', 'Change shot size with each cut: wide to close to medium. Same size twice in a row feels like a jump.'],
+  reads: ['Energy', 'Precision', 'Pop'], implies: 'The edit is in step with the song. It feels driven and confident, which is right for choruses and hooks, and wrong for anything reflective.',
+  use: ['Choruses and drops', 'Dance and performance sections', 'Trailers and social cutdowns'], avoid: ['Verses that need to breathe', 'Every cut in the video: it becomes wallpaper by the second chorus'],
+  practice: 'Take three angles of one chorus. Cut it entirely on downbeats. Then add a cut on beat 3 of every other bar and feel the energy lift.',
+  quiz: { q: 'Why does cutting on every beat get boring?', opts: ['The rhythm becomes predictable, so the cuts stop registering', 'It uses too many clips', 'The audio drifts out of sync'], a: 0, why: 'Rhythm needs variation. When every cut is expected, none of them lands.' },
+  pairs: ['e-offbeat', 'e-montage', 'e-smash'], refs: [['Most pop choruses', 'cuts on the downbeat'], ['Edgar Wright\'s Baby Driver (2017)', 'the whole film cut to the beat']],
+  beats: [[0, 'Bar 1: wide shot. Watch the cyan beat dot in the corner.'], [.25, 'Cut lands on beat 1 of bar 2. Size changes: medium.'], [.5, 'Bar 3: close-up on the downbeat.'], [.75, 'Bar 4: a cut on beat 3 as well. The energy lifts.']],
+  clips: [{ shot: 'ws', start: 0, end: 4, t0: .5, t1: .7 }, { shot: 'mcu', start: 4, end: 8, t0: .5, t1: .8 }, { shot: 'cu', start: 8, end: 12, t0: .5, t1: .8 }, { shot: 'low', start: 12, end: 14, t0: .7, t1: .9 }, { shot: 'handheld', start: 14, end: 16, t0: .2, t1: .5 }] },
+{ id: 'e-offbeat', name: 'Cut across the beat', abbr: 'OFF BEAT', cat: 'Rhythm', kind: 'edit', dur: 8, bpm: 96, bars: 4,
+  tags: { mood: ['reflective', 'dreamy', 'intimate'], use: ['verse', 'narrative'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Cuts that ignore the grid. Flow instead of punch.', lede: 'Cutting across the beat places cuts between the hits, or lets a shot run past the downbeat before changing. The picture stops marching with the drums and starts flowing with the melody or the lyric. It is how verses and emotional sections avoid feeling mechanical.',
+  how: ['Cut on the phrase, not the beat: where a line of lyric ends, or where the singer breathes.', 'Let a shot run over the bar line by a beat or two before cutting.', 'Use movement inside the shot to carry rhythm instead of the cut.', 'Save on-beat cuts for the moment the chorus arrives, so the change of rhythm is felt.'],
+  reads: ['Flow', 'Feeling', 'Space'], implies: 'The edit is listening to the words, not the drums. It feels human and unhurried, which suits verses, bridges and anything with a lyric worth hearing.',
+  use: ['Verses and bridges', 'Narrative sections', 'Slow songs'], avoid: ['Drops and dance breaks', 'Short social cuts that need instant punch'],
+  practice: 'Cut a verse two ways: on the beat, then on the lyric phrases. Watch both without looking at the timeline and notice which one you listened to.',
+  quiz: { q: 'What do you cut on when cutting across the beat?', opts: ['Phrases, breaths and movement', 'Every snare hit', 'Nothing, you never cut'], a: 0, why: 'The lyric and the performance provide the rhythm instead of the drum grid.' },
+  pairs: ['e-onbeat', 'e-jcut', 'e-hold'], refs: [['Ballad videos', 'phrase-led cutting'], ['Spike Jonze, "Weapon of Choice" (2001)', 'movement carries the rhythm, cuts come late']],
+  beats: [[0, 'The wide runs past the first bar line.'], [.3, 'The cut lands between beats, on the end of a phrase. Orange marker.'], [.55, 'The medium holds through the downbeat.'], [.8, 'Another off-grid cut. The edit is following the voice.']],
+  clips: [{ shot: 'ws', start: 0, end: 4.6, t0: .5, t1: .8 }, { shot: 'mcu', start: 4.6, end: 9.4, t0: .4, t1: .9 }, { shot: 'negative', start: 9.4, end: 13.5, t0: .5, t1: .9 }, { shot: 'cu', start: 13.5, end: 16, t0: .5, t1: .8 }] },
+{ id: 'e-jcut', name: 'J-cut and L-cut', abbr: 'J / L', cat: 'Sound', kind: 'edit', dur: 8, bpm: 100, bars: 4,
+  tags: { mood: ['intimate', 'reflective'], use: ['dialogue', 'narrative', 'verse'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Sound leads or lags the picture. The invisible glue of good editing.', lede: 'In a J-cut the audio of the next shot starts before its picture; in an L-cut the audio of the previous shot continues under the new picture. The names come from the shape on the timeline. They make cuts feel seamless and let you show a reaction while someone is still speaking.',
+  how: ['Unlink audio from video on the clips you are cutting.', 'J: drag the incoming clip\'s audio left so it starts a beat or two before the cut.', 'L: extend the outgoing clip\'s audio past the cut.', 'In a music video, the master track is constant, so J and L cuts apply to dialogue, room sound and effects: a door, a crowd, a line of speech.'],
+  reads: ['Seamless', 'Anticipation', 'Reaction'], implies: 'Sound bridges the cut, so the audience does not feel it. Leading audio builds anticipation; lagging audio lets a reaction land.',
+  use: ['Narrative sections with dialogue', 'Transitions between locations (hear the next place before you see it)', 'Showing a listener while a speaker talks'], avoid: ['Places where a hard cut is the point (a smash cut)'],
+  practice: 'Two friends, one line each. Cut the conversation with straight cuts, then move every audio edit two beats earlier. The second version will feel like a film.',
+  quiz: { q: 'In a J-cut, what happens first?', opts: ['The next shot\'s sound', 'The next shot\'s picture', 'A fade to black'], a: 0, why: 'The J shape: audio extends left under the previous picture.' },
+  pairs: ['e-offbeat', 'e-cutaway', 'e-dissolve'], refs: [['Every well-cut conversation', 'reactions on L-cuts'], ['Location transitions in films', 'hear the street before you see it']],
+  beats: [[0, 'Shot A. Its audio is the dashed box on the audio track.'], [.3, 'J-cut: shot B\'s audio begins here, while we still see A.'], [.5, 'Now the picture cuts to B. The sound got there first.'], [.75, 'L-cut: B\'s audio carries on under the reaction shot.']],
+  clips: [{ shot: 'ots', start: 0, end: 8, t0: 0, t1: .45, col: '#D98A3D' }, { shot: 'two', start: 8, end: 12, t0: .3, t1: .8, audioStart: 5, audioEnd: 14.5, col: '#4AA3B2', label: 'Shot B (its audio started at beat 5)' }, { shot: 'cu', start: 12, end: 16, t0: .5, t1: .8, col: '#7A6FA8', label: 'Reaction, under B\'s audio (L-cut)' }] },
+{ id: 'e-match', name: 'Match cut', abbr: 'MATCH', cat: 'Continuity', kind: 'edit', dur: 8, bpm: 110, bars: 4,
+  tags: { mood: ['playful', 'dreamy', 'epic'], use: ['transition', 'chorus', 'narrative'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Two shots joined by a matching shape, position or movement.', lede: 'A match cut links two different shots through something they share: the same shape in the same place in frame, the same movement, or the same action continued. The brain reads the two as one gesture, which makes it feel like magic and lets you jump location or time in a single cut.',
+  how: ['Plan it on set: shoot both halves with the subject in the same frame position and the same size.', 'Match the movement direction and speed across the cut.', 'Cut at the peak of the movement, not the start.', 'Graphic matches (a round lamp to a round moon) work when the shapes line up exactly. Use the Thirds guide to place them.'],
+  reads: ['Connection', 'Wit', 'Transformation'], implies: 'Two things are the same thing. A match cut says location changed but the feeling did not, or that this object and that object are linked.',
+  use: ['Chorus transitions between locations', 'Outfit and set changes in one gesture', 'Linking the artist to an idea'], avoid: ['When the halves do not actually match: a near miss looks like a mistake'],
+  practice: 'Shoot the same walk-towards-camera in two rooms with the subject centred and the same lens. Cut at the same stride. Then try a graphic match: a clock to a wheel.',
+  quiz: { q: 'What makes a match cut work?', opts: ['Shape, position or movement that lines up across the cut', 'A long dissolve', 'Loud music'], a: 0, why: 'The continuity of shape or motion is what fools the eye into reading one gesture.' },
+  pairs: ['e-invisible', 'e-jump', 'e-dissolve'], refs: [['2001: A Space Odyssey (1968)', 'the bone to the satellite'], ['Music videos with outfit changes on a spin', 'movement matches across sets']],
+  beats: [[0, 'Subject centred, symmetrical corridor, pushing in.'], [.45, 'CUT: same position, same size, same push, different place.'], [.6, 'The brain reads one continuous move.'], [.85, 'Location changed. The feeling did not.']],
+  clips: [{ shot: 'symmetry', start: 0, end: 7.2, t0: 0, t1: .9 }, { shot: 'framewithin', start: 7.2, end: 16, t0: 0, t1: 1 }] },
+{ id: 'e-jump', name: 'Jump cut', abbr: 'JUMP', cat: 'Continuity', kind: 'edit', dur: 8, bpm: 128, bars: 4,
+  tags: { mood: ['energetic', 'uneasy', 'playful'], use: ['performance', 'social', 'montage'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'Cutting within the same shot so the subject jumps. Time skips.', lede: 'A jump cut removes a chunk of time from a single continuous shot, so the subject seems to jump position. Classic editing treats it as an error; music videos and social content use it on purpose for energy, comedy and the feeling of time compressed.',
+  how: ['Lock the camera off or keep the framing identical across the cut, so the background stays still and only the subject jumps.', 'Cut on the beat to make it feel deliberate.', 'Three or more in a row reads as style; one on its own reads as a mistake.', 'A small push-in (5–10%) on the second clip hides the jump if you want it invisible instead.'],
+  reads: ['Urgency', 'Time skipping', 'Restlessness'], implies: 'Time is being compressed and the editor wants you to notice. It is nervous, quick, modern, and very social-media.',
+  use: ['Vlog-style to-camera pieces', 'Rapid performance montages', 'Comedy timing'], avoid: ['Emotional or naturalistic scenes', 'One accidental jump in an otherwise smooth edit'],
+  practice: 'Film 30 seconds to camera locked off. Cut out every pause so only the words remain. That is the jump-cut vlog rhythm.',
+  quiz: { q: 'What keeps a jump cut from looking like a mistake?', opts: ['Repetition and a steady frame, so it reads as intent', 'A dissolve between the halves', 'Changing the lens'], a: 0, why: 'A pattern of jumps in a locked frame reads as a chosen rhythm.' },
+  pairs: ['e-match', 'e-montage', 'e-onbeat'], refs: [['Breathless (1960)', 'Godard made the jump cut a style'], ['YouTube vlogs', 'every pause removed']],
+  beats: [[0, 'One locked-off medium shot.'], [.25, 'JUMP: same frame, the subject has moved. Time skipped.'], [.5, 'Again on the beat. The pattern makes it intentional.'], [.75, 'Restless, quick, modern.']],
+  clips: [{ shot: 'ms', start: 0, end: 4, t0: .5, t1: .6 }, { shot: 'ms', start: 4, end: 8, t0: .85, t1: .95, label: 'Same shot, later' }, { shot: 'ms', start: 8, end: 12, t0: .55, t1: .65, label: 'Same shot, later again' }, { shot: 'ms', start: 12, end: 16, t0: .9, t1: 1, label: 'Same shot, later again' }] },
+{ id: 'e-montage', name: 'Montage rhythm', abbr: 'MONTAGE', cat: 'Rhythm', kind: 'edit', dur: 8, bpm: 130, bars: 4,
+  tags: { mood: ['energetic', 'epic', 'tense'], use: ['chorus', 'montage', 'social'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Shots that get shorter and shorter towards a peak. Acceleration as meaning.', lede: 'A montage compresses time and builds energy by cutting faster and faster: whole bars, then half bars, then single beats, then half beats, into the drop. The rhythm of the cuts is itself the message: things are building.',
+  how: ['Plan the shape: a bar per shot, then two beats, then one, then eighths, then the release.', 'Vary size and angle on every cut. Fast cuts of similar frames blur into mush.', 'End on a hold: the longest shot comes right after the fastest cutting.', 'Inserts and extreme close-ups are your friends: they read instantly at short durations.'],
+  reads: ['Build', 'Escalation', 'Release'], implies: 'Tension rising towards a payoff. The audience feels the acceleration in their body before the drop arrives.',
+  use: ['The bars before a chorus or drop', 'Getting-ready sequences', 'Trailers and teasers'], avoid: ['Verses', 'Anything that needs shots to be understood in detail'],
+  practice: 'Cut the four bars before a chorus with 4, 2, 1 and 0.5-beat shots. Then hold the first chorus shot for a full bar. Feel the release.',
+  quiz: { q: 'What should follow the fastest cutting in a montage?', opts: ['A held shot, as release', 'Even faster cutting', 'A fade to black'], a: 0, why: 'Acceleration needs a payoff; the hold is where the energy lands.' },
+  pairs: ['e-onbeat', 'e-smash', 'e-hold'], refs: [['Requiem for a Dream (2000)', 'hip-hop montage of inserts'], ['Every trailer', 'accelerating cuts into the title card']],
+  beats: [[0, 'A whole bar per shot.'], [.25, 'Two beats each. Sizes change every cut.'], [.5, 'One beat, then half beats. Inserts and details.'], [.85, 'The hold: release on the low angle.']],
+  clips: [{ shot: 'ws', start: 0, end: 4, t0: .5, t1: .7 }, { shot: 'mcu', start: 4, end: 6, t0: .5, t1: .7 }, { shot: 'dirty', start: 6, end: 8, t0: .3, t1: .5 }, { shot: 'insert', start: 8, end: 9, t0: .6, t1: .7 }, { shot: 'ecu', start: 9, end: 10, t0: .5, t1: .6 }, { shot: 'whip', start: 10, end: 10.5, t0: .4, t1: .55 }, { shot: 'crash', start: 10.5, end: 11, t0: .38, t1: .5 }, { shot: 'handheld', start: 11, end: 11.5, t0: .6, t1: .7 }, { shot: 'cu', start: 11.5, end: 12, t0: .5, t1: .6 }, { shot: 'low', start: 12, end: 16, t0: .6, t1: 1, label: 'The hold' }] },
+{ id: 'e-smash', name: 'Smash cut', abbr: 'SMASH', cat: 'Contrast', kind: 'edit', dur: 8, bpm: 120, bars: 4, quiet: 8, hits: [8],
+  tags: { mood: ['tense', 'energetic', 'playful'], use: ['chorus', 'reveal', 'transition'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'Quiet to loud, still to wild, in one hard cut. The drop.', lede: 'A smash cut throws two opposite things together with no warning: a silent close-up into a screaming crowd, a slow wide into a whip pan. The contrast is the point. In music videos it is how the drop arrives.',
+  how: ['Make the shot before the cut as calm as possible: static, quiet, tight.', 'Make the shot after it the opposite: movement, width, energy, colour.', 'Cut exactly on the first hit of the drop.', 'Do not soften it with a dissolve or a sound bridge. The violence is the effect.'],
+  reads: ['Shock', 'Release', 'Comedy'], implies: 'Everything changes now. It is the loudest punctuation an edit has, and it works for both drama and jokes.',
+  use: ['The arrival of a drop or chorus', 'Comic reversals', 'Waking from a dream'], avoid: ['More than once or twice in a video', 'Gentle songs'],
+  practice: 'Hold a silent close-up for four bars of intro. On the first beat of the chorus, cut to the widest, wildest shot you have with the rim and haze on.',
+  quiz: { q: 'What makes a smash cut land?', opts: ['Maximum contrast between the two shots', 'A gentle transition', 'Matching framing'], a: 0, why: 'The bigger the difference, the harder the hit.' },
+  pairs: ['e-onbeat', 'e-montage', 'e-hold'], refs: [['Comedy editing everywhere', 'the deadpan reversal'], ['EDM and rap videos', 'the drop as a smash cut to chaos']],
+  beats: [[0, 'Intro: quiet audio, a still close-up. Nothing moves.'], [.3, 'Still holding. Tension is the silence.'], [.5, 'SMASH: the drop hits and the frame explodes into the crowd.'], [.8, 'No dissolve, no bridge. The violence is the point.']],
+  clips: [{ shot: 'cu', start: 0, end: 8, t0: .5, t1: .6, label: 'Still, quiet' }, { shot: 'arc', start: 8, end: 16, t0: .1, t1: .6, label: 'THE DROP' }] },
+{ id: 'e-invisible', name: 'Invisible cut', abbr: 'HIDDEN', cat: 'Continuity', kind: 'edit', dur: 8, bpm: 110, bars: 4,
+  tags: { mood: ['dreamy', 'epic', 'playful'], use: ['transition', 'chorus', 'narrative'], gear: ['Resolve'], level: 'advanced' },
+  summary: 'A cut hidden inside a whip, a wipe past a post, or a moment of darkness.', lede: 'An invisible cut hides the edit point inside something the eye cannot track: a whip pan blur, a post or person wiping past the lens, a flash frame, or a moment of black. Two shots become one continuous take, so you can join locations, outfits and times without anyone seeing the seam.',
+  how: ['Whip: end shot A with a whip in one direction and start shot B with a whip in the same direction and speed. Cut in the blur.', 'Wipe: have something dark cross the lens at the end of A and the start of B. Cut when it fills the frame.', 'Match the motion blur and exposure on both sides.', 'Plan them on set: they only work if both halves were shot for it.'],
+  reads: ['Seamless', 'One take', 'Magic'], implies: 'This all happened in one flowing moment. It gives a video the "how did they do that" quality of a one-take piece without the risk.',
+  use: ['Fake one-take performance videos', 'Location jumps within a chorus', 'Outfit changes mid-move'], avoid: ['When the two sides do not match in speed or brightness: the seam shows'],
+  practice: 'Whip off your subject in the kitchen, whip onto them in the garden. Cut in the blur. Repeat until nobody can find the cut.',
+  quiz: { q: 'Where is the cut in a whip-pan transition?', opts: ['Inside the motion blur, where nothing is readable', 'On the clean frame before the whip', 'After the camera settles'], a: 0, why: 'The blur hides the change of scene.' },
+  pairs: ['e-match', 'e-dissolve', 'e-jump'], refs: [['Birdman (2014)', 'a whole film of hidden cuts'], ['Whip-pan music videos', 'location jumps inside the blur']],
+  beats: [[0, 'Shot A: performer on the street. The whip begins.'], [.42, 'Inside the blur: the cut. Nothing is readable, so nothing is seen.'], [.55, 'Shot B lands the whip in the crowd.'], [.8, 'One continuous move across two places.']],
+  clips: [{ shot: 'whip', start: 0, end: 7.4, t0: .1, t1: .5 }, { shot: 'pov', start: 7.4, end: 16, t0: .2, t1: .9, label: 'Shot B: the whip landed somewhere else' }] },
+{ id: 'e-dissolve', name: 'Dissolve', abbr: 'DISSOLVE', cat: 'Transitions', kind: 'edit', dur: 8, bpm: 84, bars: 4,
+  tags: { mood: ['dreamy', 'reflective', 'intimate'], use: ['transition', 'verse', 'outro'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'One shot fades into the next. Time passing, memory, softness.', lede: 'A dissolve overlaps the end of one shot with the start of the next so they blend. It says time has passed or that two things belong together in memory. It is gentle, so it suits slow songs and outros, and it looks dated if used on fast ones.',
+  how: ['Overlap the clips by 12–24 frames for a quick dissolve, one to two seconds for a dreamy one.', 'Dissolve between shots that share a tone or colour. Bright into dark looks like a mistake.', 'Use them rarely. A video full of dissolves feels like a slideshow.', 'A dissolve into black (a fade) ends a section; a dissolve from black starts one.'],
+  reads: ['Time', 'Memory', 'Softness'], implies: 'A gentle passage from one moment to another, often backwards in time. It is the visual equivalent of a reverb tail.',
+  use: ['Outros and slow verses', 'Flashbacks and memory', 'Blending two images into one idea'], avoid: ['Fast songs', 'Between shots with clashing brightness'],
+  practice: 'Cut a slow verse with straight cuts, then replace two of the cuts with one-second dissolves. Keep only the ones that add something.',
+  quiz: { q: 'What does a dissolve usually suggest?', opts: ['Time passing or memory', 'A sudden shock', 'Precise rhythm'], a: 0, why: 'The blend reads as a soft passage between moments.' },
+  pairs: ['e-jcut', 'e-hold', 'e-offbeat'], refs: [['Classic Hollywood', 'the dissolve as the standard time-jump'], ['Slow R&B videos', 'dreamy dissolves between performance and story']],
+  beats: [[0, 'The wide holds on the field.'], [.4, 'The dissolve begins: the next shot bleeds in over one beat.'], [.5, 'Two images at once. A memory forming.'], [.8, 'Landed on the close-up. Time has passed.']],
+  clips: [{ shot: 'negative', start: 0, end: 8, t0: .2, t1: .9 }, { shot: 'cu', start: 8, end: 16, t0: .5, t1: .9, trans: 'dissolve' }] },
+{ id: 'e-cutaway', name: 'Cutaway and insert', abbr: 'CUTAWAY', cat: 'Continuity', kind: 'edit', dur: 8, bpm: 100, bars: 4,
+  tags: { mood: ['playful', 'tense', 'reflective'], use: ['narrative', 'performance', 'verse'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'Leave the main shot for a detail, come back. Hides joins, adds meaning.', lede: 'A cutaway leaves the main action for a related detail (a hand on the strings, a clock, a listener) and returns. It gives information, adds rhythm, and quietly hides a join in the performance take where the lip-sync did not match.',
+  how: ['Shoot inserts at every setup: hands, instruments, feet, objects, the room.', 'Cut away just before a section you need to hide, and come back after it.', 'Keep cutaways short, one to two beats.', 'Make them relevant: the audience learns to trust that a detail matters.'],
+  reads: ['Detail', 'Rhythm', 'Repair'], implies: 'The editor is guiding your attention. Cutaways make a performance feel observed and layered rather than one long stare.',
+  use: ['Hiding a lip-sync drift or a bad take', 'Adding rhythm to a static performance', 'Planting objects for the story'], avoid: ['Cutaways to things that mean nothing, which teach the audience to ignore them'],
+  practice: 'Take a performance shot with a mistake in the middle. Shoot three inserts. Cut around the mistake so nobody can tell.',
+  quiz: { q: 'What is the practical use of a cutaway in a performance video?', opts: ['Hiding a join or a bad moment in the main take', 'Making the video longer', 'Replacing the master shot'], a: 0, why: 'Leave, then return: the mistake is gone.' },
+  pairs: ['e-jcut', 'e-onbeat', 'e-montage'], refs: [['Every music video', 'inserts of hands, pedals, feet'], ['Documentary editing', 'cutaways to cover interview joins']],
+  beats: [[0, 'The lip-sync medium shot.'], [.35, 'Cutaway: the insert. Two beats.'], [.5, 'Back to the performance. The join is invisible.'], [.75, 'Another detail, then back. Rhythm and repair.']],
+  clips: [{ shot: 'mcu', start: 0, end: 5.6, t0: .5, t1: .7 }, { shot: 'insert', start: 5.6, end: 8, t0: .5, t1: .75, label: 'Cutaway (insert)' }, { shot: 'mcu', start: 8, end: 12, t0: .75, t1: .95, label: 'Back, a different take' }, { shot: 'ecu', start: 12, end: 14, t0: .5, t1: .7, label: 'Cutaway (detail)' }, { shot: 'mcu', start: 14, end: 16, t0: .6, t1: .8 }] },
+{ id: 'e-hold', name: 'The hold', abbr: 'HOLD', cat: 'Rhythm', kind: 'edit', dur: 8, bpm: 90, bars: 4,
+  tags: { mood: ['intimate', 'reflective', 'tense'], use: ['verse', 'outro', 'emotion'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Not cutting is an edit too. The long shot that lets a moment land.', lede: 'Beginners cut too much. A hold lets one shot run: eight bars of a face, a whole verse in one wide. It creates intimacy and tension precisely because the audience expects a cut that does not come. Every strong edit has at least one.',
+  how: ['Pick the take with the best performance, not the best framing.', 'Let it run through at least one place where you wanted to cut.', 'Movement inside the frame (a slow push, a turn of the head) keeps it alive.', 'Earn it: a hold after fast cutting is release; a hold in an already slow edit is dead air.'],
+  reads: ['Intimacy', 'Confidence', 'Tension'], implies: 'The editor trusts the performance. Holding says this face, this moment, is enough, and the audience leans in.',
+  use: ['The emotional line of the song', 'Outros', 'Right after a montage or a drop'], avoid: ['Weak takes', 'Static frames with nothing moving inside them'],
+  practice: 'Cut a verse normally. Then delete every cut and let the best take run. Watch both. Keep whichever you could not look away from.',
+  quiz: { q: 'When does a hold work best?', opts: ['After fast cutting, as release, on a strong take', 'On the weakest take', 'In an edit that is already slow'], a: 0, why: 'Contrast gives the hold its power, and the take has to deserve it.' },
+  pairs: ['e-montage', 'e-smash', 'e-offbeat'], refs: [['Sinéad O\'Connor, "Nothing Compares 2 U" (1990)', 'one held close-up'], ['Childish Gambino, "This Is America" (2018)', 'long holds that make the cuts hit']],
+  beats: [[0, 'One shot. A slow push in on the face.'], [.35, 'Here is where you would normally cut. Don\'t.'], [.6, 'The audience is leaning in now.'], [.9, 'Sixteen beats, no cut. The moment landed.']],
+  clips: [{ shot: 'pushin', start: 0, end: 16, t0: .05, t1: 1, label: 'One take, no cuts' }] },
+];
+const EDIT_CATS = ['Rhythm', 'Continuity', 'Sound', 'Contrast', 'Transitions'];
+const EDIT_COMPARES = [
+  { id: 'ec-on-off', a: 'e-onbeat', b: 'e-offbeat', title: 'On the beat vs across it', lesson: 'Same shots, different rhythm. Watch the cut markers: cyan ones sit on beats, orange ones fall between. One drives, the other flows. A good video uses both, and the change between them is felt.' },
+  { id: 'ec-montage-hold', a: 'e-montage', b: 'e-hold', title: 'Montage vs the hold', lesson: 'Opposite ends of the pacing dial. The montage accelerates into a release; the hold refuses to cut at all. Notice which one makes you lean in, and when.' },
+];
+/* ---------- Editing tab: library and lesson view for cut patterns ---------- */
+EDITS.forEach(e => { BY_ID[e.id] = e; });
+COMPARES.push(...EDIT_COMPARES);
+const isEdit = id => !!(BY_ID[id] && BY_ID[id].kind === 'edit');
+const EVOCAB = { mood: [...new Set(EDITS.flatMap(s => s.tags.mood))].sort(), use: [...new Set(EDITS.flatMap(s => s.tags.use))].sort() };
+const ef = { q: '', cat: new Set(), mood: new Set(), use: new Set(), level: new Set(), fav: false };
+{ const _ds = drawStatic; drawStatic = function (cv) { const s = BY_ID[cv.dataset.shot]; if (!s) return; if (s.kind !== 'edit') return _ds(cv); const ctx = fit(cv); EditEngine.frame(ctx, cv.width, cv.height, s, .3, { mini: true }); };
+  const _hp = hoverPlay; hoverPlay = function (cv) { const s = BY_ID[cv.dataset.shot]; if (!s || s.kind !== 'edit') return _hp(cv); if (REDUCED) return; hoverStop(); const ctx = cv.getContext('2d'); let t0 = performance.now(); const loop = now => { const t = ((now - t0) / 1000 / (s.dur || 8)) % 1; EditEngine.frame(ctx, cv.width, cv.height, s, t, { mini: true }); hoverRAF = requestAnimationFrame(loop); }; hoverRAF = requestAnimationFrame(loop); hoverPlay.cv = cv; }; }
+function editsFiltered() { const q = ef.q.trim().toLowerCase(); return EDITS.filter(s => { if (ef.fav && !isFav(s.id)) return false; if (ef.cat.size && !ef.cat.has(s.cat)) return false; if (ef.level.size && !ef.level.has(s.tags.level)) return false; for (const k of ['mood', 'use']) if (ef[k].size && !s.tags[k].some(x => ef[k].has(x))) return false; if (q) { const hay = [s.name, s.abbr, s.cat, s.summary, ...s.tags.mood, ...s.tags.use].join(' ').toLowerCase(); if (!q.split(/\s+/).every(w => hay.includes(w))) return false; } return true; }); }
+const echips = (key, vals, label) => `<div class="fgroup"><span class="label">${label}</span><div class="chips">${vals.map(v => `<button class="chip" data-act="ef" data-k="${key}" data-v="${esc(v)}" aria-pressed="${ef[key].has(v)}">${esc(v)}</button>`).join('')}</div></div>`;
+function renderEditing() {
+  const r = editsFiltered(), n = ef.cat.size + ef.mood.size + ef.use.size + ef.level.size + (ef.fav ? 1 : 0);
+  $('#app').innerHTML = `<div class="wrap lib">
+    <aside class="filters" id="filters" aria-label="Filters"><div class="fhead"><span class="label">Filter patterns</span>${n ? `<button class="btn ghost sm" data-act="eclear">Clear all</button>` : ''}<button class="iconbtn fbtn" data-act="closef" aria-label="Close filters">${I.x}</button></div>
+      <div class="fgroup"><button class="chip" data-act="efav" aria-pressed="${ef.fav}"><span style="display:inline-flex;width:14px">${I.star}</span> Favourites <span class="count">${EDITS.filter(s => isFav(s.id)).length}</span></button></div>
+      ${echips('cat', EDIT_CATS, 'Category')}${echips('mood', EVOCAB.mood, 'Mood')}${echips('use', EVOCAB.use, 'Use it for')}${echips('level', LEVELS, 'Difficulty')}</aside>
+    <section class="libmain"><div class="kitnote"><b>Cutting to music.</b> Each pattern plays as a real cut between shots from the library, with the timeline underneath: cyan markers are cuts on the beat, orange ones fall between. Sync every take to the master track by waveform before any of this.</div>
+      <div class="toolbar"><button class="btn fbtn" data-act="openf">${I.filter} Filters${n ? ` <span class="count">${n}</span>` : ''}</button><label class="search">${I.search}<input id="eq" class="field" type="search" placeholder="Search cut patterns…" value="${esc(ef.q)}"></label></div>
+      <div class="resline"><span><b style="color:var(--ink)">${r.length}</b> of ${EDITS.length} patterns</span></div>
+      ${r.length ? `<div class="grid">${r.map(cardHTML).join('')}</div>` : `<div class="empty"><b>No patterns match</b></div>`}</section></div>`;
+  paintThumbs($('#app'));
+  const q = $('#eq'); q.oninput = () => { ef.q = q.value; const pos = q.selectionStart; renderEditing(); const nq = $('#eq'); nq.focus(); nq.setSelectionRange(pos, pos); };
+  $$('.thumb', $('#app')).forEach(b => { const cv = $('canvas', b); b.onmouseenter = () => hoverPlay(cv); b.onmouseleave = hoverStop; });
+}
+{ const _os = openShot; openShot = function (id, list, from) {
+  const s = BY_ID[id]; if (!s) return; if (s.kind !== 'edit') return _os(id, list, from);
+  if (from) det.from = from; else if ($('#sheet').hidden) det.from = { label: 'Editing' };
+  noteRecent(id); cancelAnimationFrame(cmp.raf); det.id = id; det.t = 0; det.playing = !REDUCED; det.list = list || editsFiltered().map(x => x.id); if (!det.list.includes(id)) det.list = EDITS.map(x => x.id); det.guides = {};
+  const i = det.list.indexOf(id), prev = BY_ID[det.list[(i - 1 + det.list.length) % det.list.length]], next = BY_ID[det.list[(i + 1) % det.list.length]]; const q = s.quiz, cmps = COMPARES.filter(c => c.a === id || c.b === id);
+  const sh = $('#sheet'); sh.className = 'sheet'; sh.hidden = false; document.body.style.overflow = 'hidden';
+  sh.innerHTML = `<div class="sheetin" role="dialog" aria-modal="true" aria-labelledby="dtitle"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Back to ${esc(det.from.label)}</span></button><div class="crumbs"><button data-act="close">${esc(det.from.label)}</button><span>/</span><span>${esc(s.cat)}</span><span>/</span><b>${esc(s.name)}</b></div>${det.from.path ? `<span class="pathtag">${esc(det.from.path.name)}</span>` : ''}<div class="stepper"><button class="iconbtn" data-act="open" data-id="${prev.id}" aria-label="Previous">${I.back}</button><span>${i + 1} / ${det.list.length}</span><button class="iconbtn" data-act="open" data-id="${next.id}" aria-label="Next">${I.next}</button></div></nav>
+    <div class="sheetbody"><div class="stagecol"><div class="stagehead"><span class="label" style="color:#8E959F">Editing · ${esc(s.abbr)}</span><div class="viewseg" role="group">${[['both', 'Both'], ['frame', 'Picture'], ['set', 'Timeline']].map(([k, l]) => `<button data-mode="${k}" aria-pressed="${det.mode === k}">${l}</button>`).join('')}</div></div>
+      <div class="stagebox"><div class="pwrap" id="pframe"><div class="phead"><span>The picture</span><span class="tc" id="tc">00:00</span></div><div class="panel"><canvas id="cvf"></canvas></div></div><div class="pwrap" id="pset"><div class="phead"><span>Timeline · ${s.bpm} bpm · ${s.bars} bars</span><span>▲ = cut</span></div><div class="panel"><canvas id="cvs"></canvas></div></div></div>
+      <div class="transport"><button class="iconbtn" id="pp" aria-label="Play or pause">${det.playing ? I.pause : I.play}</button><input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Scrub"><select id="spd" aria-label="Playback speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+      <div class="params" id="params"></div><div class="beats" id="beats">${s.beats.map(([bt, txt], k) => `<button class="beat" data-bt="${bt}" data-i="${k}"><span class="t">${tcode(bt * s.dur)}</span><span>${esc(txt)}</span></button>`).join('')}</div></div>
+    <div class="infocol"><div class="infohead"><div><div class="label">Editing · ${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
+      <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button></div>
+      ${cmps.length ? `<div class="cmpchips"><span class="label">Compare side by side</span>${cmps.map(c => `<button class="chip" data-act="compare" data-id="${c.id}">${esc(c.title)}</button>`).join('')}</div>` : ''}
+      <p class="lede">${esc(s.lede)}</p><div class="implies sec"><h4>What it implies</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
+      <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid when</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+      <div class="sec"><h4>How to do it in Resolve</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="sec"><h4>Shots in this example</h4><div class="pairs">${[...new Set(s.clips.map(c => c.shot))].map(p => `<button data-act="openshot" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(k => `<button data-qi="${k}">${esc(q.opts[k])}</button>`).join('')}</div><div class="why" hidden></div></div>
+      <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
+      <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
+      <div class="navrow"><button class="btn" data-act="open" data-id="${prev.id}">${I.back} ${esc(prev.name)}</button><button class="btn ghost" data-act="close">Back to ${esc(det.from.label)}</button><button class="btn" data-act="open" data-id="${next.id}">${esc(next.name)} ${I.next}</button></div></div></div></div>`;
+  const ic = $('.infocol', sh); ic.innerHTML = glossify(ic.innerHTML); applyMode();
+  $('#pp').onclick = () => { det.playing = !det.playing; $('#pp').innerHTML = det.playing ? I.pause : I.play; };
+  $('#scrub').oninput = e => { det.t = e.target.value / 1000; det.playing = false; $('#pp').innerHTML = I.play; drawDetail(); };
+  $('#spd').onchange = e => det.speed = +e.target.value;
+  $$('.viewseg button', sh).forEach(b => b.onclick = () => { det.mode = b.dataset.mode; $$('.viewseg button', sh).forEach(x => x.setAttribute('aria-pressed', x === b)); applyMode(); });
+  $$('.beat', sh).forEach(b => b.onclick = () => { det.t = +b.dataset.bt + .001; drawDetail(); });
+  $$('#quiz .opts button', sh).forEach(b => b.onclick = () => { const ok = +b.dataset.qi === q.a; $$('#quiz .opts button', sh).forEach(x => { x.disabled = true; if (+x.dataset.qi === q.a) x.classList.add('right'); }); if (!ok) b.classList.add('wrong'); const w = $('#quiz .why', sh); w.hidden = false; w.textContent = (ok ? 'Correct. ' : 'Not quite. ') + q.why; ensureLearn(); store.quiz[id] = ok; save(); });
+  cancelAnimationFrame(det.raf); det.last = performance.now(); det.raf = requestAnimationFrame(tick); $('.infocol', sh).scrollTop = 0; $('.stagecol', sh).scrollTop = 0; $('.backbtn', sh).focus({ preventScroll: true }); };
+  const _dd = drawDetail; drawDetail = function () { const s = BY_ID[det.id]; if (!s) return; if (s.kind !== 'edit') return _dd();
+    const cf = $('#cvf'), cs = $('#cvs'); let R; if (cf && !$('#pframe').hidden) { if (cf.width < 10) fit(cf); R = EditEngine.frame(cf.getContext('2d'), cf.width, cf.height, s, det.t); } if (cs && !$('#pset').hidden) { if (cs.width < 10) fit(cs); R = EditEngine.timeline(cs.getContext('2d'), cs.width, cs.height, s, det.t); }
+    if (det.frameN++ % 3) return; const sc = $('#scrub'); if (sc && det.playing) sc.value = Math.round(det.t * 1000); const tc = $('#tc'); if (tc) tc.textContent = tcode(det.t * s.dur);
+    const beat = det.t * s.bars * 4; const cuts = s.clips.length - 1; const onBeat = s.clips.slice(1).filter(c => Math.abs(c.start - Math.round(c.start)) < .05).length; const avg = (s.bars * 4 / s.clips.length * 60 / s.bpm);
+    $('#params').innerHTML = [['Bar · beat', `${Math.floor(beat / 4) + 1} · ${Math.floor(beat % 4) + 1}`], ['Cuts', String(cuts)], ['On the beat', `${onBeat}/${cuts || 1}`], ['Avg shot', avg.toFixed(1) + 's']].map(([k, v]) => `<div class="param"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+    let cur = 0; s.beats.forEach(([bt], k) => { if (det.t >= bt) cur = k; }); $$('.beat').forEach((b, k) => b.classList.toggle('on', k === cur)); };
+  const _oc = openCompare; openCompare = function (id) { const c = COMPARES.find(x => x.id === id); if (!c) return; if (!isEdit(c.a) && !isEdit(c.b)) return _oc(id);
+    closePop(); cmp.id = id; cmp.t = 0; cmp.playing = !REDUCED; const A = BY_ID[c.a], B = BY_ID[c.b]; const sh = $('#sheet'); sh.className = 'sheet'; sh.hidden = false; document.body.style.overflow = 'hidden';
+    const side = (s, k) => `<div class="cside"><div class="phead"><span>${esc(s.name)}</span><span>${esc(s.cat)}</span></div><div class="panel"><canvas id="cf${k}"></canvas></div><div class="panel"><canvas id="cs${k}"></canvas></div><button class="btn sm" data-act="openshot" data-id="${s.id}">Open the ${esc(s.name)} lesson</button></div>`;
+    sh.innerHTML = `<div class="sheetin cmpin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Back</span></button><div class="crumbs"><span>Compare</span><span>/</span><b>${esc(c.title)}</b></div></nav><div class="cmpbody"><div class="cmpgrid">${side(A, 'a')}${side(B, 'b')}</div><div class="transport" style="padding:0 20px"><button class="iconbtn" id="cpp" aria-label="Play or pause">${cmp.playing ? I.pause : I.play}</button><input type="range" id="cscrub" min="0" max="1000" value="0" aria-label="Scrub both"></div><div class="cmplesson"><h4>What to watch</h4><p>${esc(c.lesson)}</p></div></div></div>`;
+    ['a', 'b'].forEach(k => { fit($('#cf' + k)); fit($('#cs' + k)); }); $('#cpp').onclick = () => { cmp.playing = !cmp.playing; $('#cpp').innerHTML = cmp.playing ? I.pause : I.play; }; $('#cscrub').oninput = e => { cmp.t = e.target.value / 1000; cmp.playing = false; $('#cpp').innerHTML = I.play; };
+    cancelAnimationFrame(det.raf); cancelAnimationFrame(cmp.raf); cmp.last = performance.now(); const dur = Math.max(A.dur, B.dur);
+    const loop = now => { if ($('#sheet').hidden || cmp.id !== id) return; const dt = Math.min(.1, (now - cmp.last) / 1000); cmp.last = now; if (cmp.playing) { cmp.t = (cmp.t + dt / dur) % 1; $('#cscrub').value = Math.round(cmp.t * 1000); } for (const [k, s] of [['a', A], ['b', B]]) { const cf = $('#cf' + k), cs = $('#cs' + k); if (!cf) return; EditEngine.frame(cf.getContext('2d'), cf.width, cf.height, s, cmp.t); EditEngine.timeline(cs.getContext('2d'), cs.width, cs.height, s, cmp.t); } cmp.raf = requestAnimationFrame(loop); }; cmp.raf = requestAnimationFrame(loop); }; }
+// learning hooks
+PATHS.push({ id: 'cut', name: 'Cutting to music', blurb: 'Rhythm first, then continuity, then the tricks.', shots: ['e-onbeat', 'e-offbeat', 'e-hold', 'e-cutaway', 'e-jcut', 'e-montage', 'e-smash', 'e-match', 'e-jump', 'e-invisible', 'e-dissolve'] });
+PHASES[5].shots = [...new Set([...EDITS.map(e => e.id), ...PHASES[5].shots])];
+COMPETENCIES.push({ id: 'c-edit', name: 'Cutting to music', need: EDITS.map(e => e.id) });
+Object.assign(GLOSSARY, { 'j-cut': 'The next shot\'s audio starts before its picture.', 'l-cut': 'The previous shot\'s audio continues under the new picture.', 'match cut': 'Two shots joined by a shared shape, position or movement so they read as one gesture.', 'jump cut': 'A cut within one continuous shot that makes the subject jump; a mistake in drama, a style in music video.', 'smash cut': 'A hard cut between two opposite things: quiet to loud, still to wild.', 'cutaway': 'Leaving the main shot for a related detail, then returning. Adds rhythm and hides joins.', 'montage': 'A run of short shots that compress time or build energy, usually cut faster and faster.', 'downbeat': 'The first beat of a bar. The strongest place to cut.', 'waveform sync': 'Lining up a take to the master track by matching the shapes of their audio waveforms in the editor.' });
+GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b.length - a.length));
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3473,18 +3740,18 @@ function renderList() {
 }
 
 /* ---------- routing & events ---------- */
-function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length); $('#lightcount').textContent = LIGHTS.length; }
+function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length + EDITS.length); $('#lightcount').textContent = LIGHTS.length; }
 function rerender() {
   updateCounts();
-  $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
+  $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-edit').setAttribute('aria-selected', ui.view === 'editing'); $('#editcount').textContent = EDITS.length; $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
   prefs.tab = ui.view === 'list' ? 'lists' : ui.view; savePrefs();
-  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
+  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
 }
 function go(view, listId) { ui.view = view; ui.listId = listId || null; ui.confirmDel = null; ui.editRow = null; ui.editHead = false; closePop(); rerender(); scrollTo(0, 0); }
 
 document.addEventListener('click', e => {
   const pop = $('#pop');
-  if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-act="addto"]')) closePop();
+  if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-act="addto"]') && !e.target.closest('[data-act="a11y"]')) closePop();
   const gl = e.target.closest('.gl'); if (gl) { if (closePop.anchor === gl) closePop(); else showGloss(gl); return; }
   const tab = e.target.closest('.tab'); if (tab) { if (!$('#sheet').hidden) closeShot(); go(tab.dataset.view); return; }
   const b = e.target.closest('[data-act]'); if (!b) { if (e.target.id === 'sheet') closeShot(); return; }
@@ -3494,6 +3761,9 @@ document.addEventListener('click', e => {
     case 'f': { const set = F[b.dataset.k]; set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v); renderLibrary(); if (innerWidth <= 860 && b.closest('#filters')) { $('#filters').classList.add('open'); ensureScrim(); } break; }
     case 'lf': { const set = lf[b.dataset.k]; set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v); renderLighting(); if (innerWidth <= 860 && b.closest('#filters')) { $('#filters').classList.add('open'); ensureScrim(); } break; }
     case 'lfav': lf.fav = !lf.fav; renderLighting(); break;
+    case 'ef': { const set = ef[b.dataset.k]; set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v); renderEditing(); break; }
+    case 'efav': ef.fav = !ef.fav; renderEditing(); break;
+    case 'eclear': for (const k of ['cat', 'mood', 'use', 'level']) ef[k].clear(); ef.fav = false; renderEditing(); break;
     case 'lclear': for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; renderLighting(); break;
     case 'favonly': F.fav = !F.fav; renderLibrary(); if (innerWidth <= 860 && b.closest('#filters')) { $('#filters').classList.add('open'); ensureScrim(); } break;
     case 'clear': for (const k of ['cat', 'mood', 'use', 'gear', 'level']) F[k].clear(); F.fav = false; renderLibrary(); break;
@@ -3501,9 +3771,10 @@ document.addEventListener('click', e => {
     case 'closef': $('#filters').classList.remove('open'); $('.scrim')?.remove(); break;
     case 'open': openShot(id, $('#sheet').hidden ? null : det.list); break;
     case 'openshot': { const cur = ui.view === 'list' && getList(ui.listId); const ids = cur ? [...new Set(groupsOf(cur).flatMap(g => g.items.map(i => i.shotId)))] : []; openShot(id, ids.includes(id) ? ids : SHOTS.map(s => s.id), cur ? { label: cur.title } : { label: 'Shot library' }); break; }
-    case 'crumbcat': { if (isLight(det.id)) { ui.view = 'lighting'; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; lf.cat.add(b.dataset.v); closeShot(); break; } if (ui.view !== 'library') { ui.view = 'library'; ui.listId = null; } for (const k of ['cat', 'mood', 'use', 'gear', 'level']) F[k].clear(); F.fav = false; F.q = ''; F.cat.add(b.dataset.v); closeShot(); scrollTo(0, 0); toast(`Showing ${b.dataset.v} shots`); break; }
+    case 'crumbcat': { if (isEdit(det.id)) { ui.view = 'editing'; closeShot(); break; } if (isLight(det.id)) { ui.view = 'lighting'; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; lf.cat.add(b.dataset.v); closeShot(); break; } if (ui.view !== 'library') { ui.view = 'library'; ui.listId = null; } for (const k of ['cat', 'mood', 'use', 'gear', 'level']) F[k].clear(); F.fav = false; F.q = ''; F.cat.add(b.dataset.v); closeShot(); scrollTo(0, 0); toast(`Showing ${b.dataset.v} shots`); break; }
     case 'close': closeShot(); break;
     case 'fav': toggleFav(id); if (!$('#sheet').hidden) $$('#sheet [data-act="fav"]').forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); x.innerHTML = I.star + (isFav(id) ? ' Favourited' : ' Favourite'); });
+      if (ui.view === 'editing') { if (ef.fav) renderEditing(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); }
       if (ui.view === 'lighting') { if (lf.fav) renderLighting(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); }
       if (ui.view === 'library') { if (F.fav) renderLibrary(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); } break;
     case 'addto': if (closePop.anchor === b) closePop(); else openPop(b, id); break;
@@ -3548,6 +3819,9 @@ document.addEventListener('click', e => {
     case 'gokit': go('kit'); break;
     case 'export': exportBackup(false); break;
     case 'crit': critique(b.dataset.kind, id, b); break;
+    case 'a11y': if (closePop.anchor === b) closePop(); else openA11y(b); break;
+    case 'a11ytext': prefs.text = b.dataset.v; savePrefs(); applyA11y(); openA11y(closePop.anchor); break;
+    case 'a11ycon': prefs.contrast = b.dataset.v; savePrefs(); applyA11y(); openA11y(closePop.anchor); break;
     case 'drill': startHomeDrill(b.dataset.mode); break;
     case 'drillans': drillAnswer(+b.dataset.i); break;
     case 'drillnext': drill.i++; drawDrill(); break;
@@ -3615,7 +3889,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
   setSync('Saved in this browser');
   ensureLearn();
   if (prefs.libFilters) { const p = prefs.libFilters; ui.f.q = p.q || ''; ui.f.fav = !!p.fav; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) ui.f[k] = new Set(p[k] || []); ui.sort = p.sort || 'curated'; }
-  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat'].includes(prefs.tab)) ui.view = prefs.tab;
+  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat', 'editing'].includes(prefs.tab)) ui.view = prefs.tab;
   Img.init(); setTimeout(() => checkInbox(true), 1500); Crit.init().then(() => { if (ui.view === 'frames' || ui.view === 'course') rerender(); });
   lv.finder = null;
   rerender();
