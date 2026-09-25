@@ -641,6 +641,16 @@ h4.sub:first-child{margin-top:0}
 .menua11y{display:none}
 @media (max-width:560px){.menua11y{display:flex}}
 </style>
+<style>
+.galbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.monthnav{display:flex;gap:6px;align-items:center}
+.monthnav select{width:auto;min-width:200px}
+.addframe summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.addframe summary::-webkit-details-marker{display:none}
+.addframe summary:after{content:"＋";margin-left:auto;color:var(--muted)}
+.addframe[open] summary:after{content:"–"}
+.addframe>p{margin-top:8px}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -3157,19 +3167,27 @@ Img.url = async (e) => { if (e.where === 'assets') return e.url || ('/_blob/' + 
 Img.del = async (e) => { if (e.where === 'assets' && Img.assets) { try { await Img.assets.delete(e.id); } catch { } return; } try { const db = await Img.idb(); db.transaction('img', 'readwrite').objectStore('img').delete(e.id); } catch { } };
 
 /* ---------- frames gallery ---------- */
-const gal = { filter: 'all' };
+const gal = { filter: 'all', month: null };
 function renderGallery() {
-  const c = ensureTools(); const items = [...store.gallery].sort((a, b) => b.date.localeCompare(a.date)).filter(g => gal.filter === 'all' || g.kind === gal.filter);
-  const months = {}; items.forEach(g => { const k = g.date.slice(0, 7); (months[k] = months[k] || []).push(g); });
+  const c = ensureTools(); const all = [...store.gallery].sort((a, b) => b.date.localeCompare(a.date)).filter(g => gal.filter === 'all' || g.kind === gal.filter);
+  const monthsAll = [...new Set(all.map(g => g.date.slice(0, 7)))].sort().reverse();
+  if (!gal.month || !monthsAll.includes(gal.month)) gal.month = monthsAll[0] || null;
+  const items = all.filter(g => g.date.slice(0, 7) === gal.month);
+  const mi = monthsAll.indexOf(gal.month); const prevM = monthsAll[mi + 1], nextM = monthsAll[mi - 1];
+  const mlabel = m => new Date(m + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   $('#app').innerHTML = `<div class="wrap learn">
     <div class="pagehead"><div><div class="label">The seeing strand · your frames</div><h1>Frames</h1></div><div class="stats"><div class="stat"><b>${store.gallery.filter(g => g.kind === 'daily').length}</b><small>daily frames</small></div><div class="stat"><b>${store.gallery.filter(g => g.kind === 'study').length}</b><small>study frames</small></div></div></div>
-    <div class="box"><h4>Add a frame</h4><p>Daily frames: one phone photo a day of something you would not have noticed before. Study frames: a paused frame from a video, with what the director saw and what they left out.</p>
+    <details class="box addframe" ${store.gallery.length ? '' : 'open'}><summary><h4 style="display:inline">Add a frame</h4></summary><p>Daily frames: one phone photo a day of something you would not have noticed before. Study frames: a paused frame from a video, with what the director saw and what they left out.</p>
       <form data-form="frame" class="frameform"><div class="lgrid"><label class="ifield"><span>Photo</span><input class="field" type="file" name="file" accept="image/*" required></label><label class="ifield"><span>Kind</span><select class="field" name="kind"><option value="daily">Daily frame</option><option value="study">Study frame</option></select></label><label class="ifield"><span>Date</span><input class="field" type="date" name="date" value="${today()}"></label></div>
       <label class="ifield"><span>What I saw</span><input class="field" name="saw" placeholder="Daily: the shape or light you noticed. Study: what the director saw in that place"></label><label class="ifield"><span>Study only: what they left out</span><input class="field" name="left" placeholder="Everything outside the frame that the director chose not to show"></label>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" type="submit">${I.plus} Add frame</button><span class="mono" style="font-size:12px;color:var(--faint)">Photos are shrunk to 900px and stored ${Img.assets ? 'with the app' : 'in this browser'}.</span></div></form></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${Crit.sample ? '' : `<button class="btn sm" data-act="inbox">${I.next} Check for critiques</button>`}<div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button></div></div>
-    ${items.length ? Object.keys(months).sort().reverse().map(m => `<section class="lsec"><div class="lsechead"><h2>${new Date(m + '-01').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h2><p>${esc(monthConstraintFor(m))}</p></div><div class="galgrid">${months[m].map(g => `<figure class="gitem ${g.kind}"><div class="gimg"><img data-gid="${g.id}" alt="${esc(g.saw || g.kind)}"><span class="gkind">${g.kind}</span></div><figcaption><b>${esc(g.date)}</b>${g.saw ? `<span>${esc(g.saw)}</span>` : ''}${g.left ? `<span class="gleft">Left out: ${esc(g.left)}</span>` : ''}<div class="gact"><button class="btn sm primary" data-act="crit" data-kind="frame" data-id="${g.id}">${I.play} ${critButtonLabel()}</button>${Crit.sample ? '' : `<button class="btn sm" data-act="paste" data-kind="frame" data-id="${g.id}" title="Paste Claude's reply">${I.edit}</button>`}<button class="iconbtn" data-act="galdel" data-id="${g.id}" aria-label="Delete">${I.trash}</button></div></figcaption>${g.critique ? `<div class="critbox">${esc(g.critique)}</div>` : ''}</figure>`).join('')}</div></section>`).join('') : '<div class="empty"><b>No frames yet</b>Add today\'s daily frame above. After a month you will see what your eye keeps returning to.</div>'}
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" type="submit">${I.plus} Add frame</button><span class="mono" style="font-size:12px;color:var(--faint)">Photos are shrunk to 900px and stored ${Img.assets ? 'with the app' : 'in this browser'}.</span></div></form></details>
+    <div class="galbar">
+      ${monthsAll.length ? `<div class="monthnav"><button class="iconbtn" data-act="galmonth" data-v="${prevM || ''}" ${prevM ? '' : 'disabled'} aria-label="Earlier month">${I.back}</button><select id="galmonth" class="field" aria-label="Month">${monthsAll.map(m => `<option value="${m}" ${m === gal.month ? 'selected' : ''}>${mlabel(m)} (${all.filter(g => g.date.slice(0, 7) === m).length})</option>`).join('')}</select><button class="iconbtn" data-act="galmonth" data-v="${nextM || ''}" ${nextM ? '' : 'disabled'} aria-label="Later month">${I.next}</button></div>` : ''}
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${Crit.sample ? '' : `<button class="btn sm" data-act="inbox">${I.next} Check for critiques</button>`}<div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button></div></div>
+    </div>
+    ${items.length ? `<section class="lsec"><div class="lsechead"><h2>${mlabel(gal.month)}</h2><p>${esc(monthConstraintFor(gal.month))}</p></div><div class="galgrid">${items.map(g => `<figure class="gitem ${g.kind}"><div class="gimg"><img data-gid="${g.id}" alt="${esc(g.saw || g.kind)}" loading="lazy"><span class="gkind">${g.kind}</span></div><figcaption><b>${esc(g.date)}</b>${g.saw ? `<span>${esc(g.saw)}</span>` : ''}${g.left ? `<span class="gleft">Left out: ${esc(g.left)}</span>` : ''}<div class="gact"><button class="btn sm primary" data-act="crit" data-kind="frame" data-id="${g.id}">${I.play} ${critButtonLabel()}</button>${Crit.sample ? '' : `<button class="btn sm" data-act="paste" data-kind="frame" data-id="${g.id}" title="Paste Claude's reply">${I.edit}</button>`}<button class="iconbtn" data-act="galdel" data-id="${g.id}" aria-label="Delete">${I.trash}</button></div></figcaption>${g.critique ? `<div class="critbox">${esc(g.critique)}</div>` : ''}</figure>`).join('')}</div></section>` : '<div class="empty"><b>No frames yet</b>Add today\'s daily frame above. After a month you will see what your eye keeps returning to.</div>'}
   </div>`;
+  const sel = $('#galmonth'); if (sel) sel.onchange = () => { gal.month = sel.value; renderGallery(); };
   $$('img[data-gid]').forEach(async im => { const g = store.gallery.find(x => x.id === im.dataset.gid); if (!g) return; const u = await Img.url(g.img); if (u) im.src = u; else im.closest('.gimg').classList.add('missing'); });
 }
 function monthConstraintFor(m) { const c = ensureCourse(); if (!c.start) return ''; const s = new Date(c.start), d = new Date(m + '-01'); const i = (d.getFullYear() - s.getFullYear()) * 12 + d.getMonth() - s.getMonth(); return i >= 0 && i < 8 ? `Constraint: ${CONSTRAINTS[i][0]}` : ''; }
@@ -4007,6 +4025,7 @@ document.addEventListener('click', e => {
     case 'tbuild': { saveTreatForm(); const T = ensureTools().treatments.find(t => t.id === id); const l = buildFromTreatment(T); if (!l.items.length) { toast('Pick a recipe for at least one section first'); break; } toast(`Built shot list “${l.title}”`); go('list', l.id); break; }
     case 'tcopy': { saveTreatForm(); copyText(treatmentText(ensureTools().treatments.find(t => t.id === id)), 'Treatment copied as text'); break; }
     case 'galf': gal.filter = b.dataset.v; renderGallery(); break;
+    case 'galmonth': if (b.dataset.v) { gal.month = b.dataset.v; renderGallery(); } break;
     case 'galdel': { const g = store.gallery.find(x => x.id === id); if (g) Img.del(g.img); store.gallery = store.gallery.filter(x => x.id !== id); save(); renderGallery(); break; }
     case 'sandbox': openSandbox(id ? BY_ID[id] : null); break;
     case 'sbsel': sb.sel = +b.dataset.i; sbSide(); break;
@@ -4033,7 +4052,7 @@ document.addEventListener('submit', e => {
   const f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault();
   const kind = f.dataset.form, fd = new FormData(f);
   if (kind === 'treat') { saveTreatForm(); toast('Treatment saved'); return; }
-  if (kind === 'frame') { const file = fd.get('file'); if (!file || !file.size) return; const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Adding…'; Img.put(file).then(img => { if (!img) { toast('Could not store the photo in this browser'); btn.disabled = false; return; } ensureTools(); store.gallery.push({ id: rid(), kind: String(fd.get('kind')), date: String(fd.get('date') || today()), saw: String(fd.get('saw') || '').trim(), left: String(fd.get('left') || '').trim(), img }); if (String(fd.get('kind')) === 'daily') { const c = ensureCourse(); const d = String(fd.get('date') || today()); if (!c.frames.includes(d)) c.frames.push(d); } save(); toast('Frame added'); renderGallery(); }); return; }
+  if (kind === 'frame') { const file = fd.get('file'); if (!file || !file.size) return; const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Adding…'; Img.put(file).then(img => { if (!img) { toast('Could not store the photo in this browser'); btn.disabled = false; return; } ensureTools(); store.gallery.push({ id: rid(), kind: String(fd.get('kind')), date: String(fd.get('date') || today()), saw: String(fd.get('saw') || '').trim(), left: String(fd.get('left') || '').trim(), img }); if (String(fd.get('kind')) === 'daily') { const c = ensureCourse(); const d = String(fd.get('date') || today()); if (!c.frames.includes(d)) c.frames.push(d); } save(); toast('Frame added'); gal.month = String(fd.get('date') || today()).slice(0, 7); renderGallery(); }); return; }
   if (kind === 'scout') { const l = getList(ui.listId); const x = l.locations.find(y => y.id === f.dataset.locid); if (!x) return; x.scout = x.scout || {}; for (const [k] of SCOUT_FIELDS) x.scout[k] = String(fd.get(k) || '').trim(); const ph = fd.get('photo'); const fin = () => { touch(l); save(); toast('Scouting card saved'); cv.scoutOpen = null; renderList(); }; if (ph && ph.size) Img.put(ph).then(img => { if (img) x.scout.img = img; fin(); }); else fin(); return; }
   if (kind === 'log') { const c = ensureCourse(); const g = k => String(fd.get(k) || '').trim(); c.log.push({ id: rid(), date: g('date') || today(), loc: g('loc'), lens: g('lens'), settings: g('settings'), wrong: g('wrong'), change: g('change') }); save(); cv.logOpen = false; toast('Shoot logged'); renderCourse(); return; }
   if (kind === 'row' || kind === 'head') { const l = getList(kind === 'row' ? f.dataset.id : ui.listId); const t = String(fd.get('title')).trim(); if (!t) return; l.title = t; l.desc = String(fd.get('desc') || '').trim(); touch(l); save(); ui.editRow = null; ui.editHead = false; kind === 'row' ? renderLists() : renderList(); return; }
