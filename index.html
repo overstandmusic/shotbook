@@ -597,6 +597,22 @@ h4.sub:first-child{margin-top:0}
 .a11yrow{display:flex;gap:6px;flex-wrap:wrap}
 .a11yrow .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 </style>
+<style>
+.scout{grid-column:1/-1}
+.scoutform{display:flex;flex-direction:column;gap:6px;background:var(--surface2);border-radius:8px;padding:10px;margin:4px 0 8px}
+.scoutform .ifield input{background:var(--surface);border:1px solid var(--line)}
+.scoutimg img{width:100%;border-radius:6px;display:block}
+.flrow .iconbtn.on{color:var(--accent)}
+.preroll{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.preroll summary{font-weight:600;font-size:15px;cursor:pointer;display:flex;justify-content:space-between}
+.preroll .checklist{margin-top:8px}
+.preroll .ck{text-align:left;width:100%}
+.shootwrap{display:flex;flex-direction:column;gap:4px}
+.takes{display:flex;align-items:center;gap:8px;padding:0 14px 6px 14px}
+.takes b{font-family:var(--mono);min-width:20px;text-align:center}
+.takes .iconbtn{width:30px;height:30px}
+.takes .btn.on{border-color:var(--good);color:var(--good)}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -2012,7 +2028,7 @@ const PHASES = [
     practice: ['A 60-second piece that uses every move once: handheld follow, pan, tilt, push-in, arc, reveal, slow motion.', 'The same piece again using only two moves. Compare.', 'One performer, one chorus, three takes: locked off, handheld, on the head. Cut them together.'],
     gate: 'Your movement has a reason every time, and it is smooth enough not to draw attention to itself.', shots: ['handheld', 'steadicam', 'pan', 'tilt', 'pushin', 'pullout', 'arc', 'truck', 'crane', 'speedramp', 'whip', 'zoom', 'dollyzoom'] },
   { id: 'p5', n: 5, name: 'Editing and cutting to music', weeks: '3 weeks', aim: 'The first complete performance video.',
-    theory: ['Project and media organisation: folders, bins, naming. Once.', 'Syncing takes to the master track by waveform. Multicam in Resolve.', 'Cutting on the beat, and across it. Why every-beat cutting gets boring by chorus two.', 'Structure across a song: the edit\'s energy follows the arrangement.', 'Titles, basic sound, delivery: 4K master, 1080p web, vertical.'],
+    theory: ['Playback and sync on set: loud speaker, start every take from the top of the section, say the take number on camera, record scratch audio.', 'Project and media organisation: folders, bins, naming. Once.', 'Syncing takes to the master track by waveform. Multicam in Resolve.', 'Cutting on the beat, and across it. Why every-beat cutting gets boring by chorus two.', 'Structure across a song: the edit\'s energy follows the arrangement.', 'Titles, basic sound, delivery: 4K master, 1080p web, vertical.'],
     practice: ['Shoot one full song from three angles with a friend performing to playback. Cut it.', 'Recut it with half the number of cuts.', 'Cut a 30-second vertical version. Note what the crop forces you to lose.'],
     gate: 'A complete performance video, start to finish, that you would show someone.', shots: ['insert', 'ecu', 'two', 'ots'] },
   { id: 'p6', n: 6, name: 'Lighting', weeks: '4 weeks', aim: 'The single biggest upgrade to your image, arriving after you can already read light.',
@@ -2386,6 +2402,8 @@ const CHEATSHEET = [
   ['Stabilisation', 'Active mode for handheld (small crop). Off on the tripod. Gimbal later, if ever.'],
   ['Card time', 'XAVC S-I 4K 25p ≈ 1.9GB/min: a 128GB card holds about 70 minutes. Offload every location.'],
   ['Edit', 'Resolve, 1080p timeline until the GPU upgrade, proxies if it stutters. Sync by waveform. Master 16:9, then 9:16.'],
+  ['Playback', 'Play the track loud from a speaker on set, from the start of the section every take. Record scratch audio on the camera so Resolve can waveform-sync. Slate each take by saying the take number on camera.'],
+  ['Sound', 'Music videos: the master track is the sound; camera audio is only for sync. Social and interviews: the hot-shoe mic, close to the mouth, headphones on, record 10 seconds of room tone.'],
 ];
 
 // Competency map: what "basic competency" means, measured from app progress
@@ -2794,7 +2812,7 @@ function openShootMode(listId) {
   const draw = () => {
     const G = groupsOf(l), p = progress(l);
     sh.innerHTML = `<div class="sheetin shootin" role="dialog" aria-modal="true" aria-label="Shoot mode"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Exit shoot mode</span></button><div class="crumbs"><b>${esc(l.title)}</b></div><span class="mono" style="font-size:13px;color:var(--muted)">${p.d}/${p.n} done</span></nav>
-      <div class="shootbody">${G.map(g => `${g.name !== null ? `<h3 class="shooth">${I.pin}${esc(g.name)} <span>${g.all.filter(i => i.done).length}/${g.all.length}</span></h3>` : ''}${g.items.map(it => { const s = BY_ID[it.shotId]; return `<button class="shootrow ${it.done ? 'done' : ''}" data-act="shootdone" data-id="${it.id}"><span class="check ${it.done ? 'on' : ''}">${I.check}</span><canvas data-shot="${s.id}"></canvas><div><b>${esc(s.name)}</b>${it.light && BY_ID[it.light] ? `<span>💡 ${esc(BY_ID[it.light].name)}</span>` : ''}${it.note ? `<span>${esc(it.note)}</span>` : ''}<small>${l.fields.map(f => it.vals[f.id] ? `${esc(f.name)}: ${esc(it.vals[f.id])}` : '').filter(Boolean).join(' · ')}</small></div></button>`; }).join('') || '<div class="empty" style="padding:16px">All done here.</div>'}`).join('')}
+      <div class="shootbody"><details class="preroll" ${Object.values(l.preroll || {}).filter(Boolean).length < PREROLL.length ? 'open' : ''}><summary>Before you roll <span class="mono">${Object.values(l.preroll || {}).filter(Boolean).length}/${PREROLL.length}</span></summary><div class="checklist">${PREROLL.map((t, i) => `<button class="ck ${(l.preroll || {})[i] ? 'on' : ''}" data-act="preroll" data-id="${l.id}" data-i="${i}"><span class="check ${(l.preroll || {})[i] ? 'on' : ''}" style="width:22px;height:22px">${I.check}</span><div><b style="font-weight:500">${esc(t)}</b></div></button>`).join('')}</div><button class="btn ghost sm" data-act="prerollreset" data-id="${l.id}">Reset for the next shoot</button></details>${G.map(g => `${g.name !== null ? `<h3 class="shooth">${I.pin}${esc(g.name)} <span>${g.all.filter(i => i.done).length}/${g.all.length}</span></h3>` : ''}${g.items.map(it => { const s = BY_ID[it.shotId]; return `<div class="shootwrap"><button class="shootrow ${it.done ? 'done' : ''}" data-act="shootdone" data-id="${it.id}"><span class="check ${it.done ? 'on' : ''}">${I.check}</span><canvas data-shot="${s.id}"></canvas><div><b>${esc(s.name)}</b>${it.light && BY_ID[it.light] ? `<span>💡 ${esc(BY_ID[it.light].name)}</span>` : ''}${it.note ? `<span>${esc(it.note)}</span>` : ''}<small>${l.fields.map(f => it.vals[f.id] ? `${esc(f.name)}: ${esc(it.vals[f.id])}` : '').filter(Boolean).join(' · ')}</small></div></button><div class="takes"><span class="label">Takes</span><button class="iconbtn" data-act="take" data-d="-1" data-id="${it.id}" aria-label="Fewer">−</button><b>${it.takes || 0}</b><button class="iconbtn" data-act="take" data-d="1" data-id="${it.id}" aria-label="Add a take">+</button><button class="btn sm ${it.best ? 'on' : ''}" data-act="best" data-id="${it.id}" title="Mark the current take as the best">${it.best ? 'best: T' + it.best : 'best?'}</button><span class="mono" style="font-size:11px;color:var(--faint)">${it.mins == null ? 15 : it.mins} min</span></div></div>`; }).join('') || '<div class="empty" style="padding:16px">All done here.</div>'}`).join('')}
       <div class="shootfoot"><label class="switch"><input type="checkbox" id="shHide" ${l.hideDone ? 'checked' : ''}> Hide completed</label><span class="mono" style="font-size:12px;color:var(--faint)">Tap a row to tick it off. Big targets for cold hands.</span></div></div></div>`;
     paintThumbs(sh); $('#shHide').onchange = e => { l.hideDone = e.target.checked; save(); draw(); };
   };
@@ -2820,7 +2838,7 @@ applyA11y();
 function ensureCourse() { store.course = store.course || { tasks: {}, gates: {}, frames: [], studies: [], kit: {}, log: [], start: null }; const c = store.course; c.tasks = c.tasks || {}; c.gates = c.gates || {}; c.frames = c.frames || []; c.studies = c.studies || []; c.kit = c.kit || {}; c.log = c.log || []; return c; }
 const today = () => new Date().toISOString().slice(0, 10);
 const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
-const cv = { phase: null, kitStage: null, logOpen: false };
+const cv = { phase: null, kitStage: null, logOpen: false, scoutOpen: null };
 
 function phaseProgress(p) { const c = ensureCourse(); const keys = [...p.theory.map((_, i) => `${p.id}.t${i}`), ...p.practice.map((_, i) => `${p.id}.p${i}`)]; const d = keys.filter(k => c.tasks[k]).length; return { d, n: keys.length, gate: !!c.gates[p.id] }; }
 function currentPhase() { return PHASES.find(p => !phaseProgress(p).gate) || PHASES[PHASES.length - 1]; }
@@ -3595,6 +3613,12 @@ PHASES[5].shots = [...new Set([...EDITS.map(e => e.id), ...PHASES[5].shots])];
 COMPETENCIES.push({ id: 'c-edit', name: 'Cutting to music', need: EDITS.map(e => e.id) });
 Object.assign(GLOSSARY, { 'j-cut': 'The next shot\'s audio starts before its picture.', 'l-cut': 'The previous shot\'s audio continues under the new picture.', 'match cut': 'Two shots joined by a shared shape, position or movement so they read as one gesture.', 'jump cut': 'A cut within one continuous shot that makes the subject jump; a mistake in drama, a style in music video.', 'smash cut': 'A hard cut between two opposite things: quiet to loud, still to wild.', 'cutaway': 'Leaving the main shot for a related detail, then returning. Adds rhythm and hides joins.', 'montage': 'A run of short shots that compress time or build energy, usually cut faster and faster.', 'downbeat': 'The first beat of a bar. The strongest place to cut.', 'waveform sync': 'Lining up a take to the master track by matching the shapes of their audio waveforms in the editor.' });
 GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b.length - a.length));
+/* ---------- Shoot day: scouting cards, timing and schedule, pre-roll checklist, take counter ---------- */
+const SCOUT_FIELDS = [['light', 'Where the light comes from', 'Window on the left, sun behind the building after 3pm'], ['line', 'Strongest line or shape', 'The railings run diagonally into the corner'], ['stand', 'Where the singer stands', 'By the pillar, two metres off the wall'], ['time', 'Best time of day', 'Blue hour, 7–7:40pm'], ['power', 'Power and playback', 'Socket by the door; speaker on the table'], ['noise', 'Noise and interruptions', 'Traffic every few minutes; quiet after 8'], ['perm', 'Permission and access', 'Ask the café owner; free before opening'], ['notes', 'Notes', '']];
+const PREROLL = ['Cards formatted, two in the bag', 'Batteries charged, spare in the pocket', 'Format and frame rate set (25p, 1/50)', 'ND on and exposure set for the light', 'White balance set in Kelvin', 'Playback speaker charged and loud', 'Lens clean, cap off, hood on', 'Master shot first at every location'];
+function scoutHTML(l, loc) { const s = loc.scout || {}; const open = cv.scoutOpen === loc.id; return `<div class="scout ${open ? 'open' : ''}">${open ? `<form data-form="scout" data-locid="${loc.id}" class="scoutform"><div class="label" style="margin-bottom:4px">Scouting card · ${esc(loc.name)}</div>${SCOUT_FIELDS.map(([k, label, ph]) => `<label class="ifield"><span>${esc(label)}</span><input class="field" name="${k}" value="${esc(s[k] || '')}" placeholder="${esc(ph)}"></label>`).join('')}<label class="ifield"><span>Photo</span><input class="field" type="file" name="photo" accept="image/*"></label>${s.img ? `<div class="scoutimg"><img data-scout="${loc.id}" alt=""></div>` : ''}<div style="display:flex;gap:6px"><button class="btn primary sm" type="submit">Save card</button><button class="btn sm" type="button" data-act="scoutclose">Close</button></div></form>` : ''}</div>`; }
+function schedHTML(l) { if (!l.items.length) return ''; const G = groupsOf(l); const rows = G.map(g => { const mins = g.all.reduce((a, i) => a + (i.mins == null ? 15 : +i.mins), 0); const loc = l.locations.find(x => x.id === g.id); const win = loc && loc.window ? +loc.window : 0; const done = g.all.filter(i => i.done).reduce((a, i) => a + (i.mins == null ? 15 : +i.mins), 0); return { name: g.name == null ? 'All shots' : g.name, mins, win, over: win && mins > win, done }; }); const total = rows.reduce((a, r) => a + r.mins, 0);
+  return `<div class="box sched"><h4>Schedule <span class="count">${Math.round(total / 60 * 10) / 10}h</span></h4><p>Minutes per shot (default 15) against each location's window. Setups take longer than you think; the first one takes twice as long.</p><div class="fl">${rows.map(r => `<div class="covrow ${r.over ? 'bad' : 'ok'}"><b>${esc(r.name)}</b><span class="mono">${r.mins} min${r.win ? ' / ' + r.win : ''}</span><span>${r.over ? `Over the window by ${r.mins - r.win} min: cut ${Math.ceil((r.mins - r.win) / 15)} shot${Math.ceil((r.mins - r.win) / 15) > 1 ? 's' : ''} or shorten` : r.win ? `${r.win - r.mins} min spare` : 'no window set'}${r.done ? ` · ${r.done} min done` : ''}</span></div>`).join('')}</div></div>`; }
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3692,6 +3716,7 @@ function itemHTML(l, it, n) {
         ${!isLight(it.shotId) ? `<label class="ifield"><span>Lighting</span><select data-light="${it.id}"><option value="">None</option>${LIGHTS.map(x => `<option value="${x.id}" ${x.id === it.light ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>` : ''}
         <label class="ifield"><span>Location</span><select data-loc="${it.id}"><option value="">None</option>${l.locations.map(x => `<option value="${x.id}" ${x.id === it.loc ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
         ${l.fields.map(f => `<label class="ifield"><span>${esc(f.name)}</span><input data-val="${it.id}" data-f="${f.id}" value="${esc(it.vals[f.id] || '')}"></label>`).join('')}
+        <label class="ifield"><span>Minutes</span><input type="number" min="1" step="5" inputmode="numeric" data-mins="${it.id}" value="${it.mins == null ? 15 : it.mins}"></label>
       </div>
     </div>
     <div class="iact">${manual ? `<button class="iconbtn" data-act="mv" data-d="-1" data-id="${it.id}" aria-label="Move up" title="Move up">${I.up}</button><button class="iconbtn" data-act="mv" data-d="1" data-id="${it.id}" aria-label="Move down" title="Move down">${I.down}</button>` : ''}<button class="iconbtn" data-act="dupitem" data-id="${it.id}" aria-label="Duplicate shot" title="Duplicate">${I.copy}</button><button class="iconbtn" data-act="rmitem" data-id="${it.id}" aria-label="Remove shot" title="Remove">${I.trash}</button></div>
@@ -3726,9 +3751,9 @@ function renderList() {
     </div>
     <div class="groups">${l.items.length ? groupsHTML : `<div class="group"><div class="empty"><b>This shot list is empty</b>Add shots from the panel on the right, or browse the library and use “Add to shot list”.<div style="margin-top:12px"><button class="btn primary" data-act="tolib">Browse the library</button></div></div></div>`}</div>
     <aside class="side">
-      ${coverageHTML(l)}
+      ${coverageHTML(l)}${schedHTML(l)}
       <div class="box"><h4>Locations <span class="count">${l.locations.length}</span></h4><p>Add locations, assign each shot one, then group and sort the list by location.</p>
-        <div class="fl">${l.locations.map((x, i) => `<div class="flrow">${I.pin.replace('<svg', '<svg width="14" height="14" style="color:var(--accent);flex:none"')}<input data-rnloc="${x.id}" value="${esc(x.name)}" aria-label="Location name"><button class="iconbtn" data-act="mvloc" data-d="-1" data-id="${x.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">${I.up}</button><button class="iconbtn" data-act="mvloc" data-d="1" data-id="${x.id}" ${i === l.locations.length - 1 ? 'disabled' : ''} aria-label="Move down">${I.down}</button><button class="iconbtn" data-act="rmloc" data-id="${x.id}" aria-label="Remove location">${I.x}</button></div>`).join('')}</div>
+        <div class="fl">${l.locations.map((x, i) => `<div class="flrow">${I.pin.replace('<svg', '<svg width="14" height="14" style="color:var(--accent);flex:none"')}<input data-rnloc="${x.id}" value="${esc(x.name)}" aria-label="Location name"><input type="number" min="0" step="15" inputmode="numeric" data-win="${x.id}" value="${x.window || ''}" placeholder="min" title="Time window in minutes" style="flex:0 0 58px"><button class="iconbtn ${x.scout ? 'on' : ''}" data-act="scout" data-id="${x.id}" aria-label="Scouting card" title="Scouting card">${I.edit}</button><button class="iconbtn" data-act="mvloc" data-d="-1" data-id="${x.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">${I.up}</button><button class="iconbtn" data-act="mvloc" data-d="1" data-id="${x.id}" ${i === l.locations.length - 1 ? 'disabled' : ''} aria-label="Move down">${I.down}</button><button class="iconbtn" data-act="rmloc" data-id="${x.id}" aria-label="Remove location">${I.x}</button></div>${scoutHTML(l, x)}`).join('')}</div>
         <form class="addrow" data-form="loc"><input class="field" name="v" placeholder="e.g. Rooftop" aria-label="New location"><button class="btn sm" type="submit">Add</button></form></div>
       <div class="box"><h4>Custom fields <span class="count">${l.fields.length}</span></h4><p>Extra columns for every shot, such as lens, talent, time of day or scene number.</p>
         <div class="fl">${l.fields.map(f => `<div class="flrow"><input data-rnf="${f.id}" value="${esc(f.name)}" aria-label="Field name"><button class="iconbtn" data-act="rmf" data-id="${f.id}" aria-label="Remove field">${I.x}</button></div>`).join('')}</div>
@@ -3743,9 +3768,12 @@ function renderList() {
   $('#grp').onchange = e => { l.group = e.target.checked; save(); renderList(); };
   paintThumbs($('#app'));
   $$('.inote').forEach(a => { const grow = () => { a.style.height = 'auto'; a.style.height = a.scrollHeight + 'px'; }; grow(); a.oninput = () => { grow(); const it = l.items.find(i => i.id === a.dataset.note); it.note = a.value; touch(l); save(); }; });
+  $$('[data-mins]').forEach(inp => inp.onchange = () => { const it = l.items.find(i => i.id === inp.dataset.mins); it.mins = Math.max(1, +inp.value || 15); touch(l); save(); renderList(); });
   $$('[data-val]').forEach(inp => inp.oninput = () => { const it = l.items.find(i => i.id === inp.dataset.val); it.vals[inp.dataset.f] = inp.value; touch(l); save(); });
   $$('[data-light]').forEach(sel => sel.onchange = () => { const it = l.items.find(i => i.id === sel.dataset.light); it.light = sel.value; touch(l); save(); });
   $$('[data-loc]').forEach(sel => sel.onchange = () => { const it = l.items.find(i => i.id === sel.dataset.loc); it.loc = sel.value; touch(l); save(); renderList(); });
+  $$('[data-win]').forEach(inp => inp.onchange = () => { const x = l.locations.find(y => y.id === inp.dataset.win); x.window = +inp.value || 0; touch(l); save(); renderList(); });
+  $$('img[data-scout]').forEach(async im => { const x = l.locations.find(y => y.id === im.dataset.scout); if (x && x.scout && x.scout.img) { const u = await Img.url(x.scout.img); if (u) im.src = u; } });
   $$('[data-rnloc]').forEach(inp => { inp.oninput = () => { l.locations.find(x => x.id === inp.dataset.rnloc).name = inp.value; touch(l); save(); }; inp.onchange = () => renderList(); });
   $$('[data-rnf]').forEach(inp => { inp.oninput = () => { l.fields.find(x => x.id === inp.dataset.rnf).name = inp.value; touch(l); save(); }; inp.onchange = () => renderList(); });
   if (ui.editHead) $('#ht').focus();
@@ -3810,6 +3838,12 @@ document.addEventListener('click', e => {
     case 'dupitem': { const k = l.items.findIndex(i => i.id === id); const c = JSON.parse(JSON.stringify(l.items[k])); c.id = rid(); c.done = false; l.items.splice(k + 1, 0, c); touch(l); save(); renderList(); break; }
     case 'rmitem': { const it = l.items.find(i => i.id === id); l.items = l.items.filter(i => i.id !== id); touch(l); save(); toast(`Removed ${BY_ID[it.shotId].name}`); renderList(); break; }
     case 'mvloc': { const k = l.locations.findIndex(x => x.id === id), j = k + +b.dataset.d; [l.locations[k], l.locations[j]] = [l.locations[j], l.locations[k]]; l.groupSort = 'custom'; touch(l); save(); renderList(); break; }
+    case 'scout': cv.scoutOpen = cv.scoutOpen === id ? null : id; renderList(); $(`form[data-form="scout"]`)?.scrollIntoView({ block: 'nearest' }); break;
+    case 'scoutclose': cv.scoutOpen = null; renderList(); break;
+    case 'preroll': { const sl = getList(id); sl.preroll = sl.preroll || {}; sl.preroll[b.dataset.i] = !sl.preroll[b.dataset.i]; save(); openShootMode(sl.id); break; }
+    case 'prerollreset': { const sl = getList(id); sl.preroll = {}; save(); openShootMode(sl.id); break; }
+    case 'take': { const sl = getList($('#sheet').dataset.shoot); const it = sl.items.find(i => i.id === id); it.takes = (it.takes || 0) + (+b.dataset.d); if (it.takes < 0) it.takes = 0; touch(sl); save(); openShootMode(sl.id); break; }
+    case 'best': { const sl = getList($('#sheet').dataset.shoot); const it = sl.items.find(i => i.id === id); it.best = it.takes || 0; touch(sl); save(); openShootMode(sl.id); break; }
     case 'rmloc': { const x = l.locations.find(x => x.id === id); l.locations = l.locations.filter(x => x.id !== id); l.items.forEach(i => { if (i.loc === id) i.loc = ''; }); touch(l); save(); toast(`Removed location ${x.name}. Its shots are now unassigned.`); renderList(); break; }
     case 'rmf': l.fields = l.fields.filter(f => f.id !== id); l.items.forEach(i => delete i.vals[id]); touch(l); save(); renderList(); break;
     case 'stag': lv.tag.has(b.dataset.v) ? lv.tag.delete(b.dataset.v) : lv.tag.add(b.dataset.v); renderList(); break;
@@ -3877,6 +3911,7 @@ document.addEventListener('submit', e => {
   const kind = f.dataset.form, fd = new FormData(f);
   if (kind === 'treat') { saveTreatForm(); toast('Treatment saved'); return; }
   if (kind === 'frame') { const file = fd.get('file'); if (!file || !file.size) return; const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Adding…'; Img.put(file).then(img => { if (!img) { toast('Could not store the photo in this browser'); btn.disabled = false; return; } ensureTools(); store.gallery.push({ id: rid(), kind: String(fd.get('kind')), date: String(fd.get('date') || today()), saw: String(fd.get('saw') || '').trim(), left: String(fd.get('left') || '').trim(), img }); if (String(fd.get('kind')) === 'daily') { const c = ensureCourse(); const d = String(fd.get('date') || today()); if (!c.frames.includes(d)) c.frames.push(d); } save(); toast('Frame added'); renderGallery(); }); return; }
+  if (kind === 'scout') { const l = getList(ui.listId); const x = l.locations.find(y => y.id === f.dataset.locid); if (!x) return; x.scout = x.scout || {}; for (const [k] of SCOUT_FIELDS) x.scout[k] = String(fd.get(k) || '').trim(); const ph = fd.get('photo'); const fin = () => { touch(l); save(); toast('Scouting card saved'); cv.scoutOpen = null; renderList(); }; if (ph && ph.size) Img.put(ph).then(img => { if (img) x.scout.img = img; fin(); }); else fin(); return; }
   if (kind === 'log') { const c = ensureCourse(); const g = k => String(fd.get(k) || '').trim(); c.log.push({ id: rid(), date: g('date') || today(), loc: g('loc'), lens: g('lens'), settings: g('settings'), wrong: g('wrong'), change: g('change') }); save(); cv.logOpen = false; toast('Shoot logged'); renderCourse(); return; }
   if (kind === 'row' || kind === 'head') { const l = getList(kind === 'row' ? f.dataset.id : ui.listId); const t = String(fd.get('title')).trim(); if (!t) return; l.title = t; l.desc = String(fd.get('desc') || '').trim(); touch(l); save(); ui.editRow = null; ui.editHead = false; kind === 'row' ? renderLists() : renderList(); return; }
   const l = getList(ui.listId), v = String(fd.get('v') || '').trim(); if (!v) return;
