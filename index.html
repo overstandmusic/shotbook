@@ -563,6 +563,28 @@ h4.sub:first-child{margin-top:0}
 </style>
 <style>.gact{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:6px}.gitem figcaption .iconbtn{position:static}.critbox{grid-column:1/-1;background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:13.5px;line-height:1.5;white-space:pre-wrap;margin:0 10px 10px}.logrow .critbox{margin:8px 0 0}.logrow{grid-template-columns:200px 1fr auto;}</style>
 <style>.pastebox{grid-column:1/-1;margin:8px 10px 10px}.pastebox textarea{background:var(--surface);border:1px solid var(--line);width:100%}.logrow .pastebox{margin:8px 0 0}</style>
+<style>
+.drillin{display:flex;flex-direction:column}
+.drillbody{overflow:auto;padding:20px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:820px;width:100%;margin:0 auto}
+.drillpanel{background:#07080A}
+.drillctx{display:flex;flex-direction:column;gap:2px}.drillctx b{font-family:var(--display);font-weight:800;font-size:30px;text-transform:uppercase;line-height:1}
+.drillq{font-size:19px;font-weight:600}
+.drillopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.drillopts button{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:12px 14px;font-size:15px}
+.drillopts button.right{border-color:var(--good);background:var(--good-soft)}
+.drillopts button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.drillbody .why{font-size:14.5px;color:var(--muted);background:var(--surface2);border-radius:8px;padding:10px 12px}
+.drillnext{display:flex;gap:8px;flex-wrap:wrap}
+.drillend{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.drillend b{font-family:var(--display);font-weight:800;font-size:56px;line-height:1}
+.drillend p{margin:0;color:var(--muted);max-width:50ch}
+.drillmiss{display:flex;flex-wrap:wrap;gap:6px}
+.cover .fl{gap:2px}
+.covrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:6px 8px;border-radius:6px;font-size:13px}
+.covrow.bad{background:var(--bad-soft)}.covrow.ok{background:var(--good-soft)}
+.covrow span:last-child{grid-column:1/-1;color:var(--muted);font-size:12.5px}
+@media (max-width:560px){.drillopts{grid-template-columns:1fr}}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -2658,7 +2680,7 @@ function drawDetail() {
   let cur = 0; s.beats.forEach(([bt], i) => { if (det.t >= bt) cur = i; });
   $$('.beat').forEach((b, i) => b.classList.toggle('on', i === cur));
 }
-function closeShot() { const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = ''; delete sh.dataset.shoot; cancelAnimationFrame(det.raf); cancelAnimationFrame(sb.raf); cancelAnimationFrame(cmp.raf); cmp.id = null; document.body.style.overflow = ''; closePop(); rerender(); }
+function closeShot() { const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = ''; delete sh.dataset.shoot; cancelAnimationFrame(det.raf); cancelAnimationFrame(sb.raf); cancelAnimationFrame(drill.raf); drill.active = false; cancelAnimationFrame(cmp.raf); cmp.id = null; document.body.style.overflow = ''; closePop(); rerender(); }
 /* ---------- Shotbook app, part 3: learning layer, finder, compare, shoot mode ---------- */
 const Learn = {};
 const PREF_KEY = 'shotbook.prefs';
@@ -3032,6 +3054,7 @@ function renderHome() {
       <div class="tcard"><span class="label">Lesson · next up</span>${nextLesson ? `<button class="lessonlink" data-act="openshot" data-id="${nextLesson}"><canvas data-shot="${nextLesson}"></canvas><span><b>${esc(BY_ID[nextLesson].name)}</b><small>${esc(BY_ID[nextLesson].cat)} · ${BY_ID[nextLesson].kind === 'light' ? 'lighting' : 'camera'}</small></span></button>` : '<b>Everything learned. Revisit anything.</b>'}<div class="tfoot"><span class="mono">${store.learned.length}/${SHOTS.length + LIGHTS.length} learned</span>${nextLesson ? `<button class="btn sm primary" data-act="openshot" data-id="${nextLesson}">${I.play} Open</button>` : ''}</div></div>
       <div class="tcard ${studied ? 'done' : ''}"><span class="label">Seeing · weekly</span><b>${studied ? 'Study done this week' : 'Study one video, sound off'}</b><p>Ten frames. What did they see, what did they leave out.</p><div class="tfoot"><span class="mono">${c.studies.length} studies</span><button class="btn sm ${studied ? '' : 'primary'}" data-act="study" data-w="${weekKey}">${I.check} ${studied ? 'Undo' : 'Done'}</button></div></div>
       <div class="tcard ${daysSinceShoot != null && daysSinceShoot < 7 ? 'done' : ''}"><span class="label">Shoot · weekly</span><b>${lastLog ? (daysSinceShoot === 0 ? 'Shot today' : `Last shoot ${daysSinceShoot} day${daysSinceShoot === 1 ? '' : 's'} ago`) : 'No shoots logged yet'}</b><p>${daysSinceShoot == null || daysSinceShoot >= 7 ? 'One shoot a week, however small.' : esc(lastLog.loc || 'Logged')}</p><div class="tfoot"><span class="mono">${c.log.length} logged</span><button class="btn sm ${daysSinceShoot == null || daysSinceShoot >= 7 ? 'primary' : ''}" data-act="golog">${I.plus} Log a shoot</button></div></div>
+      ${drillHomeHTML()}
       <div class="tcard"><span class="label">Kit</span><b>${bought ? `${bought} of ${KIT.length} items bought` : 'Nothing bought yet'}</b><p>${gbp(kt.remaining)} remaining of the ${gbp(kt.planned)} plan.</p><div class="tfoot"><span class="mono">${gbp(kt.spent)} spent</span><button class="btn sm" data-act="gokit">Open kit</button></div></div>
     </div>
     <section class="lsec"><div class="lsechead"><h2>Competency map</h2><p>What "basic competency" means here: each row is a set of lessons you have marked as learned. Tap a row to open the next one.</p></div>
@@ -3227,6 +3250,72 @@ function pasteCritique(kind, id, anchor) {
   box.onsubmit = e => { e.preventDefault(); const v = box.querySelector('textarea').value.trim(); if (!v) return; g.critique = v; save(); toast('Critique saved'); rerender(); };
   host.appendChild(box); box.querySelector('textarea').focus();
 }
+/* ---------- Spaced repetition and recognition drills ---------- */
+function ensureSrs() { store.srs = store.srs || {}; store.drills = store.drills || {}; return store.srs; }
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+function srsSchedule(id, ok) { const S = ensureSrs(); const cur = S[id] || { interval: 0, streak: 0 }; const next = ok ? Math.max(3, Math.round((cur.interval || 1.4) * 2.2)) : 1; S[id] = { interval: next, streak: ok ? (cur.streak || 0) + 1 : 0, due: addDays(today(), next), last: today() }; save(); }
+function srsDue() { const S = ensureSrs(); const t = today(); return (store.learned || []).filter(id => BY_ID[id] && (!S[id] || S[id].due <= t)); }
+// hook: marking learned schedules the first review
+const _markLearned = markLearned; markLearned = function (id, on) { _markLearned(id, on); const S = ensureSrs(); if (on && !S[id]) { S[id] = { interval: 3, streak: 0, due: addDays(today(), 3) }; save(); } };
+
+/* a drill question: recognition (which shot / which lighting is this?) or the lesson quiz */
+function makeQuestion(id, mode) {
+  const s = BY_ID[id]; const isL = s.kind === 'light'; const pool = (isL ? LIGHTS : SHOTS).filter(x => x.id !== id && !x.custom);
+  const same = pool.filter(x => x.cat === s.cat); const pick = []; const src = [...same.sort(() => Math.random() - .5), ...pool.sort(() => Math.random() - .5)];
+  for (const x of src) { if (pick.length >= 3) break; if (!pick.includes(x)) pick.push(x); }
+  if (mode === 'quiz' && s.quiz && s.quiz.q) return { id, kind: 'quiz', q: s.quiz.q, opts: s.quiz.opts.map((o, i) => ({ t: o, ok: i === s.quiz.a })).sort(() => Math.random() - .5), why: s.quiz.why };
+  const q = isL ? 'Which lighting setup is this?' : s.cat === 'Movement' ? 'Which camera move is this?' : 'Which shot is this?';
+  return { id, kind: 'see', q, opts: [{ t: s.name, ok: true }, ...pick.map(x => ({ t: x.name, ok: false }))].sort(() => Math.random() - .5), why: s.summary, anim: true };
+}
+const drill = { qs: [], i: 0, score: 0, active: false, raf: 0, t: 0, last: 0, answered: false };
+function startDrill(ids, label) {
+  if (!ids.length) return; drill.qs = ids.slice(0, 8).map((id, k) => makeQuestion(id, k % 3 === 2 ? 'quiz' : 'see')); drill.i = 0; drill.score = 0; drill.active = true; drill.label = label; drill.answered = false;
+  const sh = $('#sheet'); sh.className = 'sheet'; sh.hidden = false; document.body.style.overflow = 'hidden'; cancelAnimationFrame(det.raf); cancelAnimationFrame(cmp.raf);
+  drawDrill();
+}
+function drawDrill() {
+  const sh = $('#sheet'); const q = drill.qs[drill.i];
+  if (!q) { const n = drill.qs.length; ensureSrs(); store.drills[today()] = Math.max(store.drills[today()] || 0, Math.round(drill.score / n * 100)); save(); sh.innerHTML = `<div class="sheetin drillin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Done</span></button><div class="crumbs"><b>${esc(drill.label)}</b></div></nav><div class="drillbody"><div class="drillend"><div class="label">Result</div><b>${drill.score} / ${n}</b><p>${drill.score === n ? 'Clean sweep. These come back in a week or two.' : drill.score >= n * .6 ? 'Solid. The ones you missed are due again tomorrow.' : 'Rough one. Reopen the lessons you missed; they are due again tomorrow.'}</p><div class="drillmiss">${drill.qs.filter(x => x.miss).map(x => `<button class="btn sm" data-act="openshot" data-id="${x.id}">${I.play} ${esc(BY_ID[x.id].name)}</button>`).join('')}</div><button class="btn primary" data-act="close">Back to Home</button></div></div></div>`; return; }
+  const s = BY_ID[q.id];
+  sh.innerHTML = `<div class="sheetin drillin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Quit</span></button><div class="crumbs"><b>${esc(drill.label)}</b></div><div class="stepper"><span>${drill.i + 1} / ${drill.qs.length}</span></div></nav>
+    <div class="drillbody">${q.anim ? `<div class="panel drillpanel"><canvas id="dcv"></canvas></div>` : `<div class="drillctx"><span class="label">${esc(s.cat)}</span><b>${esc(s.name)}</b></div>`}
+      <div class="drillq">${esc(q.q)}</div>
+      <div class="opts drillopts">${q.opts.map((o, i) => `<button data-act="drillans" data-i="${i}">${esc(o.t)}</button>`).join('')}</div>
+      <div class="why" id="dwhy" hidden></div>
+      <div class="drillnext" id="dnext" hidden><button class="btn primary" data-act="drillnext">${drill.i + 1 < drill.qs.length ? 'Next' : 'Finish'} ${I.next}</button><button class="btn ghost" data-act="openshot" data-id="${q.id}">Open the lesson</button></div></div></div>`;
+  drill.answered = false;
+  if (q.anim) { const cv = $('#dcv'); fit(cv); cancelAnimationFrame(drill.raf); drill.last = performance.now(); drill.t = 0; const loop = now => { if ($('#sheet').hidden || !$('#dcv')) return; const dt = Math.min(.1, (now - drill.last) / 1000); drill.last = now; drill.t = (drill.t + dt / (s.dur || 6)) % 1; if (s.kind === 'light') LightEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false }); else Engine.render(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false, guides: {} }); drill.raf = requestAnimationFrame(loop); }; drill.raf = requestAnimationFrame(loop); }
+}
+function drillAnswer(i) {
+  if (drill.answered) return; drill.answered = true; const q = drill.qs[drill.i]; const ok = q.opts[i].ok; if (ok) drill.score++; else q.miss = true;
+  $$('.drillopts button').forEach((b, k) => { b.disabled = true; if (q.opts[k].ok) b.classList.add('right'); else if (k === i) b.classList.add('wrong'); });
+  const w = $('#dwhy'); w.hidden = false; w.textContent = (ok ? 'Correct. ' : `Not quite: it is ${BY_ID[q.id].name}. `) + q.why; $('#dnext').hidden = false;
+  if (isLearned(q.id)) srsSchedule(q.id, ok);
+}
+function drillHomeHTML() {
+  const due = srsDue(); const learnedN = (store.learned || []).length; const pool = learnedN >= 6 ? store.learned : [...SHOTS.slice(0, 12).map(s => s.id), 'l-loop', 'l-rembrandt', 'l-butterfly', 'l-split'];
+  const todayScore = (store.drills || {})[today()];
+  return `<div class="tcard ${due.length ? '' : 'done'}"><span class="label">Review · spaced</span><b>${due.length ? `${due.length} lesson${due.length === 1 ? '' : 's'} due for review` : learnedN ? 'Nothing due today' : 'Mark lessons learned to start reviews'}</b><p>${due.length ? 'Quick recognition and quiz cards. Right answers push the next review further out.' : 'Reviews come back at 3 days, then a week, then a month.'}</p><div class="tfoot"><span class="mono">${Object.keys(store.srs || {}).length} scheduled</span>${due.length ? `<button class="btn sm primary" data-act="drill" data-mode="due">${I.play} Review now</button>` : ''}</div></div>
+  <div class="tcard ${todayScore != null ? 'done' : ''}"><span class="label">Eye test · daily</span><b>${todayScore != null ? `Today's eye test: ${todayScore}%` : 'Can you name the shot on sight?'}</b><p>Eight frames from the engine, no labels. Name the shot, move or lighting pattern.</p><div class="tfoot"><span class="mono">${Object.keys(store.drills || {}).length} taken</span><button class="btn sm ${todayScore != null ? '' : 'primary'}" data-act="drill" data-mode="eye">${I.play} ${todayScore != null ? 'Again' : 'Start'}</button></div></div>`;
+}
+function startHomeDrill(mode) { ensureSrs(); if (mode === 'due') startDrill(srsDue().sort(() => Math.random() - .5), 'Review'); else { const learnedN = (store.learned || []).length; const pool = learnedN >= 6 ? [...store.learned] : [...SHOTS.slice(0, 14).map(s => s.id), 'l-loop', 'l-rembrandt', 'l-butterfly', 'l-split', 'l-hardsoft']; startDrill(pool.sort(() => Math.random() - .5).slice(0, 8), 'Eye test'); } }
+
+/* ---------- coverage check for a shot list ---------- */
+function coverageCheck(l) {
+  const secField = l.fields.find(f => /section/i.test(f.name)); const groups = {};
+  for (const it of l.items) { const k = secField ? (it.vals[secField.id] || 'Unassigned') : 'Whole list'; (groups[k] = groups[k] || []).push(it); }
+  const out = [];
+  for (const k in groups) { const ids = groups[k].map(i => i.shotId); const has = pred => ids.some(id => BY_ID[id] && pred(BY_ID[id])); const miss = [];
+    if (!has(s => ['ews', 'ws'].includes(s.id))) miss.push('no wide');
+    if (!has(s => ['ms', 'mcu'].includes(s.id))) miss.push('no medium');
+    if (!has(s => ['cu', 'ecu'].includes(s.id))) miss.push('no close-up');
+    if (!has(s => s.cat === 'Movement')) miss.push('no camera move');
+    if (!groups[k].some(i => i.light || (BY_ID[i.shotId] && BY_ID[i.shotId].kind === 'light'))) miss.push('no lighting decided');
+    if (!groups[k].some(i => i.loc)) miss.push('no location');
+    out.push({ k, n: groups[k].length, miss }); }
+  return out;
+}
+function coverageHTML(l) { if (!l.items.length) return ''; const r = coverageCheck(l); const bad = r.filter(x => x.miss.length); return `<div class="box cover"><h4>Coverage check ${bad.length ? `<span class="count" style="background:var(--bad-soft);color:var(--bad)">${bad.length}</span>` : '<span class="count" style="background:var(--good-soft);color:var(--good)">ok</span>'}</h4><p>Each section wants a wide, a medium, a close-up, one move, a lighting decision and a location.</p><div class="fl">${r.map(x => `<div class="covrow ${x.miss.length ? 'bad' : 'ok'}"><b>${esc(x.k)}</b><span class="mono">${x.n} shots</span><span>${x.miss.length ? esc(x.miss.join(' · ')) : 'covered'}</span></div>`).join('')}</div></div>`; }
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3358,6 +3447,7 @@ function renderList() {
     </div>
     <div class="groups">${l.items.length ? groupsHTML : `<div class="group"><div class="empty"><b>This shot list is empty</b>Add shots from the panel on the right, or browse the library and use “Add to shot list”.<div style="margin-top:12px"><button class="btn primary" data-act="tolib">Browse the library</button></div></div></div>`}</div>
     <aside class="side">
+      ${coverageHTML(l)}
       <div class="box"><h4>Locations <span class="count">${l.locations.length}</span></h4><p>Add locations, assign each shot one, then group and sort the list by location.</p>
         <div class="fl">${l.locations.map((x, i) => `<div class="flrow">${I.pin.replace('<svg', '<svg width="14" height="14" style="color:var(--accent);flex:none"')}<input data-rnloc="${x.id}" value="${esc(x.name)}" aria-label="Location name"><button class="iconbtn" data-act="mvloc" data-d="-1" data-id="${x.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">${I.up}</button><button class="iconbtn" data-act="mvloc" data-d="1" data-id="${x.id}" ${i === l.locations.length - 1 ? 'disabled' : ''} aria-label="Move down">${I.down}</button><button class="iconbtn" data-act="rmloc" data-id="${x.id}" aria-label="Remove location">${I.x}</button></div>`).join('')}</div>
         <form class="addrow" data-form="loc"><input class="field" name="v" placeholder="e.g. Rooftop" aria-label="New location"><button class="btn sm" type="submit">Add</button></form></div>
@@ -3458,6 +3548,9 @@ document.addEventListener('click', e => {
     case 'gokit': go('kit'); break;
     case 'export': exportBackup(false); break;
     case 'crit': critique(b.dataset.kind, id, b); break;
+    case 'drill': startHomeDrill(b.dataset.mode); break;
+    case 'drillans': drillAnswer(+b.dataset.i); break;
+    case 'drillnext': drill.i++; drawDrill(); break;
     case 'paste': pasteCritique(b.dataset.kind, id, b); break;
     case 'pastecancel': b.closest('.pastebox').remove(); break;
     case 'inbox': checkInbox(false); break;
