@@ -651,6 +651,38 @@ h4.sub:first-child{margin-top:0}
 .addframe[open] summary:after{content:"–"}
 .addframe>p{margin-top:8px}
 </style>
+<style>
+.gsearch{position:relative}
+.gsearch .search input{padding:12px 12px 12px 40px;font-size:16px}
+.gsres{position:absolute;left:0;right:0;top:100%;z-index:25;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);max-height:420px;overflow:auto;margin-top:6px}
+.gsrow{display:grid;grid-template-columns:110px 1fr;gap:2px 12px;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:10px 12px}
+.gsrow:first-child{border-top:0}
+.gsrow:hover{background:var(--surface2)}
+.gsrow b{font-size:14.5px}
+.gsrow span:last-child{grid-column:2;font-size:13px;color:var(--muted)}
+.confrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.confrow .chip.on{background:var(--good);border-color:var(--good);color:#fff}
+.weeksum .weektip{margin:0;background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:14.5px}
+@media (max-width:560px){.gsrow{grid-template-columns:1fr}.gsrow span:last-child{grid-column:1}}
+</style>
+<style>
+.tag.lvl.beginner{background:var(--good-soft);color:var(--good)}.tag.lvl.intermediate{background:var(--accent-soft);color:var(--accent)}.tag.lvl.advanced{background:var(--bad-soft);color:var(--bad)}
+.hint{display:flex;gap:10px;align-items:center;background:var(--cyan-soft);border-radius:8px;padding:8px 8px 8px 14px;margin:14px 0 4px;font-size:14px}
+.hint span{flex:1}
+.hint .iconbtn{width:28px;height:28px;border:0;background:none}
+.pracbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.pracform{display:flex;flex-direction:column;gap:6px;margin-top:8px;background:var(--surface2);border-radius:8px;padding:10px}
+.pracform .ifield input,.pracform .ifield textarea{background:var(--surface);border:1px solid var(--line)}
+.gimg.nophoto:after{content:"no photo";position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-size:12px}
+.gitem.practice .gkind{background:var(--good)}
+.songbar{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.songsec{display:flex;flex-direction:column;justify-content:center;padding:0 6px;min-width:0;overflow:hidden;font-size:11px;line-height:1.1;border-right:1px solid var(--line)}
+.songsec b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.songsec span{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.songsec.ok{background:var(--good-soft)}.songsec.thin{background:var(--accent-soft)}.songsec.none{background:var(--bad-soft)}
+.songlegend{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin:2px 0 6px}
+.covrow.warn{background:var(--accent-soft)}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -2629,7 +2661,7 @@ function cardHTML(s) {
   return `<article class="card" data-id="${s.id}">
     <button class="thumb" data-act="open" data-id="${s.id}" aria-label="Open ${esc(s.name)} lesson"><canvas data-shot="${s.id}"></canvas></button>
     <div class="cbody"><div class="ctitle"><h3 data-act="open" data-id="${s.id}">${esc(s.name)}</h3><span class="abbr">${isLearned(s.id) ? '<i class="learned" title="Learned">✓</i>' : ''}${esc(s.cat)} · ${esc(s.abbr)}</span></div>
-    <p class="csum">${esc(s.summary)}</p><div class="ctags">${tags}</div></div>
+    <p class="csum">${esc(s.summary)}</p><div class="ctags">${tags}<span class="tag lvl ${esc(s.tags.level)}">${esc(s.tags.level)}</span><span class="tag">${Math.max(3, Math.round((s.dur || 6) * .6 + 2))} min</span></div></div>
     <div class="cact"><button class="iconbtn fav ${isFav(s.id) ? 'on' : ''}" data-act="fav" data-id="${s.id}" aria-pressed="${isFav(s.id)}" aria-label="Favourite" title="Favourite">${I.star}</button><button class="btn" data-act="addto" data-id="${s.id}">${I.plus} Add to shot list</button></div>
   </article>`;
 }
@@ -2706,12 +2738,13 @@ function openShot(id, list, from) {
     <div class="infocol">
       <div class="infohead"><div><div class="label">${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
       <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn primary" data-act="addto" data-id="${id}">${I.plus} Add to shot list</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button></div>
+      ${confidenceHTML(id)}
       ${cmps.length ? `<div class="cmpchips"><span class="label">Compare side by side</span>${cmps.map(c => `<button class="chip" data-act="compare" data-id="${c.id}">${esc(c.title)}</button>`).join('')}</div>` : ''}
       <p class="lede">${esc(s.lede)}</p>
       <div class="implies sec"><h4>What it implies</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
       <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid when</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
       <div class="sec"><h4>How to shoot it</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p>${practiceHTML(id)}</div>
       <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(i => `<button data-qi="${i}">${esc(q.opts[i])}</button>`).join('')}</div><div class="why" hidden></div></div>
       <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
       <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
@@ -2882,6 +2915,9 @@ function welcomeHTML() {
 function applyA11y() { const r = document.documentElement; r.setAttribute('data-text', prefs.text || 'normal'); r.setAttribute('data-contrast', prefs.contrast || 'normal'); }
 function openA11y(anchor) { const p = $('#pop'); p.innerHTML = `<h5>Text size</h5><div class="a11yrow">${[['normal', 'Normal'], ['large', 'Large'], ['xl', 'Extra large']].map(([k, l]) => `<button class="chip" data-act="a11ytext" data-v="${k}" aria-pressed="${(prefs.text || 'normal') === k}">${l}</button>`).join('')}</div><h5>Contrast</h5><div class="a11yrow">${[['normal', 'Normal'], ['high', 'High contrast']].map(([k, l]) => `<button class="chip" data-act="a11ycon" data-v="${k}" aria-pressed="${(prefs.contrast || 'normal') === k}">${l}</button>`).join('')}</div><p style="margin:0;font-size:13px;color:var(--muted)">Saved on this device.</p>`; p.hidden = false; closePop.anchor = anchor; const r = anchor.getBoundingClientRect(); p.style.left = Math.min(innerWidth - p.offsetWidth - 16, Math.max(16, r.left)) + 'px'; p.style.top = (r.bottom + 8) + 'px'; }
 applyA11y();
+
+addEventListener('offline', () => toast('Offline. Everything still works; critiques and photos sync when you are back.'));
+addEventListener('online', () => { toast('Back online'); if (typeof checkInbox === 'function') checkInbox(true); });
 /* ---------- Shotbook app, part 4: course, seeing strand, kit tracker, shoot log ---------- */
 function ensureCourse() { store.course = store.course || { tasks: {}, gates: {}, frames: [], studies: [], kit: {}, log: [], start: null }; const c = store.course; c.tasks = c.tasks || {}; c.gates = c.gates || {}; c.frames = c.frames || []; c.studies = c.studies || []; c.kit = c.kit || {}; c.log = c.log || []; return c; }
 const today = () => new Date().toISOString().slice(0, 10);
@@ -3049,13 +3085,14 @@ openShot = function (id, list, from) {
     <div class="infocol">
       <div class="infohead"><div><div class="label">Lighting · ${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
       <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn primary" data-act="addto" data-id="${id}">${I.plus} Add to shot list</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button><button class="btn" data-act="sandbox" data-id="${id}">${I.edit} Open in sandbox</button></div>
+      ${confidenceHTML(id)}
       ${cmps.length ? `<div class="cmpchips"><span class="label">Compare side by side</span>${cmps.map(c => `<button class="chip" data-act="compare" data-id="${c.id}">${esc(c.title)}</button>`).join('')}</div>` : ''}
       <p class="lede">${esc(s.lede)}</p>
       <div class="implies sec"><h4>What it implies</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
       <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid when</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
       <div class="sec"><h4>How to set it with a small kit</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div class="sec"><h4>Kit for this setup</h4><div class="ctags">${s.tags.gear.map(t => `<span class="tag gear">${esc(t)}</span>`).join('')}</div></div>
-      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p>${practiceHTML(id)}</div>
       <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(i => `<button data-qi="${i}">${esc(q.opts[i])}</button>`).join('')}</div><div class="why" hidden></div></div>
       <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
       <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
@@ -3134,8 +3171,11 @@ function renderHome() {
   $('#app').innerHTML = `<div class="wrap home">
     <div class="pagehead"><div><div class="label">${new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} · course day ${Math.max(1, Math.floor((Date.now() - new Date(c.start)) / 864e5) + 1)}</div><h1>Today</h1></div>
       <div class="ring" title="Overall progress towards basic competency"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface2)" stroke-width="8"/><circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${2 * Math.PI * 34}" stroke-dashoffset="${2 * Math.PI * 34 * (1 - overallPct() / 100)}" transform="rotate(-90 40 40)"/></svg><div><b>${overallPct()}%</b><small>to basic competency</small></div></div></div>
+    ${searchHTML()}
+    ${weekSummaryHTML()}
+    ${firstWeekHTML()}
     <div class="todo">
-      <div class="tcard ${frameDone ? 'done' : ''}"><span class="label">Seeing · daily</span><b>${frameDone ? 'Daily frame logged' : 'Take today\'s frame'}</b><p>This month: ${esc(CONSTRAINTS[mi][0])}</p><div class="tfoot"><span class="mono">streak ${st}</span><button class="btn sm" data-act="gogallery">${I.plus} Photo</button><button class="btn sm ${frameDone ? '' : 'primary'}" data-act="frame">${I.check} ${frameDone ? 'Undo' : 'Done'}</button></div></div>
+      <div class="tcard ${frameDone ? 'done' : ''}"><span class="label">Seeing · daily</span><b>${frameDone ? 'Daily frame logged' : 'Take today\'s frame'}</b><p>This month: ${esc(CONSTRAINTS[mi][0])}</p><div class="tfoot"><span class="mono">streak ${st}</span><label class="btn sm" style="cursor:pointer">${I.plus} Photo<input type="file" accept="image/*" capture="environment" id="quickcap" hidden></label><button class="btn sm ${frameDone ? '' : 'primary'}" data-act="frame">${I.check} ${frameDone ? 'Undo' : 'Done'}</button></div></div>
       <div class="tcard"><span class="label">Course · phase ${cur.n}: ${esc(cur.name)}</span><b>${nextTask ? esc(nextTask[1]) : 'All tasks done. Pass the gate.'}</b><p>${nextTask ? nextTask[2] + ' · ' + pp.d + '/' + pp.n + ' done' : esc(cur.gate)}</p><div class="tfoot"><span class="mono">${pp.d}/${pp.n}</span>${nextTask ? `<button class="btn sm primary" data-act="hometask" data-k="${nextTask[0]}">${I.check} Mark done</button>` : ''}<button class="btn sm" data-act="gocourse" data-phase="${cur.id}">Open phase</button></div></div>
       <div class="tcard"><span class="label">Lesson · next up</span>${nextLesson ? `<button class="lessonlink" data-act="openshot" data-id="${nextLesson}"><canvas data-shot="${nextLesson}"></canvas><span><b>${esc(BY_ID[nextLesson].name)}</b><small>${esc(BY_ID[nextLesson].cat)} · ${BY_ID[nextLesson].kind === 'light' ? 'lighting' : 'camera'}</small></span></button>` : '<b>Everything learned. Revisit anything.</b>'}<div class="tfoot"><span class="mono">${store.learned.length}/${SHOTS.length + LIGHTS.length} learned</span>${nextLesson ? `<button class="btn sm primary" data-act="openshot" data-id="${nextLesson}">${I.play} Open</button>` : ''}</div></div>
       <div class="tcard ${studied ? 'done' : ''}"><span class="label">Seeing · weekly</span><b>${studied ? 'Study done this week' : 'Study one video, sound off'}</b><p>Ten frames. What did they see, what did they leave out.</p><div class="tfoot"><span class="mono">${c.studies.length} studies</span><button class="btn sm ${studied ? '' : 'primary'}" data-act="study" data-w="${weekKey}">${I.check} ${studied ? 'Undo' : 'Done'}</button></div></div>
@@ -3143,6 +3183,7 @@ function renderHome() {
       ${drillHomeHTML()}
       <div class="tcard"><span class="label">Kit</span><b>${bought ? `${bought} of ${KIT.length} items bought` : 'Nothing bought yet'}</b><p>${gbp(kt.remaining)} remaining of the ${gbp(kt.planned)} plan.</p><div class="tfoot"><span class="mono">${gbp(kt.spent)} spent</span><button class="btn sm" data-act="gokit">Open kit</button></div></div>
     </div>
+    ${onThisDayHTML()}
     <section class="lsec"><div class="lsechead"><h2>Competency map</h2><p>What "basic competency" means here: each row is a set of lessons you have marked as learned. Tap a row to open the next one.</p></div>
       <div class="compgrid">${cs.map(x => `<button class="comp ${x.pct === 100 ? 'done' : ''}" data-act="openshot" data-id="${x.next || x.need[0]}"><div class="ctop"><b>${esc(x.name)}</b><span class="mono">${x.d}/${x.n}</span></div><div class="prog"><i style="width:${x.pct}%"></i></div><small>${x.next ? 'Next: ' + esc(BY_ID[x.next].name) : 'Complete'}</small></button>`).join('')}</div></section>
     <section class="lsec"><div class="lsechead"><h2>Music-video recipes</h2><p>Ready-made coverage sets, each shot paired with a lighting setup. Add one as a shot list and adapt it.</p></div>
@@ -3153,7 +3194,10 @@ function renderHome() {
         <div class="lsechead" style="margin-top:22px"><h2>How to use this app</h2></div>
         <ol class="howto"><li><b>Every day:</b> take the frame, tick it here.</li><li><b>Most days:</b> open the next lesson, play it, do the quiz, mark it learned.</li><li><b>Every week:</b> one study with the sound off, one shoot, logged.</li><li><b>Per phase:</b> work the theory and practice list, pass the gate honestly.</li><li><b>Before a shoot:</b> write a <button class="gl" data-act="gotreat" style="text-decoration:underline solid var(--accent)">treatment</button>, build the shot list from it, assign locations and lighting, use Shoot mode on set.</li><li><b>Monthly:</b> copy the review pack from the Course tab into a chat with Claude for critique.</li></ol></section>
     </div>${backupHTML()}</div>`;
-  paintThumbs($('#app'));
+  paintThumbs($('#app')); bindSearch();
+  $$('.otd img[data-gid]').forEach(async im => { const g = store.gallery.find(x => x.id === im.dataset.gid); if (g && g.img) { const u = await Img.url(g.img); if (u) im.src = u; } });
+  $$('[data-week]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.week = c.week || {}; c.week[cb.dataset.week] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); $('.firstweek .count').textContent = Object.values(c.week).filter(Boolean).length + '/7'; });
+  const qc = $('#quickcap'); if (qc) qc.onchange = () => { const f = qc.files[0]; if (!f) return; toast('Adding today\'s frame…'); Img.put(f).then(img => { if (!img) { toast('Could not store the photo'); return; } ensureTools(); store.gallery.push({ id: rid(), kind: 'daily', date: today(), saw: '', img }); const c = ensureCourse(); if (!c.frames.includes(today())) c.frames.push(today()); save(); toast('Frame added. Add a note in Frames if you like.'); renderHome(); }); };
   const imp = $('#importfile'); if (imp) imp.onchange = () => { if (imp.files[0]) importBackup(imp.files[0]); };
 }
 function addRecipe(r) { const l = newList(r.name); r.items.forEach(([s, lt, note]) => { addShot(l, s); const it = l.items[l.items.length - 1]; it.light = lt; it.note = note; }); l.desc = r.blurb; save(); updateCounts(); return l; }
@@ -3186,12 +3230,12 @@ function renderGallery() {
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" type="submit">${I.plus} Add frame</button><span class="mono" style="font-size:12px;color:var(--faint)">Photos are shrunk to 900px and stored ${Img.assets ? 'with the app' : 'in this browser'}.</span></div></form></details>
     <div class="galbar">
       ${monthsAll.length ? `<div class="monthnav"><button class="iconbtn" data-act="galmonth" data-v="${prevM || ''}" ${prevM ? '' : 'disabled'} aria-label="Earlier month">${I.back}</button><select id="galmonth" class="field" aria-label="Month">${monthsAll.map(m => `<option value="${m}" ${m === gal.month ? 'selected' : ''}>${mlabel(m)} (${all.filter(g => g.date.slice(0, 7) === m).length})</option>`).join('')}</select><button class="iconbtn" data-act="galmonth" data-v="${nextM || ''}" ${nextM ? '' : 'disabled'} aria-label="Later month">${I.next}</button></div>` : ''}
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${Crit.sample ? '' : `<button class="btn sm" data-act="inbox">${I.next} Check for critiques</button>`}<div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button></div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${Crit.sample ? '' : `<button class="btn sm" data-act="inbox">${I.next} Check for critiques</button>`}<div class="seg" role="group"><button data-act="galf" data-v="all" aria-pressed="${gal.filter === 'all'}">All</button><button data-act="galf" data-v="daily" aria-pressed="${gal.filter === 'daily'}">Daily</button><button data-act="galf" data-v="study" aria-pressed="${gal.filter === 'study'}">Study</button><button data-act="galf" data-v="practice" aria-pressed="${gal.filter === 'practice'}">Practice</button></div></div>
     </div>
     ${items.length ? `<section class="lsec"><div class="lsechead"><h2>${mlabel(gal.month)}</h2><p>${esc(monthConstraintFor(gal.month))}</p></div><div class="galgrid">${items.map(g => `<figure class="gitem ${g.kind}"><div class="gimg"><img data-gid="${g.id}" alt="${esc(g.saw || g.kind)}" loading="lazy"><span class="gkind">${g.kind}</span></div><figcaption><b>${esc(g.date)}</b>${g.saw ? `<span>${esc(g.saw)}</span>` : ''}${g.left ? `<span class="gleft">Left out: ${esc(g.left)}</span>` : ''}<div class="gact"><button class="btn sm primary" data-act="crit" data-kind="frame" data-id="${g.id}">${I.play} ${critButtonLabel()}</button>${Crit.sample ? '' : `<button class="btn sm" data-act="paste" data-kind="frame" data-id="${g.id}" title="Paste Claude's reply">${I.edit}</button>`}<button class="iconbtn" data-act="galdel" data-id="${g.id}" aria-label="Delete">${I.trash}</button></div></figcaption>${g.critique ? `<div class="critbox">${esc(g.critique)}</div>` : ''}</figure>`).join('')}</div></section>` : '<div class="empty"><b>No frames yet</b>Add today\'s daily frame above. After a month you will see what your eye keeps returning to.</div>'}
   </div>`;
   const sel = $('#galmonth'); if (sel) sel.onchange = () => { gal.month = sel.value; renderGallery(); };
-  $$('img[data-gid]').forEach(async im => { const g = store.gallery.find(x => x.id === im.dataset.gid); if (!g) return; const u = await Img.url(g.img); if (u) im.src = u; else im.closest('.gimg').classList.add('missing'); });
+  $$('img[data-gid]').forEach(async im => { const g = store.gallery.find(x => x.id === im.dataset.gid); if (!g) return; if (!g.img) { im.closest('.gimg').classList.add('nophoto'); return; } const u = await Img.url(g.img); if (u) im.src = u; else im.closest('.gimg').classList.add('missing'); });
 }
 function monthConstraintFor(m) { const c = ensureCourse(); if (!c.start) return ''; const s = new Date(c.start), d = new Date(m + '-01'); const i = (d.getFullYear() - s.getFullYear()) * 12 + d.getMonth() - s.getMonth(); return i >= 0 && i < 8 ? `Constraint: ${CONSTRAINTS[i][0]}` : ''; }
 
@@ -3212,13 +3256,14 @@ function renderTreatments() {
       <label class="ifield"><span>The idea, in one sentence</span><input class="field" name="idea" value="${esc(T.idea || '')}" placeholder="A performer alone on a rooftop as the city wakes up, the song as a letter they never sent"></label>
       <div class="lgrid"><label class="ifield"><span>Mood (three words)</span><input class="field" name="mood" value="${esc(T.mood || '')}" placeholder="lonely, warm, restless"></label><label class="ifield"><span>Colour palette</span><input class="field" name="palette" value="${esc(T.palette || '')}" placeholder="sodium orange, blue hour, one red practical"></label><label class="ifield"><span>Lighting approach</span><input class="field" name="lighting" value="${esc(T.lighting || '')}" placeholder="Window key for verses, coloured rim and haze for choruses"></label></div>
       <label class="ifield"><span>References (one per line: video or film, and what to take from it)</span><textarea class="field" name="refs" rows="3">${esc(T.refs || '')}</textarea></label>
+      <label class="ifield"><span>Song section timings (one per line, m:ss Name). They go onto the shot list's timeline.</span><textarea class="field" name="song_timings" rows="4" placeholder="0:00 Intro&#10;0:12 Verse 1&#10;0:48 Chorus 1">${esc(T.song_timings || '')}</textarea></label>
       <label class="ifield"><span>Locations (one per line)</span><textarea class="field" name="locs" rows="2">${esc(T.locs || '')}</textarea></label>
       <h4 class="sub">Sections</h4><p style="margin:-4px 0 8px;color:var(--muted);font-size:13.5px">For each section: what happens, and which recipe covers it. Recipes become the shot list.</p>
       <div class="secgrid">${SECTIONS.map(sn => { const s = sec[sn] || {}; return `<div class="secrow"><b>${sn}</b><input class="field" name="s_${sn}_what" value="${esc(s.what || '')}" placeholder="What we see"><select class="field" name="s_${sn}_recipe"><option value="">No recipe</option>${RECIPES.map(r => `<option value="${r.id}" ${s.recipe === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select><select class="field" name="s_${sn}_loc"><option value="">Location</option>${(T.locs || '').split('\n').map(x => x.trim()).filter(Boolean).map(x => `<option ${s.loc === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`; }).join('')}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn primary sm" type="submit">${I.check} Save treatment</button><button class="btn sm" type="button" data-act="tbuild" data-id="${T.id}">${I.list} Build the shot list</button><button class="btn sm" type="button" data-act="tcopy" data-id="${T.id}">${I.copy} Copy as text</button></div>
     </form></div>`;
 }
-function treatmentText(T) { const sec = T.sections || {}; return `TREATMENT: ${T.song || 'Untitled'}${T.artist ? ' — ' + T.artist : ''}\n${T.length ? 'Length ' + T.length + ' · ' : ''}${T.deliver || ''}\n\nIDEA\n${T.idea || ''}\n\nMOOD: ${T.mood || ''}\nPALETTE: ${T.palette || ''}\nLIGHTING: ${T.lighting || ''}\n\nREFERENCES\n${T.refs || ''}\n\nLOCATIONS\n${T.locs || ''}\n\nSECTIONS\n` + SECTIONS.map(sn => { const s = sec[sn] || {}; if (!s.what && !s.recipe) return null; const r = RECIPES.find(x => x.id === s.recipe); return `${sn}${s.loc ? ' @ ' + s.loc : ''}: ${s.what || ''}${r ? ' [' + r.name + ']' : ''}`; }).filter(Boolean).join('\n'); }
+function treatmentText(T) { const sec = T.sections || {}; return `TREATMENT: ${T.song || 'Untitled'}${T.artist ? ' — ' + T.artist : ''}\n${T.length ? 'Length ' + T.length + ' · ' : ''}${T.deliver || ''}\n\nIDEA\n${T.idea || ''}\n\nMOOD: ${T.mood || ''}\nPALETTE: ${T.palette || ''}\nLIGHTING: ${T.lighting || ''}\n\nREFERENCES\n${T.refs || ''}\n\nTIMINGS\n${T.song_timings || ''}\n\nLOCATIONS\n${T.locs || ''}\n\nSECTIONS\n` + SECTIONS.map(sn => { const s = sec[sn] || {}; if (!s.what && !s.recipe) return null; const r = RECIPES.find(x => x.id === s.recipe); return `${sn}${s.loc ? ' @ ' + s.loc : ''}: ${s.what || ''}${r ? ' [' + r.name + ']' : ''}`; }).filter(Boolean).join('\n'); }
 function buildFromTreatment(T) {
   const l = newList((T.song || 'Untitled') + (T.artist ? ' · ' + T.artist : '')); l.desc = T.idea || ''; const F = { id: rid(), name: 'Section' }; l.fields.push(F);
   const locNames = (T.locs || '').split('\n').map(x => x.trim()).filter(Boolean); locNames.forEach(n => l.locations.push({ id: rid(), name: n }));
@@ -3274,7 +3319,7 @@ function registerCustomLights() { ensureTools(); for (const s of store.customLig
 /* ---------- Backup: export and import everything, so progress moves between the artifact and the phone ---------- */
 async function exportBackup(withPhotos) {
   ensureTools(); const out = { app: 'shotbook', version: 1, exported: new Date().toISOString(), store, prefs, photos: {} };
-  if (withPhotos) { for (const g of store.gallery) { try { const u = await Img.url(g.img); if (!u) continue; const blob = await (await fetch(u)).blob(); out.photos[g.id] = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); }); } catch { } } }
+  if (withPhotos) { for (const g of store.gallery) { try { if (!g.img) continue; const u = await Img.url(g.img); if (!u) continue; const blob = await (await fetch(u)).blob(); out.photos[g.id] = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); }); } catch { } } }
   const txt = JSON.stringify(out); const name = `shotbook-backup-${today()}.json`;
   if (window.claude && claude.use) { try { const dl = await claude.use('downloads'); if (dl) { await dl.save({ filename: name, data: txt }); toast('Backup saved'); return; } } catch { } }
   try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); toast('Backup downloaded'); return; } catch { }
@@ -3302,7 +3347,7 @@ Crit.canShareFiles = () => !!(navigator.share && navigator.canShare);
 function critiqueContext() { const c = ensureCourse(); const cur = currentPhase(); return `I am a novice learning to shoot music videos and social content on a Sony FX3 with a 24-70mm f/2.8, one LED with a softbox, a bounce card and available light. I am on phase ${cur.n} of my course (${cur.name}). This month's seeing constraint is: ${CONSTRAINTS[monthIndex()][0]}.`; }
 function framePrompt(g) { return `${critiqueContext()}\n\n${g.kind === 'study' ? 'This is a paused frame from a music video I studied.' : 'This is my daily "seeing" frame: a phone photo of something I noticed.'}${g.saw ? ` My note: "${g.saw}".` : ''}${g.left ? ` What I think they left out: "${g.left}".` : ''}\n\nPlease critique it briefly as a cinematography tutor: (1) what works in the framing, lines and light, (2) one thing to change, (3) which shot or lighting pattern it relates to, and (4) a five-minute exercise for tomorrow. Keep it to about 150 words and be specific to what is in the picture.`; }
 function logPrompt(e) { return `${critiqueContext()}\n\nShoot log entry, ${e.date}${e.loc ? ' at ' + e.loc : ''}.\nLens: ${e.lens || 'not noted'}\nSettings: ${e.settings || 'not noted'}\nWhat went wrong: ${e.wrong || 'nothing noted'}\nWhat I'd change: ${e.change || 'nothing noted'}\n\nPlease review this as a cinematography tutor: diagnose the likely causes of what went wrong from the settings and situation, tell me what to check next time in order, and set one specific assignment for my next shoot that targets this. About 150 words.`; }
-async function blobFor(g) { const u = await Img.url(g.img); if (!u) return null; try { return await (await fetch(u)).blob(); } catch { return null; } }
+async function blobFor(g) { if (!g.img) return null; const u = await Img.url(g.img); if (!u) return null; try { return await (await fetch(u)).blob(); } catch { return null; } }
 async function critique(kind, id, anchor) {
   const g = kind === 'frame' ? store.gallery.find(x => x.id === id) : ensureCourse().log.find(x => x.id === id); if (!g) return;
   const prompt = kind === 'frame' ? framePrompt(g) : logPrompt(g);
@@ -3635,12 +3680,13 @@ function renderEditing() {
       <div class="params" id="params"></div><div class="beats" id="beats">${s.beats.map(([bt, txt], k) => `<button class="beat" data-bt="${bt}" data-i="${k}"><span class="t">${tcode(bt * s.dur)}</span><span>${esc(txt)}</span></button>`).join('')}</div></div>
     <div class="infocol"><div class="infohead"><div><div class="label">Editing · ${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
       <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button></div>
+      ${confidenceHTML(id)}
       ${cmps.length ? `<div class="cmpchips"><span class="label">Compare side by side</span>${cmps.map(c => `<button class="chip" data-act="compare" data-id="${c.id}">${esc(c.title)}</button>`).join('')}</div>` : ''}
       <p class="lede">${esc(s.lede)}</p><div class="implies sec"><h4>What it implies</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
       <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid when</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
       <div class="sec"><h4>How to do it in Resolve</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div class="sec"><h4>Shots in this example</h4><div class="pairs">${[...new Set(s.clips.map(c => c.shot))].map(p => `<button data-act="openshot" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
-      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p>${practiceHTML(id)}</div>
       <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(k => `<button data-qi="${k}">${esc(q.opts[k])}</button>`).join('')}</div><div class="why" hidden></div></div>
       <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
       <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
@@ -3969,10 +4015,11 @@ function renderColour() {
       <div class="params" id="params"></div><div class="beats" id="beats">${s.beats.map(([bt, txt], k) => `<button class="beat" data-bt="${bt}" data-i="${k}"><span class="t">${tcode(bt * s.dur)}</span><span>${esc(txt)}</span></button>`).join('')}</div></div>
     <div class="infocol"><div class="infohead"><div><div class="label">Colour · ${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
       <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button></div>
+      ${confidenceHTML(id)}
       <p class="lede">${esc(s.lede)}</p><div class="implies sec"><h4>What it gives you</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
       <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
       <div class="sec"><h4>How to do it</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p>${practiceHTML(id)}</div>
       <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(k => `<button data-qi="${k}">${esc(q.opts[k])}</button>`).join('')}</div><div class="why" hidden></div></div>
       <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
       <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
@@ -4055,6 +4102,85 @@ function renderGuides() {
 Object.assign(GLOSSARY, { 'safe zone': 'The part of a vertical frame the app\'s own buttons and captions will not cover: roughly the middle 70% of the height.', 'hook': 'The first two seconds of a post: the frame or moment that stops the scroll.', 'count-in': 'Two bars of clicks before the section starts on playback so every take begins together.', 'master': 'The full-quality 16:9 export of the finished video, from which all other versions are made.', '3-2-1': 'Three copies of your footage, on two kinds of storage, one of them somewhere else.', 'proxy': 'A small stand-in copy of a clip for smooth editing; the full file is swapped back for export.' });
 GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b.length - a.length));
 CHECKLIST.push(['Back up and verify before anyone leaves the shoot', 'Cards to the PC, second copy started. See Guides → Data and backup.'], ['Grab the social set at the end of every shoot', 'Hook to camera, ultra-wide, punch-in, centred frame. Ten minutes.']);
+/* ---------- Usability pass: first week, global search, confidence ratings, weekly summary, quick capture ---------- */
+const FIRST_WEEK = [
+  ['Day 1', 'Take your first daily frame and log it on Home. Open the basics path and do "Wide shot".', ['frame', 'lesson']],
+  ['Day 2', 'Two more basics lessons. Try the eye test once, expect to get half wrong.', ['lesson', 'eye']],
+  ['Day 3', 'Read Camera → Set up once. Tick what you can do without the camera (install Resolve, test a sample file).', ['camera']],
+  ['Day 4', 'Watch one music video with the sound off and log the study. Add a study frame with what they left out.', ['study']],
+  ['Day 5', 'Lighting: Flat, Loop, Rembrandt. Then the "Small LED vs window" comparison.', ['lesson']],
+  ['Day 6', 'Build a shot list from the "Performance verse" recipe. Add a location and a scouting card for somewhere you can actually shoot.', ['list']],
+  ['Day 7', 'Review: your due cards, the eye test, and copy the review pack into a chat with Claude.', ['review']],
+];
+function firstWeekHTML() { const c = ensureCourse(); c.week = c.week || {}; const done = FIRST_WEEK.filter((_, i) => c.week[i]).length; if (c.weekHidden) return ''; return `<section class="lsec firstweek"><div class="lsechead"><h2>Your first week <span class="count">${done}/7</span></h2><p>A gentle way in. One thing a day; tick it when it is done. Hide this once you know your way around.</p></div><div class="checklist">${FIRST_WEEK.map(([d, t], i) => `<label class="ck ${c.week[i] ? 'on' : ''}"><input type="checkbox" data-week="${i}" ${c.week[i] ? 'checked' : ''}><div><b>${d}</b><span>${esc(t)}</span></div></label>`).join('')}</div><button class="btn ghost sm" data-act="hideweek">Hide the first week</button></section>`; }
+
+/* ---------- global search ---------- */
+function searchAll(q) {
+  q = q.trim().toLowerCase(); if (q.length < 2) return []; const out = []; const hit = (hay) => hay.toLowerCase().includes(q);
+  const kindLabel = { light: 'Lighting', edit: 'Editing', grade: 'Colour' };
+  for (const s of [...SHOTS, ...LIGHTS, ...EDITS, ...GRADES]) if (hit([s.name, s.abbr, s.cat, s.summary || '', (s.reads || []).join(' ')].join(' '))) out.push({ kind: kindLabel[s.kind] || 'Shot', title: s.name, sub: s.summary || s.cat, act: 'openshot', id: s.id });
+  for (const k of Object.keys(GLOSSARY)) if (hit(k + ' ' + GLOSSARY[k])) out.push({ kind: 'Glossary', title: k, sub: GLOSSARY[k], act: 'glossary' });
+  for (const [k, v] of CHEATSHEET) if (hit(k + ' ' + v)) out.push({ kind: 'Cheat sheet', title: k, sub: v, act: 'gocamera' });
+  for (const r of CAM_REF) for (const [a, b] of r.rows) if (hit(r.name + ' ' + a + ' ' + b)) out.push({ kind: 'Camera', title: r.name + ': ' + a, sub: b, act: 'gocamera' });
+  for (const [a, b] of CAM_GLOSS) if (hit(a + ' ' + b)) out.push({ kind: 'Camera glossary', title: a, sub: b, act: 'gocamera' });
+  for (const g of GUIDES) for (const s of g.sections) for (const [a, b] of s.rows) if (hit(g.name + ' ' + s.h + ' ' + a + ' ' + b)) out.push({ kind: 'Guide', title: g.name + ' · ' + a, sub: b, act: 'goguide', v: g.id });
+  for (const c of COMPARES) if (hit(c.title + ' ' + c.lesson)) out.push({ kind: 'Compare', title: c.title, sub: c.lesson, act: 'compare', id: c.id });
+  for (const r of RECIPES) if (hit(r.name + ' ' + r.blurb)) out.push({ kind: 'Recipe', title: r.name, sub: r.blurb, act: 'gohome' });
+  for (const l of store.lists || []) if (hit(l.title + ' ' + (l.desc || ''))) out.push({ kind: 'Shot list', title: l.title, sub: l.desc || `${l.items.length} shots`, act: 'openlist', id: l.id });
+  return out.slice(0, 24);
+}
+function searchHTML() { return `<div class="gsearch"><label class="search">${I.search}<input id="gsq" class="field" type="search" placeholder="Search everything: shots, lighting, cuts, colour, camera settings, glossary, guides…" autocomplete="off"></label><div id="gsres" class="gsres" hidden></div></div>`; }
+function bindSearch() { const inp = $('#gsq'), res = $('#gsres'); if (!inp) return; inp.oninput = () => { const r = searchAll(inp.value); res.hidden = !inp.value.trim(); res.innerHTML = r.length ? r.map(x => `<button class="gsrow" data-act="${x.act}" ${x.id ? `data-id="${x.id}"` : ''} ${x.v ? `data-v="${x.v}"` : ''}><span class="label">${esc(x.kind)}</span><b>${esc(x.title)}</b><span>${esc(x.sub.length > 110 ? x.sub.slice(0, 108) + '…' : x.sub)}</span></button>`).join('') : '<div class="empty" style="padding:14px">Nothing found. Try a shorter word.</div>'; }; }
+
+/* ---------- confidence rating: got it / shaky / no, feeding spaced review ---------- */
+function confidenceHTML(id) { ensureSrs(); const S = store.srs[id]; const c = S && S.conf; return `<div class="confrow"><span class="label">How confident are you?</span>${[['got', 'Got it'], ['shaky', 'Shaky'], ['no', 'Not yet']].map(([k, l]) => `<button class="chip ${c === k ? 'on' : ''}" data-act="conf" data-id="${id}" data-v="${k}" aria-pressed="${c === k}">${l}</button>`).join('')}</div>`; }
+function setConfidence(id, v) { ensureSrs(); const S = store.srs[id] || { interval: 1, streak: 0 }; S.conf = v; if (v === 'got') { if (!isLearned(id)) markLearned(id, true); S.interval = Math.max(S.interval || 3, 5); S.due = addDays(today(), S.interval); } else if (v === 'shaky') { if (!isLearned(id)) markLearned(id, true); S.interval = 2; S.due = addDays(today(), 2); } else { S.interval = 1; S.due = today(); if (!isLearned(id)) markLearned(id, true); } store.srs[id] = S; save(); $$(`[data-act="conf"][data-id="${id}"]`).forEach(b => { b.classList.toggle('on', b.dataset.v === v); b.setAttribute('aria-pressed', b.dataset.v === v); }); $$(`[data-act="learned"][data-id="${id}"]`).forEach(x => { x.classList.add('on'); x.setAttribute('aria-pressed', true); if (x.classList.contains('learnbtn')) x.innerHTML = I.check + ' Learned'; }); toast(v === 'got' ? 'Marked learned. Review in ' + S.interval + ' days.' : v === 'shaky' ? 'Marked learned, review in 2 days.' : 'Review again tomorrow.'); }
+
+/* ---------- weekly summary ---------- */
+function weekSummaryHTML() {
+  const c = ensureCourse(); const d = new Date(); const dow = (d.getDay() + 6) % 7; if (dow > 1 && !c.forceWeek) return ''; // Monday and Tuesday
+  const start = new Date(d); start.setDate(d.getDate() - dow - 7); const end = new Date(start); end.setDate(start.getDate() + 6); const inWeek = s => { const x = new Date(s); return x >= start && x <= end; };
+  const frames = c.frames.filter(inWeek).length, shoots = c.log.filter(e => inWeek(e.date)).length, studies = c.studies.filter(inWeek).length; const drills = Object.entries(store.drills || {}).filter(([k]) => inWeek(k)).map(([, v]) => v); const avg = drills.length ? Math.round(drills.reduce((a, b) => a + b, 0) / drills.length) : null;
+  const learned = Object.values(store.srs || {}).filter(s => s.last && inWeek(s.last)).length;
+  const tip = frames < 4 ? 'The daily frame is the habit that builds the eye. Aim for five this week.' : shoots === 0 ? 'No shoot last week. One, however small: a friend, a window, ten minutes.' : avg != null && avg < 60 ? 'Eye test average under 60%. Reopen the lessons you keep missing before adding new ones.' : studies === 0 ? 'No study logged. One video with the sound off, ten frames.' : 'Good week. Keep the same rhythm and add one lesson a day.';
+  return `<section class="lsec weeksum"><div class="lsechead"><h2>Last week</h2><p>${start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} to ${end.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p></div><div class="stats"><div class="stat"><b>${frames}<span>/7</span></b><small>daily frames</small></div><div class="stat"><b>${studies}</b><small>studies</small></div><div class="stat"><b>${shoots}</b><small>shoots</small></div><div class="stat"><b>${avg == null ? '–' : avg + '%'}</b><small>eye test avg</small></div><div class="stat"><b>${learned}</b><small>lessons reviewed</small></div></div><p class="weektip">${esc(tip)}</p></section>`;
+}
+/* ---------- Practice submissions, song timeline, card chips, section hints, sound guide, swipe ---------- */
+/* practice submissions: each lesson's exercise can be logged with a photo and a note */
+function practiceHTML(id) { ensureTools(); const done = (store.gallery || []).filter(g => g.kind === 'practice' && g.lesson === id).sort((a, b) => b.date.localeCompare(a.date)); return `<div class="pracbar">${done.length ? `<span class="mono" style="font-size:12px;color:var(--good)">✓ done ${done.length}× · last ${esc(done[0].date)}</span>` : '<span class="mono" style="font-size:12px;color:var(--faint)">not logged yet</span>'}<button class="btn sm" data-act="pracopen" data-id="${id}">${I.plus} Log this exercise</button></div><form class="pracform" data-form="practice" data-lesson="${id}" hidden><label class="ifield"><span>Photo or frame grab (optional)</span><input class="field" type="file" name="file" accept="image/*"></label><label class="ifield"><span>What happened, what I learned</span><textarea class="field" name="note" rows="2" placeholder="One or two lines"></textarea></label><div style="display:flex;gap:6px"><button class="btn primary sm" type="submit">Save</button><button class="btn sm" type="button" data-act="pracclose">Cancel</button></div></form>`; }
+
+/* song timeline: paste section timings, see the shot list laid over the song */
+function parseSong(txt) { const out = []; for (const line of (txt || '').split('\n')) { const m = line.match(/^\s*(\d+):(\d{2})\s+(.+?)\s*$/); if (m) out.push({ t: +m[1] * 60 + +m[2], name: m[3].trim() }); } out.sort((a, b) => a.t - b.t); return out; }
+function songTimelineHTML(l) {
+  const secs = parseSong(l.song || ''); const secField = l.fields.find(f => /section/i.test(f.name));
+  const open = cv.songOpen === l.id;
+  const body = secs.length ? (() => { const total = l.songLen || (secs[secs.length - 1].t + 30); const cover = secs.map((s, i) => { const end = i + 1 < secs.length ? secs[i + 1].t : total; const items = l.items.filter(it => secField && (it.vals[secField.id] || '').toLowerCase().trim() === s.name.toLowerCase().trim()); const sizes = new Set(items.map(it => BY_ID[it.shotId] && BY_ID[it.shotId].cat)); return { s, end, n: items.length, w: (end - s.t) / total * 100, moves: items.filter(it => BY_ID[it.shotId] && BY_ID[it.shotId].cat === 'Movement').length, sizes: [...sizes].filter(Boolean) }; });
+    return `<div class="songbar">${cover.map(c => `<div class="songsec ${c.n === 0 ? 'none' : c.n < 3 ? 'thin' : 'ok'}" style="width:${c.w}%" title="${esc(c.s.name)}: ${c.n} shots"><b>${esc(c.s.name)}</b><span>${c.n}</span></div>`).join('')}</div><div class="songlegend"><span class="mono">${fmtT(0)}</span><span class="mono">${fmtT(total)}</span></div><div class="fl">${cover.map(c => `<div class="covrow ${c.n === 0 ? 'bad' : c.n < 3 ? 'warn' : 'ok'}"><b>${esc(c.s.name)} <span class="mono" style="font-weight:400">${fmtT(c.s.t)}–${fmtT(c.end)}</span></b><span class="mono">${c.n} shot${c.n === 1 ? '' : 's'}</span><span>${c.n === 0 ? 'No coverage. Name shots\' Section field exactly "' + esc(c.s.name) + '".' : (c.n < 3 ? 'Thin: aim for wide, medium, close plus a move. ' : '') + (c.moves ? '' : 'No camera move. ')}</span></div>`).join('')}</div>`; })() : '<p style="margin:0;color:var(--muted);font-size:13.5px">Paste the song\'s section timings and the list is laid over the track, so a chorus with no coverage shows up before the shoot.</p>';
+  return `<div class="box song"><h4>Song timeline <button class="btn ghost sm" data-act="songtoggle" data-id="${l.id}">${open ? 'Close' : 'Edit timings'}</button></h4>${open ? `<form data-form="song" class="fl"><textarea class="field" name="song" rows="6" placeholder="0:00 Intro&#10;0:12 Verse 1&#10;0:48 Chorus 1&#10;1:18 Verse 2&#10;1:54 Chorus 2&#10;2:24 Bridge&#10;2:48 Final chorus&#10;3:20 Outro">${esc(l.song || '')}</textarea><label class="ifield"><span>Song length (m:ss)</span><input class="field" name="len" value="${l.songLen ? fmtT(l.songLen) : ''}" placeholder="3:40"></label><div style="display:flex;gap:6px"><button class="btn primary sm" type="submit">Save</button></div></form>` : ''}${body}</div>`;
+}
+const fmtT = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+/* section hints: one line, first visit, dismissable */
+const HINTS = { library: 'Tap a card to open its animated lesson. The star saves it to favourites; "Add to shot list" puts it in a plan.', lighting: 'Each setup plays on a lit face with the floor plan beside it. "Build your own" lets you drag lights around and save the result.', editing: 'Each pattern plays as a real cut between library shots. Cyan markers are cuts on the beat, orange between.', colour: 'Read the waveform, not the picture. Skin belongs in the orange band; nothing should touch 0 or 100.', lists: 'A shot list is a plan for a shoot: shots, lighting, locations, timing. Recipes on Home build one in a tap.', learn: 'Guided paths in order, a shot finder by feeling, comparisons, and the habits checklist.', course: 'Two strands: the daily seeing practice at the top, and the eight technical phases below. Pass gates, not dates.', kit: 'The buying plan from the roadmap. Tick items as bought and enter what you paid.', frames: 'Your daily and study frames, by month. Send any frame to Claude for a critique.', treat: 'One page per video: idea, mood, references, sections. Build the shot list from it.', camera: 'Set up once, then the shoot-day card. The reference explains each setting; the glossary explains the words.', guides: 'The parts that are not about the camera: social, directing, story, shooting alone, backup.' };
+function hintHTML(view) { const seen = (prefs.hints || {})[view]; if (seen || !HINTS[view]) return ''; return `<div class="hint"><span>${esc(HINTS[view])}</span><button class="iconbtn" data-act="hintok" data-v="${view}" aria-label="Got it">${I.x}</button></div>`; }
+
+/* sound guide */
+GUIDES.push({ id: 'sound', name: 'Sound', lede: 'For music videos the master track is the sound. For everything else you shoot, sound is half the picture and the part beginners forget.',
+  sections: [
+    { h: 'Music video', rows: [['The track is the sound', 'Camera audio is only for sync. Do not spend time on it beyond making sure it recorded.'], ['Scratch audio', 'Record it on every take from the speaker. Resolve matches its waveform to the master.'], ['Playback level', 'Loud enough that the artist performs, not so loud it distorts on the camera. The sync only needs a clear waveform.'], ['Room noise', 'Traffic and wind do not matter for the video. They matter for BTS.']] },
+    { h: 'Interviews and BTS', rows: [['The hot-shoe mic', 'The Sony ECM-M1 from the bundle. Good within about a metre, useless across a room. Get close.'], ['Levels', 'Peaks around −12dB on the camera meter, never touching 0. Auto level is fine for BTS; manual for interviews.'], ['Headphones', 'The MDR-7506 on for every interview. If you can hear the fridge, so can the microphone.'], ['Room tone', 'Ten seconds of silence in every location. The editor uses it to hide cuts.'], ['Wind', 'The furry cover on, always, outdoors. Nothing fixes wind noise later.']] },
+    { h: 'In the edit', rows: [['Sync', 'Resolve: select the clips and the master, Auto Sync Audio by waveform.'], ['Music under speech', 'Duck the track by 12–18dB under any speaking. Fade, do not cut.'], ['Loudness', 'Export music videos around −14 LUFS integrated for streaming platforms; true peak under −1dB.'], ['Listen on a phone', 'If it sounds right on the phone speaker and on headphones, it is right.']] },
+  ] });
+Object.assign(GLOSSARY, { 'room tone': 'Ten seconds of the location\'s silence, recorded to fill gaps under cuts.', 'LUFS': 'A loudness measure platforms use to normalise audio. Around −14 for streaming.', 'ducking': 'Lowering the music when someone speaks, then bringing it back.' });
+GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b.length - a.length));
+
+/* swipe between lessons on touch screens */
+(() => { let x0 = null, y0 = null; document.addEventListener('touchstart', e => { if ($('#sheet').hidden || cmp.id != null || !det.id) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true }); document.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null; if (Math.abs(dx) > 90 && Math.abs(dy) < 60 && !e.target.closest('input,canvas,.transport')) { const i = det.list.indexOf(det.id), n = det.list.length; openShot(det.list[(i + (dx < 0 ? 1 : -1) + n) % n], det.list, det.from); } }, { passive: true }); })();
+/* ---------- Treatment → song timings, "on this day", offline readiness ---------- */
+// treatment carries song timings; building the shot list copies them across
+{ const _b = buildFromTreatment; buildFromTreatment = function (T) { const l = _b(T); if (T.song_timings) { l.song = T.song_timings; const m = String(T.length || '').match(/^(\d+):(\d{2})$/); if (m) l.songLen = +m[1] * 60 + +m[2]; save(); } return l; }; }
+// "on this day": frames from earlier months on the same day of month, shown on Home
+function onThisDayHTML() { ensureTools(); const t = today(); const dd = t.slice(8, 10), ym = t.slice(0, 7); const hits = (store.gallery || []).filter(g => g.date.slice(8, 10) === dd && g.date.slice(0, 7) !== ym && g.kind !== 'practice').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4); if (!hits.length) return ''; return `<section class="lsec"><div class="lsechead"><h2>On this day</h2><p>Frames from earlier months. Has your eye changed?</p></div><div class="recent otd">${hits.map(g => `<div class="recrow"><img data-gid="${g.id}" alt="" style="width:96px;aspect-ratio:4/3;object-fit:cover;border-radius:4px;background:#0C0E12"><div><b>${esc(g.date)}</b><span>${esc(g.saw || g.kind)}</span></div></div>`).join('')}</div></section>`; }
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -4187,7 +4313,7 @@ function renderList() {
     </div>
     <div class="groups">${l.items.length ? groupsHTML : `<div class="group"><div class="empty"><b>This shot list is empty</b>Add shots from the panel on the right, or browse the library and use “Add to shot list”.<div style="margin-top:12px"><button class="btn primary" data-act="tolib">Browse the library</button></div></div></div>`}</div>
     <aside class="side">
-      ${coverageHTML(l)}${schedHTML(l)}
+      ${coverageHTML(l)}${songTimelineHTML(l)}${schedHTML(l)}
       <div class="box"><h4>Locations <span class="count">${l.locations.length}</span></h4><p>Add locations, assign each shot one, then group and sort the list by location.</p>
         <div class="fl">${l.locations.map((x, i) => `<div class="flrow">${I.pin.replace('<svg', '<svg width="14" height="14" style="color:var(--accent);flex:none"')}<input data-rnloc="${x.id}" value="${esc(x.name)}" aria-label="Location name"><input type="number" min="0" step="15" inputmode="numeric" data-win="${x.id}" value="${x.window || ''}" placeholder="min" title="Time window in minutes" style="flex:0 0 58px"><button class="iconbtn ${x.scout ? 'on' : ''}" data-act="scout" data-id="${x.id}" aria-label="Scouting card" title="Scouting card">${I.edit}</button><button class="iconbtn" data-act="mvloc" data-d="-1" data-id="${x.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move up">${I.up}</button><button class="iconbtn" data-act="mvloc" data-d="1" data-id="${x.id}" ${i === l.locations.length - 1 ? 'disabled' : ''} aria-label="Move down">${I.down}</button><button class="iconbtn" data-act="rmloc" data-id="${x.id}" aria-label="Remove location">${I.x}</button></div>${scoutHTML(l, x)}`).join('')}</div>
         <form class="addrow" data-form="loc"><input class="field" name="v" placeholder="e.g. Rooftop" aria-label="New location"><button class="btn sm" type="submit">Add</button></form></div>
@@ -4222,7 +4348,8 @@ function rerender() {
   $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-camera-m').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-colour').setAttribute('aria-selected', ui.view === 'colour'); $('#tab-guides').setAttribute('aria-selected', ui.view === 'guides'); $('#gradecount').textContent = GRADES.length; $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
   $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-edit').setAttribute('aria-selected', ui.view === 'editing'); $('#editcount').textContent = EDITS.length; $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
   prefs.tab = ui.view === 'list' ? 'lists' : ui.view; savePrefs();
-  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'colour') renderColour(); else if (ui.view === 'guides') renderGuides(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
+  const _v = ui.view; if (_v === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'colour') renderColour(); else if (ui.view === 'guides') renderGuides(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
+  const hv = _v === 'list' ? 'lists' : _v; const h = hintHTML(hv); if (h) { const w = $('#app .wrap'); if (w) w.insertAdjacentHTML('afterbegin', h); }
 }
 function go(view, listId) { ui.view = view; ui.listId = listId || null; ui.confirmDel = null; ui.editRow = null; ui.editHead = false; closePop(); rerender(); scrollTo(0, 0); }
 
@@ -4306,6 +4433,12 @@ document.addEventListener('click', e => {
     case 'gocourse': cv.phase = b.dataset.phase; go('course'); break;
     case 'gokit': go('kit'); break;
     case 'menu': toggleMenu(); break;
+    case 'hideweek': { const c = ensureCourse(); c.weekHidden = true; save(); renderHome(); break; }
+    case 'conf': setConfidence(id, b.dataset.v); break;
+    case 'hintok': prefs.hints = prefs.hints || {}; prefs.hints[b.dataset.v] = true; savePrefs(); b.closest('.hint').remove(); break;
+    case 'pracopen': { const f = b.parentElement.nextElementSibling; f.hidden = !f.hidden; break; }
+    case 'pracclose': b.closest('.pracform').hidden = true; break;
+    case 'songtoggle': cv.songOpen = cv.songOpen === id ? null : id; renderList(); break;
     case 'gocamera': go('camera'); break;
     case 'gohome': toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go('home'); break;
     case 'camtab': cv.camTab = b.dataset.v; renderCamera(); break;
@@ -4360,6 +4493,8 @@ document.addEventListener('submit', e => {
   const kind = f.dataset.form, fd = new FormData(f);
   if (kind === 'treat') { saveTreatForm(); toast('Treatment saved'); return; }
   if (kind === 'frame') { const file = fd.get('file'); if (!file || !file.size) return; const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Adding…'; Img.put(file).then(img => { if (!img) { toast('Could not store the photo in this browser'); btn.disabled = false; return; } ensureTools(); store.gallery.push({ id: rid(), kind: String(fd.get('kind')), date: String(fd.get('date') || today()), saw: String(fd.get('saw') || '').trim(), left: String(fd.get('left') || '').trim(), img }); if (String(fd.get('kind')) === 'daily') { const c = ensureCourse(); const d = String(fd.get('date') || today()); if (!c.frames.includes(d)) c.frames.push(d); } save(); toast('Frame added'); gal.month = String(fd.get('date') || today()).slice(0, 7); renderGallery(); }); return; }
+  if (kind === 'practice') { const lesson = f.dataset.lesson; const file = fd.get('file'); const note = String(fd.get('note') || '').trim(); const fin = img => { ensureTools(); store.gallery.push({ id: rid(), kind: 'practice', lesson, date: today(), saw: (BY_ID[lesson] ? BY_ID[lesson].name + ': ' : '') + note, img: img || null }); save(); toast('Exercise logged'); const bar = f.previousElementSibling; if (bar) bar.outerHTML = practiceHTML(lesson); f.hidden = true; f.reset(); }; if (file && file.size) Img.put(file).then(fin); else fin(null); return; }
+  if (kind === 'song') { const l = getList(ui.listId); l.song = String(fd.get('song') || ''); const m = String(fd.get('len') || '').match(/^(\d+):(\d{2})$/); l.songLen = m ? +m[1] * 60 + +m[2] : 0; touch(l); save(); cv.songOpen = null; renderList(); return; }
   if (kind === 'scout') { const l = getList(ui.listId); const x = l.locations.find(y => y.id === f.dataset.locid); if (!x) return; x.scout = x.scout || {}; for (const [k] of SCOUT_FIELDS) x.scout[k] = String(fd.get(k) || '').trim(); const ph = fd.get('photo'); const fin = () => { touch(l); save(); toast('Scouting card saved'); cv.scoutOpen = null; renderList(); }; if (ph && ph.size) Img.put(ph).then(img => { if (img) x.scout.img = img; fin(); }); else fin(); return; }
   if (kind === 'log') { const c = ensureCourse(); const g = k => String(fd.get(k) || '').trim(); c.log.push({ id: rid(), date: g('date') || today(), loc: g('loc'), lens: g('lens'), settings: g('settings'), wrong: g('wrong'), change: g('change') }); save(); cv.logOpen = false; toast('Shoot logged'); renderCourse(); return; }
   if (kind === 'row' || kind === 'head') { const l = getList(kind === 'row' ? f.dataset.id : ui.listId); const t = String(fd.get('title')).trim(); if (!t) return; l.title = t; l.desc = String(fd.get('desc') || '').trim(); touch(l); save(); ui.editRow = null; ui.editHead = false; kind === 'row' ? renderLists() : renderList(); return; }
@@ -4392,7 +4527,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
   connect();
 })();
 
-function saveTreatForm() { const f = $('form[data-form="treat"]'); if (!f) return; const T = ensureTools().treatments.find(t => t.id === tb.id); if (!T) return; const fd = new FormData(f); for (const k of ['song', 'artist', 'length', 'deliver', 'shape', 'idea', 'mood', 'palette', 'lighting', 'refs', 'locs']) T[k] = String(fd.get(k) || '').trim(); T.sections = {}; for (const sn of SECTIONS) { const what = String(fd.get(`s_${sn}_what`) || '').trim(), recipe = String(fd.get(`s_${sn}_recipe`) || ''), loc = String(fd.get(`s_${sn}_loc`) || ''); if (what || recipe || loc) T.sections[sn] = { what, recipe, loc }; } T.updated = Date.now(); save(); }
+function saveTreatForm() { const f = $('form[data-form="treat"]'); if (!f) return; const T = ensureTools().treatments.find(t => t.id === tb.id); if (!T) return; const fd = new FormData(f); for (const k of ['song', 'artist', 'length', 'deliver', 'shape', 'idea', 'mood', 'palette', 'lighting', 'refs', 'locs', 'song_timings']) T[k] = String(fd.get(k) || '').trim(); T.sections = {}; for (const sn of SECTIONS) { const what = String(fd.get(`s_${sn}_what`) || '').trim(), recipe = String(fd.get(`s_${sn}_recipe`) || ''), loc = String(fd.get(`s_${sn}_loc`) || ''); if (what || recipe || loc) T.sections[sn] = { what, recipe, loc }; } T.updated = Date.now(); save(); }
 
 function toggleMenu(force) { const m = $('#menu'), b = $('.menubtn'); const open = force == null ? m.hidden : force; m.hidden = !open; b.setAttribute('aria-expanded', open); $$('.mitem').forEach(x => x.classList.toggle('on', x.getAttribute('aria-selected') === 'true')); }
 </script>
