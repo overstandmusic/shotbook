@@ -670,6 +670,7 @@ h4.sub:first-child{margin-top:0}
       <button class="mitem" id="tab-lib" data-view="library"><b>Shot library</b><span class="count" id="libcount">0</span></button>
       <button class="mitem" id="tab-light" data-view="lighting"><b>Lighting</b><span class="count" id="lightcount">0</span></button>
       <button class="mitem" id="tab-edit" data-view="editing"><b>Editing</b><span class="count" id="editcount">0</span></button>
+      <button class="mitem" id="tab-colour" data-view="colour"><b>Colour</b><span class="count" id="gradecount">0</span></button>
       <button class="mitem" id="tab-camera-m" data-view="camera"><b>Camera</b><span>FX3 setup and settings</span></button>
       <button class="mitem" id="tab-lists" data-view="lists"><b>Shot lists</b><span class="count" id="listcount">0</span></button>
       <button class="mitem" id="tab-treat" data-view="treat"><b>Treatments</b><span>Plan a video</span></button>
@@ -3363,11 +3364,11 @@ const _markLearned = markLearned; markLearned = function (id, on) { _markLearned
 
 /* a drill question: recognition (which shot / which lighting is this?) or the lesson quiz */
 function makeQuestion(id, mode) {
-  const s = BY_ID[id]; const isL = s.kind === 'light', isE = s.kind === 'edit'; const pool = (isE ? EDITS : isL ? LIGHTS : SHOTS).filter(x => x.id !== id && !x.custom);
+  const s = BY_ID[id]; const isL = s.kind === 'light', isE = s.kind === 'edit', isG = s.kind === 'grade'; const pool = (isG ? GRADES : isE ? EDITS : isL ? LIGHTS : SHOTS).filter(x => x.id !== id && !x.custom);
   const same = pool.filter(x => x.cat === s.cat); const pick = []; const src = [...same.sort(() => Math.random() - .5), ...pool.sort(() => Math.random() - .5)];
   for (const x of src) { if (pick.length >= 3) break; if (!pick.includes(x)) pick.push(x); }
   if (mode === 'quiz' && s.quiz && s.quiz.q) return { id, kind: 'quiz', q: s.quiz.q, opts: s.quiz.opts.map((o, i) => ({ t: o, ok: i === s.quiz.a })).sort(() => Math.random() - .5), why: s.quiz.why };
-  const q = isE ? 'Which cut pattern is this? Watch the timeline markers.' : isL ? 'Which lighting setup is this?' : s.cat === 'Movement' ? 'Which camera move is this?' : 'Which shot is this?';
+  const q = isG ? 'Which colour lesson is this frame from?' : isE ? 'Which cut pattern is this? Watch the timeline markers.' : isL ? 'Which lighting setup is this?' : s.cat === 'Movement' ? 'Which camera move is this?' : 'Which shot is this?';
   return { id, kind: 'see', q, opts: [{ t: s.name, ok: true }, ...pick.map(x => ({ t: x.name, ok: false }))].sort(() => Math.random() - .5), why: s.summary, anim: true };
 }
 const drill = { qs: [], i: 0, score: 0, active: false, raf: 0, t: 0, last: 0, answered: false };
@@ -3378,21 +3379,21 @@ function startDrill(ids, label) {
 }
 function drawDrill() {
   const sh = $('#sheet'); const q = drill.qs[drill.i];
-  if (!q) { const n = drill.qs.length; ensureSrs(); store.drills[today()] = Math.max(store.drills[today()] || 0, Math.round(drill.score / n * 100)); save(); sh.innerHTML = `<div class="sheetin drillin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Done</span></button><div class="crumbs"><b>${esc(drill.label)}</b></div></nav><div class="drillbody"><div class="drillend"><div class="label">Result</div><b>${drill.score} / ${n}</b><p>${drill.score === n ? 'Clean sweep. These come back in a week or two.' : drill.score >= n * .6 ? 'Solid. The ones you missed are due again tomorrow.' : 'Rough one. Reopen the lessons you missed; they are due again tomorrow.'}</p><div class="drillmiss">${drill.qs.filter(x => x.miss).map(x => `<button class="btn sm" data-act="openshot" data-id="${x.id}">${I.play} ${esc(BY_ID[x.id].name)}</button>`).join('')}</div><button class="btn primary" data-act="close">Back to Home</button></div></div></div>`; return; }
-  const s = BY_ID[q.id];
+  if (!q) { const n = drill.qs.length; ensureSrs(); store.drills[today()] = Math.max(store.drills[today()] || 0, Math.round(drill.score / n * 100)); save(); sh.innerHTML = `<div class="sheetin drillin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Done</span></button><div class="crumbs"><b>${esc(drill.label)}</b></div></nav><div class="drillbody"><div class="drillend"><div class="label">Result</div><b>${drill.score} / ${n}</b><p>${drill.score === n ? 'Clean sweep. These come back in a week or two.' : drill.score >= n * .6 ? 'Solid. The ones you missed are due again tomorrow.' : 'Rough one. Reopen the lessons you missed; they are due again tomorrow.'}</p><div class="drillmiss">${drill.qs.filter(x => x.miss && BY_ID[x.id]).map(x => `<button class="btn sm" data-act="openshot" data-id="${x.id}">${I.play} ${esc(BY_ID[x.id].name)}</button>`).join('')}</div><button class="btn primary" data-act="close">Back to Home</button></div></div></div>`; return; }
+  const s = q.tmp || BY_ID[q.id];
   sh.innerHTML = `<div class="sheetin drillin" role="dialog" aria-modal="true"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Quit</span></button><div class="crumbs"><b>${esc(drill.label)}</b></div><div class="stepper"><span>${drill.i + 1} / ${drill.qs.length}</span></div></nav>
     <div class="drillbody">${q.anim ? `<div class="panel drillpanel"><canvas id="dcv"></canvas></div>` : `<div class="drillctx"><span class="label">${esc(s.cat)}</span><b>${esc(s.name)}</b></div>`}
       <div class="drillq">${esc(q.q)}</div>
       <div class="opts drillopts">${q.opts.map((o, i) => `<button data-act="drillans" data-i="${i}">${esc(o.t)}</button>`).join('')}</div>
       <div class="why" id="dwhy" hidden></div>
-      <div class="drillnext" id="dnext" hidden><button class="btn primary" data-act="drillnext">${drill.i + 1 < drill.qs.length ? 'Next' : 'Finish'} ${I.next}</button><button class="btn ghost" data-act="openshot" data-id="${q.id}">Open the lesson</button></div></div></div>`;
+      <div class="drillnext" id="dnext" hidden><button class="btn primary" data-act="drillnext">${drill.i + 1 < drill.qs.length ? 'Next' : 'Finish'} ${I.next}</button><button class="btn ghost" data-act="openshot" data-id="${q.id === 'x-expo' ? 'g-exposure' : q.id}">Open the lesson</button></div></div></div>`;
   drill.answered = false;
-  if (q.anim) { const cv = $('#dcv'); fit(cv); cancelAnimationFrame(drill.raf); drill.last = performance.now(); drill.t = 0; const loop = now => { if ($('#sheet').hidden || !$('#dcv')) return; const dt = Math.min(.1, (now - drill.last) / 1000); drill.last = now; drill.t = (drill.t + dt / (s.dur || 6)) % 1; if (s.kind === 'edit') { EditEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t); } else if (s.kind === 'light') LightEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false }); else Engine.render(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false, guides: {} }); drill.raf = requestAnimationFrame(loop); }; drill.raf = requestAnimationFrame(loop); }
+  if (q.anim) { const cv = $('#dcv'); fit(cv); cancelAnimationFrame(drill.raf); drill.last = performance.now(); drill.t = 0; const loop = now => { if ($('#sheet').hidden || !$('#dcv')) return; const dt = Math.min(.1, (now - drill.last) / 1000); drill.last = now; drill.t = (drill.t + dt / (s.dur || 6)) % 1; if (s.kind === 'grade') { GradeEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, s.tmpStatic ? .5 : drill.t); } else if (s.kind === 'edit') { EditEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t); } else if (s.kind === 'light') LightEngine.frame(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false }); else Engine.render(cv.getContext('2d'), cv.width, cv.height, s, drill.t, { notes: false, guides: {} }); drill.raf = requestAnimationFrame(loop); }; drill.raf = requestAnimationFrame(loop); }
 }
 function drillAnswer(i) {
-  if (drill.answered) return; drill.answered = true; const q = drill.qs[drill.i]; const ok = q.opts[i].ok; if (ok) drill.score++; else q.miss = true;
+  if (drill.answered) return; drill.answered = true; const q = drill.qs[drill.i]; const ok = q.opts[i].ok; if (ok) drill.score++; else if (q.id !== 'x-expo') q.miss = true;
   $$('.drillopts button').forEach((b, k) => { b.disabled = true; if (q.opts[k].ok) b.classList.add('right'); else if (k === i) b.classList.add('wrong'); });
-  const w = $('#dwhy'); w.hidden = false; w.textContent = (ok ? 'Correct. ' : `Not quite: it is ${BY_ID[q.id].name}. `) + q.why; $('#dnext').hidden = false;
+  const w = $('#dwhy'); w.hidden = false; w.textContent = (ok ? 'Correct. ' : q.id === 'x-expo' ? 'Not quite. ' : `Not quite: it is ${BY_ID[q.id].name}. `) + q.why; $('#dnext').hidden = false;
   if (isLearned(q.id)) srsSchedule(q.id, ok);
 }
 function drillHomeHTML() {
@@ -3401,7 +3402,7 @@ function drillHomeHTML() {
   return `<div class="tcard ${due.length ? '' : 'done'}"><span class="label">Review · spaced</span><b>${due.length ? `${due.length} lesson${due.length === 1 ? '' : 's'} due for review` : learnedN ? 'Nothing due today' : 'Mark lessons learned to start reviews'}</b><p>${due.length ? 'Quick recognition and quiz cards. Right answers push the next review further out.' : 'Reviews come back at 3 days, then a week, then a month.'}</p><div class="tfoot"><span class="mono">${Object.keys(store.srs || {}).length} scheduled</span>${due.length ? `<button class="btn sm primary" data-act="drill" data-mode="due">${I.play} Review now</button>` : ''}</div></div>
   <div class="tcard ${todayScore != null ? 'done' : ''}"><span class="label">Eye test · daily</span><b>${todayScore != null ? `Today's eye test: ${todayScore}%` : 'Can you name the shot on sight?'}</b><p>Eight frames from the engine, no labels. Name the shot, move or lighting pattern.</p><div class="tfoot"><span class="mono">${Object.keys(store.drills || {}).length} taken</span><button class="btn sm ${todayScore != null ? '' : 'primary'}" data-act="drill" data-mode="eye">${I.play} ${todayScore != null ? 'Again' : 'Start'}</button></div></div>`;
 }
-function startHomeDrill(mode) { ensureSrs(); if (mode === 'due') startDrill(srsDue().sort(() => Math.random() - .5), 'Review'); else { const learnedN = (store.learned || []).length; const pool = learnedN >= 6 ? [...store.learned] : [...SHOTS.slice(0, 14).map(s => s.id), 'l-loop', 'l-rembrandt', 'l-butterfly', 'l-split', 'l-hardsoft']; startDrill(pool.sort(() => Math.random() - .5).slice(0, 8), 'Eye test'); } }
+function startHomeDrill(mode) { ensureSrs(); if (mode === 'due') startDrill(srsDue().sort(() => Math.random() - .5), 'Review'); else { const learnedN = (store.learned || []).length; const pool = learnedN >= 6 ? [...store.learned] : [...SHOTS.slice(0, 14).map(s => s.id), 'l-loop', 'l-rembrandt', 'l-butterfly', 'l-split', 'l-hardsoft']; const ids = pool.sort(() => Math.random() - .5).slice(0, 6); ids.splice(2, 0, 'x-expo'); ids.push('x-expo'); startDrill(ids, 'Eye test'); } }
 
 /* ---------- coverage check for a shot list ---------- */
 function coverageCheck(l) {
@@ -3754,6 +3755,250 @@ function renderCamera() {
   </div>`;
   $$('[data-task]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.tasks[cb.dataset.task] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); });
 }
+/* ---------- Colour and exposure: process a real frame through exposure, log, LUT, grade; show scopes ---------- */
+const GradeEngine = (() => {
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), kf = Engine.kf, MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  let base = null, work = null;
+  function params(g, t) { const o = {}; for (const k in g.p) { const v = g.p[k]; o[k] = Array.isArray(v) && typeof v[0][1] === 'string' ? (v.filter(e => e[0] <= t).pop() || v[0])[1] : kf(v, t); } return Object.assign({ exposure: 0, log: 0, lut: 0, contrast: 0, wb: 0, sat: 1, tealOrange: 0, lift: 0, gain: 0, view: 'normal' }, o); }
+  const lum = (r, g, b) => .2126 * r + .7152 * g + .0722 * b;
+  // scene-linear-ish pipeline on 0..1 display values
+  function process(px, p) {
+    const n = px.length; const ex = Math.pow(2, p.exposure); const k = 60;
+    const wbR = 1 + p.wb * .35, wbB = 1 - p.wb * .35;
+    for (let i = 0; i < n; i += 4) {
+      let r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255;
+      // to "linear": undo display gamma
+      r = r * r; g = g * g; b = b * b;
+      r *= ex * wbR; g *= ex; b *= ex * wbB;
+      // log encode: flat, lifted blacks, compressed highlights (mix by p.log)
+      if (p.log > 0) { const L = v => (Math.log(v * k + 1) / Math.log(k + 1)) * .82 + .09; const D = v => Math.sqrt(clamp(v, 0, 4)); r = r * 0 + (L(r) * p.log + D(r) * (1 - p.log)); g = (L(g) * p.log + D(g) * (1 - p.log)); b = (L(b) * p.log + D(b) * (1 - p.log)); }
+      else { r = Math.sqrt(clamp(r, 0, 4)); g = Math.sqrt(clamp(g, 0, 4)); b = Math.sqrt(clamp(b, 0, 4)); }
+      // LUT: undo the log flatness (S-curve back to 709), mixed by p.lut
+      if (p.lut > 0) { const U = v => { v = clamp((v - .09) / .82, 0, 1); const lin = (Math.pow(k + 1, v) - 1) / k; return Math.sqrt(clamp(lin, 0, 4)); }; r = r + (U(r) - r) * p.lut; g = g + (U(g) - g) * p.lut; b = b + (U(b) - b) * p.lut; }
+      // lift / gain / contrast
+      if (p.lift) { r += p.lift * (1 - r); g += p.lift * (1 - g); b += p.lift * (1 - b); }
+      if (p.gain) { r *= 1 + p.gain; g *= 1 + p.gain; b *= 1 + p.gain; }
+      if (p.contrast) { const c = p.contrast; const S = v => { v = clamp(v, 0, 1); const s = v < .5 ? .5 * Math.pow(2 * v, 1 + c) : 1 - .5 * Math.pow(2 * (1 - v), 1 + c); return s; }; r = S(r); g = S(g); b = S(b); }
+      // saturation
+      if (p.sat !== 1) { const y = lum(r, g, b); r = y + (r - y) * p.sat; g = y + (g - y) * p.sat; b = y + (b - y) * p.sat; }
+      // teal / orange split tone: warm highlights, cool shadows
+      if (p.tealOrange) { const y = lum(r, g, b); const w = (y - .5) * p.tealOrange * .35; r += w; b -= w; }
+      r = clamp(r, 0, 1); g = clamp(g, 0, 1); b = clamp(b, 0, 1);
+      if (p.view === 'false') { const y = lum(r, g, b); let c; if (y < .04) c = [80, 0, 120]; else if (y < .12) c = [40, 60, 200]; else if (y < .3) c = [90, 90, 90]; else if (y < .45) c = [120, 140, 120]; else if (y < .6) c = [190, 140, 110]; else if (y < .75) c = [160, 160, 160]; else if (y < .9) c = [230, 200, 60]; else c = [230, 40, 40]; r = c[0] / 255; g = c[1] / 255; b = c[2] / 255; }
+      else if (p.view === 'zebra') { const y = lum(r, g, b); const x = (i / 4) % 1000; if (y > .7 && (((i / 4 | 0) + ((i / 4 / 320) | 0)) % 6) < 3) { r = 1; g = 1; b = 1; } void x; }
+      px[i] = r * 255; px[i + 1] = g * 255; px[i + 2] = b * 255;
+    }
+  }
+  function frame(ctx, W, H, g, t, opts = {}) {
+    const p = params(g, t); const rw = opts.mini ? 128 : 256, rh = Math.round(rw * 9 / 16);
+    if (!base) { base = document.createElement('canvas'); work = document.createElement('canvas'); } base.width = rw; base.height = rh; work.width = rw; work.height = rh;
+    const bx = base.getContext('2d'); const shot = BY_ID[g.shot]; const st = g.shotT == null ? .6 : g.shotT;
+    if (shot.kind === 'light') LightEngine.frame(bx, rw, rh, shot, st, { notes: false }); else Engine.render(bx, rw, rh, shot, st, { notes: false, guides: {}, mini: true });
+    const im = bx.getImageData(0, 0, rw, rh); process(im.data, p); work.getContext('2d').putImageData(im, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(work, 0, 0, W, H);
+    if (!opts.mini) { const fs = Math.max(10, W * .017); ctx.font = `${fs}px ${MONO}`; const lab = `${p.exposure >= 0 ? '+' : ''}${p.exposure.toFixed(1)} stops · ${p.log > .5 ? 'S-Log3' : 'Rec709'}${p.lut > .5 ? ' + LUT' : ''}${p.view !== 'normal' ? ' · ' + (p.view === 'false' ? 'false colour' : 'zebras 70') : ''}`; const w = ctx.measureText(lab).width; ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(8, H - fs - 14, w + 12, fs + 8); ctx.fillStyle = '#EFA23E'; ctx.fillText(lab, 14, H - 10); }
+    return { p, im };
+  }
+  // scopes: waveform (luma per column) + histogram
+  function scopes(ctx, W, H, g, t, imData) {
+    ctx.fillStyle = '#0B0D11'; ctx.fillRect(0, 0, W, H);
+    const im = imData || frame(document.createElement('canvas').getContext('2d'), 320, 180, g, t, { mini: true }).im; const rw = im.width, rh = im.height, d = im.data;
+    const L = 46, R = W - 12, top = 16, bot = H - 40; const X = c => L + (R - L) * c / rw, Y = v => bot - (bot - top) * v;
+    const lab = (txt, x, y, col, al = 'left') => { ctx.fillStyle = col; ctx.font = `${Math.max(9, W * .02)}px ${MONO}`; ctx.textAlign = al; ctx.fillText(txt, x, y); ctx.textAlign = 'left'; };
+    for (const [v, name] of [[0, '0'], [.2, '20'], [.4, '40'], [.6, '60'], [.8, '80'], [1, '100']]) { ctx.strokeStyle = v === 0 || v === 1 ? 'rgba(255,255,255,.35)' : 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(R, Y(v)); ctx.stroke(); lab(name, L - 6, Y(v) + 4, '#8E959F', 'right'); }
+    // skin band guide (log skin ~ 40-55 IRE, 709 skin ~ 55-70)
+    const p = params(g, t); const sk = p.log > .5 && p.lut < .5 ? [.40, .55] : [.55, .72]; ctx.fillStyle = 'rgba(239,162,62,.1)'; ctx.fillRect(L, Y(sk[1]), R - L, Y(sk[0]) - Y(sk[1])); lab('skin', R - 4, Y(sk[1]) + 12, 'rgba(239,162,62,.8)', 'right');
+    ctx.fillStyle = 'rgba(108,195,209,.9)';
+    for (let x = 0; x < rw; x += 1) { const col = X(x); const bins = new Uint8Array(64); for (let y = 0; y < rh; y += 2) { const i = (y * rw + x) * 4; const l = lum(d[i] / 255, d[i + 1] / 255, d[i + 2] / 255); bins[clamp(l * 63 | 0, 0, 63)]++; } for (let b = 0; b < 64; b++) if (bins[b]) { ctx.globalAlpha = Math.min(1, .3 + bins[b] / 4); ctx.fillRect(col, Y((b + 1) / 64), Math.max(1.5, (R - L) / rw + .5), (bot - top) / 64 + 1); } }
+    ctx.globalAlpha = 1;
+    // clipping warnings
+    let clipHi = 0, clipLo = 0; for (let i = 0; i < d.length; i += 16) { const l = lum(d[i] / 255, d[i + 1] / 255, d[i + 2] / 255); if (l > .98) clipHi++; else if (l < .02) clipLo++; } const tot = d.length / 16;
+    lab(`WAVEFORM · ${(clipHi / tot * 100).toFixed(0)}% clipped white · ${(clipLo / tot * 100).toFixed(0)}% crushed black`, L, H - 12, clipHi / tot > .05 || clipLo / tot > .2 ? '#E07A7A' : '#8E959F');
+    lab(p.log > .5 && p.lut < .5 ? 'log: flat trace, nothing near 0 or 100' : '709: full range, blacks near 0', R, H - 12, '#6CC3D1', 'right');
+  }
+  return { frame, scopes, params };
+})();
+
+const GRADES = [
+{ id: 'g-exposure', name: 'Exposure by eye', abbr: 'EXPO', cat: 'Exposure', kind: 'grade', dur: 9, shot: 'mcu', shotT: .8,
+  tags: { mood: ['neutral'], use: ['every shot'], gear: ['zebras', 'false colour'], level: 'beginner' },
+  summary: 'Under, right, over. What each looks like, and what the waveform says.', lede: 'Exposure is how much light reaches the sensor. Too little and the shadows fill with noise; too much and the highlights clip to white and are gone forever. The screen lies (it changes with brightness and ambient light), so learn to read the waveform and the zebras instead.',
+  how: ['Set shutter first (1/50), then aperture for the look, then ISO to a base, then ND or light to land exposure.', 'Watch the waveform: the trace should fill the range without piling up at the top or bottom.', 'Zebras at 70 should just kiss the brightest part of the face in 709. Skin lives around 55–70.', 'If in doubt, slightly bright is safer than slightly dark on the FX3. Noise lives in the shadows.'],
+  reads: ['Clean', 'Readable', 'Recoverable'], implies: 'Correct exposure is invisible; wrong exposure is the first thing anyone notices. A clean, well-placed image is what "professional" means to most viewers.',
+  use: ['Every shot, every time'], avoid: ['Trusting the screen in bright sun', 'Fixing it in post: clipped whites cannot come back'],
+  practice: 'Same frame at −2, −1, 0, +1, +2 stops. Line the five up in Resolve with the waveform open. Learn what each one looks like on the scope.',
+  quiz: { q: 'Which exposure error cannot be fixed in the grade?', opts: ['Clipped highlights', 'Slightly dark shadows', 'A warm white balance'], a: 0, why: 'Once a pixel hits 100 the detail is gone. Shadows can be lifted; clipped white stays white.' },
+  pairs: ['g-zebra', 'g-log', 'g-ettr'], refs: [['The FX3 zebra setting', 'set it and stop guessing'], ['Any waveform tutorial for Resolve', 'the scope is the same everywhere']],
+  beats: [[0, 'Two stops under: the face is in the mud, the waveform sits at the bottom.'], [.3, 'Rising to correct: skin lands in the orange band, blacks near 0, nothing clipped.'], [.6, 'Two stops over: the forehead clips to 100 and the trace flattens at the top.'], [.85, 'Back to correct. Learn this position of the trace.']],
+  p: { exposure: [[0, -2], [.1, -2], [.35, 0], [.5, 0], [.7, 2.2], [.8, 2.2], [1, 0]], contrast: .15 } },
+{ id: 'g-zebra', name: 'Zebras and false colour', abbr: 'TOOLS', cat: 'Exposure', kind: 'grade', dur: 9, shot: 'cu', shotT: .8,
+  tags: { mood: ['neutral'], use: ['every shot'], gear: ['zebras', 'false colour'], level: 'beginner' },
+  summary: 'The two tools that replace guessing. What the stripes and colours mean.', lede: 'Zebras paint stripes over everything above a brightness you choose. False colour (on the Shinobi monitor) paints every brightness a colour: purple and blue for crushed shadows, greys and pinks for skin, yellow for near-clipping, red for clipped. Together they tell you where exposure is in two seconds.',
+  how: ['Zebra level 70 in 709: stripes should just appear on the brightest skin. In S-Log3 with no LUT, skin is darker, so use a lower level (around 50–55) or judge through the LUT.', 'False colour: aim skin at the pink/grey mid band. Red anywhere important means back off.', 'Assign zebras to a custom button so you can flick them on and off.', 'Check the tools on the face, not the background.'],
+  reads: ['Certainty', 'Speed'], implies: 'You stop guessing. On set the difference between a nervous novice and a calm operator is whether they trust a tool or the screen.',
+  use: ['Every setup, before the first take'], avoid: ['Leaving zebras on while judging composition: they hide the picture'],
+  practice: 'With zebras on, rack the exposure until stripes appear on the cheek, then back off half a stop. That is your setting for the scene.',
+  quiz: { q: 'In false colour, where should skin sit?', opts: ['The pink and grey mid band', 'Yellow, just below red', 'Blue'], a: 0, why: 'Mid band is correct skin; yellow is one step from clipping.' },
+  pairs: ['g-exposure', 'g-ettr', 'g-log'], refs: [['Atomos Shinobi false colour', 'the monitor in your Wex bundle'], ['FX3 zebra menu', 'Display → Zebra']],
+  beats: [[0, 'Normal view. Is it exposed right? Hard to say from the picture.'], [.3, 'Zebras on at 70: stripes on the forehead highlight only. That is right.'], [.55, 'False colour: skin sits in the pink/grey band, background in blue-grey.'], [.8, 'Push exposure up: skin goes yellow, then red. Back off.']],
+  p: { view: [[0, 'normal'], [.28, 'normal', 'h'], [.2801, 'zebra'], [.52, 'zebra', 'h'], [.5201, 'false']], exposure: [[0, 0], [.75, 0], [.95, 1.8]], contrast: .15 } },
+{ id: 'g-log', name: 'What log actually is', abbr: 'LOG', cat: 'Log and LUTs', kind: 'grade', dur: 8, shot: 'ws', shotT: .8,
+  tags: { mood: ['neutral'], use: ['every shot'], gear: ['S-Log3'], level: 'beginner' },
+  summary: 'Why S-Log3 looks flat and grey, and why that is the point.', lede: 'S-Log3 squeezes the whole range the sensor can see into a flat, low-contrast file: lifted blacks, compressed highlights, weak colour. It looks wrong on purpose. All that squeezed-in detail is still there, waiting for the grade to spread it back out. Rec709 (the normal look) throws detail away to look good immediately.',
+  how: ['Picture Profile PP8 or PP9 records S-Log3.', 'Turn on Gamma Display Assist so the screen shows a 709 preview while the file stays log.', 'Expect the raw file to look grey in Resolve. That is normal; apply the transform before judging anything.', 'Never grade by making log "look right" by hand first: apply the conversion, then grade.'],
+  reads: ['Flexibility', 'Latitude'], implies: 'A log file is raw material, not a finished picture. It gives you a grade\'s worth of choices later at the cost of a step in the edit.',
+  use: ['Anything you will grade: music videos, narrative, anything with mixed light'], avoid: ['Quick social clips you will post straight from the card (use S-Cinetone)'],
+  practice: 'Shoot the same frame in PP11 and PP8. Put both in Resolve. Add the S-Log3 to 709 transform on the PP8 clip and match them. Then push both two stops darker in the grade and see which one survives.',
+  quiz: { q: 'Why does log look flat?', opts: ['It keeps shadow and highlight detail by compressing the range', 'The camera is faulty', 'It is underexposed'], a: 0, why: 'The flatness is the extra range, stored for the grade.' },
+  pairs: ['g-lut', 'g-ettr', 'g-exposure'], refs: [['Sony S-Log3 white paper', 'the curve, if you want the maths'], ['Resolve colour management', 'the automatic transform']],
+  beats: [[0, 'Rec709 as recorded: contrast, colour, blacks at 0.'], [.3, 'The same scene recorded in S-Log3: flat, grey, lifted blacks. The waveform trace sits in the middle.'], [.6, 'Nothing is clipped or crushed. The detail is all there, compressed.'], [.85, 'This is raw material. The next lesson spreads it back out.']],
+  p: { log: [[0, 0], [.2, 0], [.4, 1]], contrast: [[0, .15], [.2, .15], [.4, 0]] } },
+{ id: 'g-lut', name: 'The LUT', abbr: 'LUT', cat: 'Log and LUTs', kind: 'grade', dur: 8, shot: 'ws', shotT: .8,
+  tags: { mood: ['neutral'], use: ['every shot'], gear: ['S-Log3', 'Resolve'], level: 'beginner' },
+  summary: 'The transform that turns flat log back into a picture. The starting line of every grade.', lede: 'A LUT (look-up table) is a fixed recipe that maps every log value to a display value. Apply the S-Log3 to Rec709 LUT and the flat file becomes a normal, contrasty image, which is the same picture the camera showed you through Gamma Display Assist. Grading happens after that, not instead of it.',
+  how: ['In Resolve, either set colour management to convert S-Log3 automatically, or add the "S-Log3 S-Gamut3.Cine to Rec709" LUT as the last node.', 'Do exposure and white balance corrections before the LUT (upstream), creative work after it.', 'The camera\'s Gamma Display Assist uses the same idea, so what you saw on set is what the LUT gives you.'],
+  reads: ['Baseline', 'Consistency'], implies: 'Every clip gets the same starting point, so a video looks like one video instead of twelve separate grades.',
+  use: ['The first thing on every log clip'], avoid: ['Buying "cinematic" LUT packs and applying them to log directly: they are made for 709']
+  , practice: 'Take one log clip. Apply the transform. Then duplicate it and try to reach the same look by hand with curves. Notice how much longer it takes and how much less consistent it is.',
+  quiz: { q: 'Where does the log-to-709 LUT go in the chain?', opts: ['After technical fixes, before creative grading', 'First, before anything', 'Last, after everything'], a: 0, why: 'Fix exposure and balance in log, convert, then make it look how you want.' },
+  pairs: ['g-log', 'g-contrast', 'g-wb'], refs: [['Sony\'s official S-Log3 LUTs', 'free download'], ['Resolve\'s colour-managed workflow', 'does the same thing automatically']],
+  beats: [[0, 'Flat S-Log3 file straight from the card.'], [.35, 'The LUT applies: blacks drop, highlights open, colour returns.'], [.6, 'This matches what you saw on the camera with Display Assist on.'], [.85, 'Now the grade begins. This is zero, not the finish.']],
+  p: { log: 1, lut: [[0, 0], [.25, 0], [.5, 1]] } },
+{ id: 'g-ettr', name: 'Expose log bright', abbr: 'ETTR', cat: 'Exposure', kind: 'grade', dur: 9, shot: 'mcu', shotT: .8,
+  tags: { mood: ['neutral'], use: ['every shot'], gear: ['S-Log3', 'zebras'], level: 'intermediate' },
+  summary: 'Log wants one to two stops more than looks right. Bring it down in the grade.', lede: 'The FX3\'s noise lives in the shadows. If you expose log so it looks normal, the shadows sit near the noise floor and the grade drags the noise up with them. Expose one to two stops brighter than looks right, then pull it back down in the grade: the noise goes down with it and the highlights are still safe because log holds them.',
+  how: ['With Display Assist on, expose so skin looks a touch bright on the screen, or use zebras set for skin plus one stop.', 'Check the waveform through the LUT: skin around 60–70, nothing clipping.', 'In Resolve, drop exposure by the same amount before the LUT. Skin lands where it should, shadows come down clean.', 'Do not go past two stops: eventually the highlights clip even in log.'],
+  reads: ['Clean shadows', 'Safety'], implies: 'The "grainy night footage" look most beginners get is underexposed log. This one habit fixes it.',
+  use: ['All log shooting, especially night and low light'], avoid: ['Bright skies and practicals in frame, which clip sooner: check them with zebras at 100'],
+  practice: 'Night scene, one lamp. Shoot at the exposure that looks right, then at +1.5 stops. Grade both to match. Compare the shadows at 200%.',
+  quiz: { q: 'Why expose log brighter than it looks right?', opts: ['Noise lives in the shadows; lowering a bright file in the grade lowers the noise too', 'Log is always too dark', 'The LUT darkens everything'], a: 0, why: 'Bringing exposure down in post pushes shadows below the noise floor instead of lifting noise up.' },
+  pairs: ['g-exposure', 'g-log', 'g-zebra'], refs: [['FX3 dual base ISO', '800 and 12,800 are the clean points to do this from'], ['ETTR', 'the technique\'s general name: expose to the right']],
+  beats: [[0, 'Log exposed to look "right": skin at 45 on the waveform. Shadows near the floor.'], [.3, 'Open up 1.5 stops: skin at 60, still nothing clipped. Log holds it.'], [.6, 'In the grade, pull exposure back down 1.5 stops before the LUT.'], [.85, 'Same brightness as the first version, cleaner shadows. That is the trick.']],
+  p: { log: 1, lut: [[0, 0], [.5, 0], [.62, 1]], exposure: [[0, 0], [.2, 0], [.35, 1.5], [.55, 1.5], [.7, 0]] } },
+{ id: 'g-contrast', name: 'Contrast', abbr: 'CONTRAST', cat: 'Grading', kind: 'grade', dur: 8, shot: 'low', shotT: .9,
+  tags: { mood: ['dramatic', 'neutral'], use: ['every shot'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'Blacks down, whites up, an S-curve in the middle. The first creative move.', lede: 'After the LUT, most footage still looks a little polite. Contrast is the first creative decision: how deep the blacks go, how bright the whites, how steep the middle. An S-curve does all three at once. Music videos usually run more contrast than television.',
+  how: ['Lift (blacks): pull down until the darkest thing in frame just touches 0 on the waveform.', 'Gain (whites): raise until the brightest thing sits near 90–100 without clipping skin.', 'Gamma or curves: an S-curve adds punch to the midtones.', 'Do it in the same order on every clip so the video holds together.'],
+  reads: ['Punch', 'Depth', 'Mood'], implies: 'Contrast is confidence. Low contrast reads as flat and video-like; strong blacks read as cinema. Too much and skin goes plastic.',
+  use: ['Every grade, as the first move after the LUT', 'Night and performance footage that wants punch'], avoid: ['Crushing blacks so far that shadow detail vanishes', 'Contrast on clipped footage: it only makes the clipping obvious'],
+  practice: 'One clip, three versions: blacks at 0, blacks at 5, blacks at 10 on the waveform. Watch them on a phone and a TV. Pick the one that feels like the song.',
+  quiz: { q: 'What does an S-curve do?', opts: ['Deepens shadows, brightens highlights, steepens midtones', 'Adds saturation', 'Corrects white balance'], a: 0, why: 'The S shape lowers the bottom, raises the top and steepens the middle.' },
+  pairs: ['g-lut', 'g-look', 'g-sat'], refs: [['Resolve\'s Lift/Gamma/Gain wheels', 'the standard tool'], ['Any noir', 'contrast as mood']],
+  beats: [[0, 'Straight off the LUT: correct but polite.'], [.3, 'Blacks down to 0. Depth appears.'], [.55, 'Whites up: the lamps and rim glow.'], [.8, 'An S-curve steepens the middle. Punch, not plastic.']],
+  p: { log: 1, lut: 1, lift: [[0, 0], [.2, 0], [.4, -.06]], gain: [[0, 0], [.45, 0], [.65, .12]], contrast: [[0, 0], [.7, 0], [.9, .5]] } },
+{ id: 'g-wb', name: 'White balance correction', abbr: 'WB', cat: 'Grading', kind: 'grade', dur: 8, shot: 'l-practical', shotT: .55,
+  tags: { mood: ['neutral', 'warm'], use: ['every shot'], gear: ['Kelvin', 'Resolve'], level: 'beginner' },
+  summary: 'Orange or blue by mistake, then fixed. And when to leave it.', lede: 'White balance tells the camera what colour "white" is. Set it wrong and everything goes orange (tungsten light at a daylight setting) or blue (daylight at a tungsten setting). Log keeps enough information to correct it in the grade, but it is far better to set Kelvin on set and only correct the small drift.',
+  how: ['On set: Kelvin, never auto. 5600 daylight, 6500 overcast, 3200 tungsten, 2700 warm bulbs.', 'In Resolve: the temperature and tint sliders, or the white balance picker on something neutral. Do it before the LUT.', 'Use the vectorscope: skin falls on the skin-tone line when balance is right.', 'A deliberate warm or cool cast is a look; a wrong one is a mistake. The difference is whether skin looks like skin.'],
+  reads: ['Natural', 'Intentional'], implies: 'Correct white balance makes skin believable, which makes everything else believable. A chosen shift on top of that is style.',
+  use: ['Every clip, checked on skin'], avoid: ['Auto white balance mid-take: it shifts as people move'],
+  practice: 'Shoot a face at 3200K in daylight and at 5600K under a lamp. Correct both in Resolve. Then decide how much warmth to add back on purpose.',
+  quiz: { q: 'Daylight shot with the camera set to 3200K looks…', opts: ['Blue', 'Orange', 'Green'], a: 0, why: 'The camera adds blue to counter tungsten warmth that is not there.' },
+  pairs: ['g-skin', 'g-lut', 'l-mixed'], refs: [['Resolve vectorscope skin-tone line', 'the objective check'], ['Lighting: mixed colour temperature', 'where a shift is the point']],
+  beats: [[0, 'Set to daylight under a warm lamp: everything orange. Skin is not skin.'], [.3, 'Correcting: temperature slider towards blue until the wall and skin settle.'], [.55, 'Neutral. The lamp still reads warm because it is warm; skin is right.'], [.85, 'Adding a touch of warmth back on purpose. Now it is a choice.']],
+  p: { wb: [[0, 1.4], [.15, 1.4], [.45, 0], [.7, 0], [.9, .35]], contrast: .15 } },
+{ id: 'g-skin', name: 'Skin first', abbr: 'SKIN', cat: 'Grading', kind: 'grade', dur: 8, shot: 'cu', shotT: .8,
+  tags: { mood: ['neutral', 'intimate'], use: ['every shot'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Grade the face, then let the rest fall where it falls. Skin is the reference the audience knows.', lede: 'Viewers do not know what colour the wall was, but they know what skin looks like. Every grade should start from correct exposure and colour on the face, then push the look around it. If the face goes orange, green or grey, nothing else you did matters.',
+  how: ['Place skin: 55–70 on the waveform in 709, on the skin-tone line in the vectorscope.', 'Build the look with the face masked or checked after every move.', 'If a look pushes skin off, qualify the skin (a hue mask) and pull it back.', 'Compare against a reference still of the artist in good light.'],
+  reads: ['Believable', 'Flattering'], implies: 'The audience trusts the image when skin is right, which lets you be bold everywhere else.',
+  use: ['Every close-up', 'Any strong look (teal and orange, heavy warmth, desaturation)'], avoid: ['Letting a preset LUT decide the skin colour'],
+  practice: 'Apply a heavy look to a close-up. Then mask the face and restore neutral skin inside the mask. Compare with and without.',
+  quiz: { q: 'What is the reference the audience uses to judge a grade?', opts: ['Skin tone', 'The sky', 'The blacks'], a: 0, why: 'Everyone knows what skin looks like; almost nothing else in frame has a known colour.' },
+  pairs: ['g-wb', 'g-look', 'g-sat'], refs: [['Vectorscope skin-tone line', 'in every colour tool'], ['Beauty grading', 'skin protection is the whole job']],
+  beats: [[0, 'A strong warm look applied to everything. Skin has gone orange.'], [.35, 'Pull the look off the face: skin back to neutral, exposure right.'], [.6, 'The background keeps the warmth. The face is believable again.'], [.85, 'Skin first, then the look. Always this order.']],
+  p: { wb: [[0, .9], [.25, .9], [.5, .15]], sat: [[0, 1.3], [.25, 1.3], [.5, 1.05]], contrast: .2 } },
+{ id: 'g-sat', name: 'Saturation and restraint', abbr: 'SAT', cat: 'Grading', kind: 'grade', dur: 8, shot: 'l-colourrim', shotT: .9,
+  tags: { mood: ['energetic', 'reflective'], use: ['performance', 'social'], gear: ['Resolve'], level: 'beginner' },
+  summary: 'From grey to garish and back. Where "cinematic" actually sits.', lede: 'Saturation is how vivid colour is. New graders push it because it looks exciting on a phone at 2am. Most cinema sits slightly below natural, with one or two colours allowed to be strong. Desaturate the whole image a little, then let the rim light or a practical carry the colour.',
+  how: ['Global saturation slightly down (90–95%) after the LUT.', 'Pick one or two colours to keep strong: the rim, the neon, the jacket.', 'Skin saturation usually wants to come down a touch more than the rest.', 'Check on a phone and a TV. Phones over-saturate; if it looks right on the phone it is probably too much.'],
+  reads: ['Taste', 'Focus'], implies: 'Restraint reads as expensive. One strong colour against muted everything reads as a look; everything strong reads as a phone filter.',
+  use: ['Every grade, as a check at the end'], avoid: ['Cranking saturation to make dull light exciting: fix the light instead'],
+  practice: 'Grade a clip at 70%, 90%, 100% and 130% saturation. Watch on a phone, then a TV. Notice where each falls apart.',
+  quiz: { q: 'Where does most cinema sit for overall saturation?', opts: ['Slightly below natural with one or two colours allowed to be strong', 'Well above natural', 'Fully desaturated'], a: 0, why: 'Muted base, selective colour: that is the look people call cinematic.' },
+  pairs: ['g-look', 'g-contrast', 'g-skin'], refs: [['Teal and orange', 'selective colour taken to a formula'], ['Roger Deakins\' work', 'restraint as a style']],
+  beats: [[0, 'Saturation at 0: shape without colour.'], [.3, 'Natural. The rim and the face both read.'], [.55, 'Pushed to 160%: garish, the phone-filter look.'], [.8, 'Back to 90%: muted base, the rim still sings.']],
+  p: { sat: [[0, 0], [.1, 0], [.3, 1], [.45, 1], [.6, 1.6], [.7, 1.6], [.85, .9]], contrast: .15 } },
+{ id: 'g-look', name: 'A look, and matching shots', abbr: 'LOOK', cat: 'Grading', kind: 'grade', dur: 9, shot: 'arc', shotT: .1,
+  tags: { mood: ['dramatic', 'energetic'], use: ['performance', 'chorus'], gear: ['Resolve'], level: 'intermediate' },
+  summary: 'Warm highlights, cool shadows, then the same recipe on every clip.', lede: 'A look is a consistent set of choices applied to the whole video: a contrast curve, a colour bias in the highlights and another in the shadows, a saturation level. Teal-and-orange is the famous one because skin is orange and everything opposite it is teal. The skill is not the look; it is applying it identically to every clip so the video feels like one thing.',
+  how: ['Correct every clip first (exposure, balance, LUT) so they all match before the look.', 'Build the look on one hero clip in a shared node or a group. Apply the same node to everything.', 'Split-tone: a touch of warmth in the highlights, a touch of cool in the shadows. Small numbers.', 'Check consecutive clips with the stills wipe. Match brightness and colour of the face across cuts.'],
+  reads: ['Identity', 'Cohesion'], implies: 'The look is the video\'s handwriting. Consistency across shots matters more than which look you chose.',
+  use: ['The whole video, once every clip is corrected'], avoid: ['A different look per scene without a reason', 'Looks that push skin off']
+  , practice: 'Correct three clips from different setups until they match on the scopes. Then build one look node and apply it to all three. Cut between them.',
+  quiz: { q: 'What comes before applying a look?', opts: ['Correcting every clip so they match', 'Choosing a LUT pack', 'Adding grain'], a: 0, why: 'A look on unmatched clips just makes the mismatches obvious.' },
+  pairs: ['g-contrast', 'g-sat', 'g-skin'], refs: [['Resolve groups and shared nodes', 'one look, many clips'], ['Blade Runner 2049 (2017)', 'consistent split-tone across a whole film']],
+  beats: [[0, 'Corrected clip, no look. Neutral.'], [.3, 'Split-tone arrives: warm highlights, cool shadows. Skin stays skin.'], [.55, 'Contrast and slight desaturation lock it in.'], [.85, 'The same node goes on every other clip. That is the video\'s handwriting.']],
+  p: { log: 1, lut: 1, tealOrange: [[0, 0], [.2, 0], [.45, 1]], contrast: [[0, 0], [.5, 0], [.7, .35]], sat: [[0, 1], [.5, 1], [.7, .9]] } },
+];
+const GRADE_CATS = ['Exposure', 'Log and LUTs', 'Grading'];
+/* ---------- Colour tab: library, lesson view with scopes, exposure drill ---------- */
+GRADES.forEach(g => { BY_ID[g.id] = g; });
+const isGrade = id => !!(BY_ID[id] && BY_ID[id].kind === 'grade');
+const gf = { q: '', cat: new Set(), level: new Set(), fav: false };
+{ const _ds = drawStatic; drawStatic = function (cv) { const s = BY_ID[cv.dataset.shot]; if (!s) return; if (s.kind !== 'grade') return _ds(cv); const ctx = fit(cv); GradeEngine.frame(ctx, cv.width, cv.height, s, .5, { mini: true }); };
+  const _hp = hoverPlay; hoverPlay = function (cv) { const s = BY_ID[cv.dataset.shot]; if (!s || s.kind !== 'grade') return _hp(cv); if (REDUCED) return; hoverStop(); const ctx = cv.getContext('2d'); let t0 = performance.now(); const loop = now => { const t = ((now - t0) / 1000 / (s.dur || 8)) % 1; GradeEngine.frame(ctx, cv.width, cv.height, s, t, { mini: true }); hoverRAF = requestAnimationFrame(loop); }; hoverRAF = requestAnimationFrame(loop); hoverPlay.cv = cv; }; }
+function gradesFiltered() { const q = gf.q.trim().toLowerCase(); return GRADES.filter(s => { if (gf.fav && !isFav(s.id)) return false; if (gf.cat.size && !gf.cat.has(s.cat)) return false; if (gf.level.size && !gf.level.has(s.tags.level)) return false; if (q) { const hay = [s.name, s.abbr, s.cat, s.summary].join(' ').toLowerCase(); if (!q.split(/\s+/).every(w => hay.includes(w))) return false; } return true; }); }
+function renderColour() {
+  const r = gradesFiltered(), n = gf.cat.size + gf.level.size + (gf.fav ? 1 : 0);
+  const chips = (key, vals, label) => `<div class="fgroup"><span class="label">${label}</span><div class="chips">${vals.map(v => `<button class="chip" data-act="gf" data-k="${key}" data-v="${esc(v)}" aria-pressed="${gf[key].has(v)}">${esc(v)}</button>`).join('')}</div></div>`;
+  $('#app').innerHTML = `<div class="wrap lib">
+    <aside class="filters" id="filters" aria-label="Filters"><div class="fhead"><span class="label">Filter lessons</span>${n ? `<button class="btn ghost sm" data-act="gclear">Clear all</button>` : ''}<button class="iconbtn fbtn" data-act="closef" aria-label="Close filters">${I.x}</button></div>
+      <div class="fgroup"><button class="chip" data-act="gfav" aria-pressed="${gf.fav}"><span style="display:inline-flex;width:14px">${I.star}</span> Favourites <span class="count">${GRADES.filter(s => isFav(s.id)).length}</span></button></div>${chips('cat', GRADE_CATS, 'Category')}${chips('level', LEVELS, 'Difficulty')}</aside>
+    <section class="libmain"><div class="kitnote"><b>Exposure and colour.</b> Each lesson processes a real frame from the library through the camera's exposure, S-Log3, the LUT and a grade, with a waveform beside it so you learn to read the scope, not the screen. Then try the exposure drill in the daily eye test.</div>
+      <div class="toolbar"><button class="btn fbtn" data-act="openf">${I.filter} Filters${n ? ` <span class="count">${n}</span>` : ''}</button><label class="search">${I.search}<input id="gq" class="field" type="search" placeholder="Search…" value="${esc(gf.q)}"></label></div>
+      <div class="resline"><span><b style="color:var(--ink)">${r.length}</b> of ${GRADES.length} lessons</span></div>
+      ${r.length ? `<div class="grid">${r.map(cardHTML).join('')}</div>` : `<div class="empty"><b>No lessons match</b></div>`}</section></div>`;
+  paintThumbs($('#app'));
+  const q = $('#gq'); q.oninput = () => { gf.q = q.value; const pos = q.selectionStart; renderColour(); const nq = $('#gq'); nq.focus(); nq.setSelectionRange(pos, pos); };
+  $$('.thumb', $('#app')).forEach(b => { const cv = $('canvas', b); b.onmouseenter = () => hoverPlay(cv); b.onmouseleave = hoverStop; });
+}
+{ const _os = openShot; openShot = function (id, list, from) {
+  const s = BY_ID[id]; if (!s) return; if (s.kind !== 'grade') return _os(id, list, from);
+  if (from) det.from = from; else if ($('#sheet').hidden) det.from = { label: 'Colour' };
+  noteRecent(id); cancelAnimationFrame(cmp.raf); det.id = id; det.t = 0; det.playing = !REDUCED; det.list = list || gradesFiltered().map(x => x.id); if (!det.list.includes(id)) det.list = GRADES.map(x => x.id); det.guides = {};
+  const i = det.list.indexOf(id), prev = BY_ID[det.list[(i - 1 + det.list.length) % det.list.length]], next = BY_ID[det.list[(i + 1) % det.list.length]]; const q = s.quiz;
+  const sh = $('#sheet'); sh.className = 'sheet'; sh.hidden = false; document.body.style.overflow = 'hidden';
+  sh.innerHTML = `<div class="sheetin" role="dialog" aria-modal="true" aria-labelledby="dtitle"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Back to ${esc(det.from.label)}</span></button><div class="crumbs"><button data-act="close">${esc(det.from.label)}</button><span>/</span><span>${esc(s.cat)}</span><span>/</span><b>${esc(s.name)}</b></div>${det.from.path ? `<span class="pathtag">${esc(det.from.path.name)}</span>` : ''}<div class="stepper"><button class="iconbtn" data-act="open" data-id="${prev.id}" aria-label="Previous">${I.back}</button><span>${i + 1} / ${det.list.length}</span><button class="iconbtn" data-act="open" data-id="${next.id}" aria-label="Next">${I.next}</button></div></nav>
+    <div class="sheetbody"><div class="stagecol"><div class="stagehead"><span class="label" style="color:#8E959F">Colour · ${esc(s.abbr)}</span><div class="viewseg" role="group">${[['both', 'Both'], ['frame', 'Picture'], ['set', 'Scope']].map(([k, l]) => `<button data-mode="${k}" aria-pressed="${det.mode === k}">${l}</button>`).join('')}</div></div>
+      <div class="stagebox"><div class="pwrap" id="pframe"><div class="phead"><span>The picture</span><span class="tc" id="tc">00:00</span></div><div class="panel"><canvas id="cvf"></canvas></div></div><div class="pwrap" id="pset"><div class="phead"><span>Waveform · brightness of every column</span><span>0 = black · 100 = clipped</span></div><div class="panel"><canvas id="cvs"></canvas></div></div></div>
+      <div class="transport"><button class="iconbtn" id="pp" aria-label="Play or pause">${det.playing ? I.pause : I.play}</button><input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Scrub"><select id="spd" aria-label="Playback speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+      <div class="params" id="params"></div><div class="beats" id="beats">${s.beats.map(([bt, txt], k) => `<button class="beat" data-bt="${bt}" data-i="${k}"><span class="t">${tcode(bt * s.dur)}</span><span>${esc(txt)}</span></button>`).join('')}</div></div>
+    <div class="infocol"><div class="infohead"><div><div class="label">Colour · ${esc(s.cat)} · ${esc(s.tags.level)}</div><h2 id="dtitle" style="margin-top:6px">${esc(s.name)}</h2></div></div>
+      <div class="infoact"><button class="btn fav ${isFav(id) ? 'on' : ''}" data-act="fav" data-id="${id}" aria-pressed="${isFav(id)}">${I.star} ${isFav(id) ? 'Favourited' : 'Favourite'}</button><button class="btn learnbtn ${isLearned(id) ? 'on' : ''}" data-act="learned" data-id="${id}" aria-pressed="${isLearned(id)}">${I.check} ${isLearned(id) ? 'Learned' : 'Mark as learned'}</button></div>
+      <p class="lede">${esc(s.lede)}</p><div class="implies sec"><h4>What it gives you</h4><div class="reads">${s.reads.map(r => `<span>${esc(r)}</span>`).join('')}</div><p>${esc(s.implies)}</p></div>
+      <div class="twocol"><div class="sec use"><h4>Use it when</h4><ul>${s.use.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div><div class="sec avoid"><h4>Avoid</h4><ul>${s.avoid.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+      <div class="sec"><h4>How to do it</h4><ul>${s.how.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="sec practice"><h4>Practice exercise</h4><p>${esc(s.practice)}</p></div>
+      <div class="quiz" id="quiz"><h4 class="label" style="color:var(--accent);margin:0">Check your understanding</h4><div class="q">${esc(q.q)}</div><div class="opts">${shuffleIdx(q.opts.length, id).map(k => `<button data-qi="${k}">${esc(q.opts[k])}</button>`).join('')}</div><div class="why" hidden></div></div>
+      <div class="sec"><h4>Pairs well with</h4><div class="pairs">${s.pairs.filter(p => BY_ID[p]).map(p => `<button data-act="open" data-id="${p}">${esc(BY_ID[p].name)}</button>`).join('')}</div></div>
+      <div class="sec refs"><h4>See it in</h4><ul>${s.refs.map(([a, b]) => `<li><b>${esc(a)}</b>: ${esc(b)}</li>`).join('')}</ul></div>
+      <div class="navrow"><button class="btn" data-act="open" data-id="${prev.id}">${I.back} ${esc(prev.name)}</button><button class="btn ghost" data-act="close">Back to ${esc(det.from.label)}</button><button class="btn" data-act="open" data-id="${next.id}">${esc(next.name)} ${I.next}</button></div></div></div></div>`;
+  const ic = $('.infocol', sh); ic.innerHTML = glossify(ic.innerHTML); applyMode();
+  $('#pp').onclick = () => { det.playing = !det.playing; $('#pp').innerHTML = det.playing ? I.pause : I.play; };
+  $('#scrub').oninput = e => { det.t = e.target.value / 1000; det.playing = false; $('#pp').innerHTML = I.play; drawDetail(); };
+  $('#spd').onchange = e => det.speed = +e.target.value;
+  $$('.viewseg button', sh).forEach(b => b.onclick = () => { det.mode = b.dataset.mode; $$('.viewseg button', sh).forEach(x => x.setAttribute('aria-pressed', x === b)); applyMode(); });
+  $$('.beat', sh).forEach(b => b.onclick = () => { det.t = +b.dataset.bt + .001; drawDetail(); });
+  $$('#quiz .opts button', sh).forEach(b => b.onclick = () => { const ok = +b.dataset.qi === q.a; $$('#quiz .opts button', sh).forEach(x => { x.disabled = true; if (+x.dataset.qi === q.a) x.classList.add('right'); }); if (!ok) b.classList.add('wrong'); const w = $('#quiz .why', sh); w.hidden = false; w.textContent = (ok ? 'Correct. ' : 'Not quite. ') + q.why; ensureLearn(); store.quiz[id] = ok; save(); });
+  cancelAnimationFrame(det.raf); det.last = performance.now(); det.raf = requestAnimationFrame(tick); $('.infocol', sh).scrollTop = 0; $('.stagecol', sh).scrollTop = 0; $('.backbtn', sh).focus({ preventScroll: true }); };
+  const _dd = drawDetail; drawDetail = function () { const s = BY_ID[det.id]; if (!s) return; if (s.kind !== 'grade') return _dd();
+    const cf = $('#cvf'), cs = $('#cvs'); let R; if (cf && !$('#pframe').hidden) { if (cf.width < 10) fit(cf); R = GradeEngine.frame(cf.getContext('2d'), cf.width, cf.height, s, det.t); } if (cs && !$('#pset').hidden) { if (cs.width < 10) fit(cs); GradeEngine.scopes(cs.getContext('2d'), cs.width, cs.height, s, det.t, R && R.im); }
+    if (det.frameN++ % 3) return; const sc = $('#scrub'); if (sc && det.playing) sc.value = Math.round(det.t * 1000); const tc = $('#tc'); if (tc) tc.textContent = tcode(det.t * s.dur);
+    const p = (R && R.p) || GradeEngine.params(s, det.t);
+    $('#params').innerHTML = [['Exposure', (p.exposure >= 0 ? '+' : '') + p.exposure.toFixed(1) + ' st'], ['Recording', p.log > .5 ? 'S-Log3' : 'Rec709'], ['LUT', p.lut > .5 ? 'on' : 'off'], [p.wb ? 'WB shift' : p.sat !== 1 ? 'Saturation' : 'Contrast', p.wb ? (p.wb > 0 ? 'warm ' : 'cool ') + Math.abs(p.wb).toFixed(1) : p.sat !== 1 ? Math.round(p.sat * 100) + '%' : '+' + Math.round(p.contrast * 100) + '%']].map(([k, v]) => `<div class="param"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+    let cur = 0; s.beats.forEach(([bt], k) => { if (det.t >= bt) cur = k; }); $$('.beat').forEach((b, k) => b.classList.toggle('on', k === cur)); }; }
+// exposure drill: a frame at a random exposure; say under / right / over
+const EXPO_SHOTS = ['mcu', 'cu', 'ws', 'low', 'two', 'l-loop', 'l-window'];
+function exposureQuestion() { const shot = EXPO_SHOTS[Math.random() * EXPO_SHOTS.length | 0]; const choices = [-2, -1, 0, 1, 2]; const ev = choices[Math.random() * choices.length | 0]; const g = { id: 'x-expo', kind: 'grade', name: 'Exposure', dur: 6, shot, shotT: .8, tmpStatic: true, p: { exposure: ev, contrast: .15 } }; const label = v => v <= -2 ? 'Under by two stops' : v === -1 ? 'Under by one stop' : v === 0 ? 'About right' : v === 1 ? 'Over by one stop' : 'Over by two stops'; return { id: 'x-expo', kind: 'see', q: 'How is this exposed? Trust the skin and the shadows, not the overall brightness.', opts: choices.map(v => ({ t: label(v), ok: v === ev })).sort(() => Math.random() - .5), why: `It was ${label(ev).toLowerCase()}. ${ev < 0 ? 'Shadows filled with mud and skin fell below the mid band.' : ev > 0 ? 'Skin pushed towards clipping and the highlights lost detail.' : 'Skin sat in the mid band with blacks near zero and nothing clipped.'}`, anim: true, tmp: g }; }
+{ const _mq = makeQuestion; makeQuestion = function (id, mode) { if (id === 'x-expo') return exposureQuestion(); return _mq(id, mode); }; }
+// learning hooks
+PATHS.push({ id: 'colour', name: 'Exposure and colour', blurb: 'Read the scope, not the screen. Then log, the LUT and a grade.', shots: ['g-exposure', 'g-zebra', 'g-log', 'g-lut', 'g-ettr', 'g-contrast', 'g-wb', 'g-skin', 'g-sat', 'g-look'] });
+PHASES[2].shots = [...new Set([...GRADES.map(g => g.id), ...PHASES[2].shots])];
+PHASES[1].shots = [...new Set(['g-exposure', 'g-zebra', ...PHASES[1].shots])];
+COMPETENCIES.push({ id: 'c-colour', name: 'Exposure and colour', need: GRADES.map(g => g.id) });
+Object.assign(GLOSSARY, { 'waveform': 'A scope that plots the brightness of every column of the image from 0 (black) to 100 (clipped white). The honest way to judge exposure.', 'vectorscope': 'A scope that plots colour: hue as angle, saturation as distance from centre. Skin falls on a fixed line when balance is right.', 'clipping': 'When a highlight exceeds what the sensor or file can hold and becomes flat white with no detail. Not recoverable.', 'crushed blacks': 'Shadows pushed to pure black with no detail. Sometimes a choice, usually a mistake.', 'stop': 'A doubling or halving of light. One stop brighter is twice the light.', 'lift gamma gain': 'The three colour wheels: shadows, midtones and highlights.', 'split tone': 'Tinting highlights one colour and shadows another, such as warm highlights and cool shadows.', 'ETTR': 'Expose to the right: recording brighter than final so shadows stay clean, then bringing it down in the grade.' });
+GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b.length - a.length));
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -3915,13 +4160,13 @@ function renderList() {
 }
 
 /* ---------- routing & events ---------- */
-function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length + EDITS.length); $('#lightcount').textContent = LIGHTS.length; }
+function updateCounts() { ensureLearn(); $('#libcount').textContent = SHOTS.length; $('#listcount').textContent = store.lists.filter(l => !l.archived).length; $('#learncount').textContent = store.learned.length + '/' + (SHOTS.length + LIGHTS.length + EDITS.length + GRADES.length); $('#lightcount').textContent = LIGHTS.length; }
 function rerender() {
   updateCounts();
-  $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-camera-m').setAttribute('aria-selected', ui.view === 'camera'); $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
+  $('#tab-camera').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-camera-m').setAttribute('aria-selected', ui.view === 'camera'); $('#tab-colour').setAttribute('aria-selected', ui.view === 'colour'); $('#gradecount').textContent = GRADES.length; $$('.mitem').forEach(m => m.classList.toggle('on', m.getAttribute('aria-selected') === 'true'));
   $('#tab-lib').setAttribute('aria-selected', ui.view === 'library'); $('#tab-lists').setAttribute('aria-selected', ui.view === 'lists' || ui.view === 'list'); $('#tab-learn').setAttribute('aria-selected', ui.view === 'learn'); $('#tab-course').setAttribute('aria-selected', ui.view === 'course'); $('#tab-light').setAttribute('aria-selected', ui.view === 'lighting'); $('#tab-home').setAttribute('aria-selected', ui.view === 'home'); $('#tab-edit').setAttribute('aria-selected', ui.view === 'editing'); $('#editcount').textContent = EDITS.length; $('#tab-frames').setAttribute('aria-selected', ui.view === 'frames'); $('#tab-treat').setAttribute('aria-selected', ui.view === 'treat'); registerCustomLights(); $('#tab-kit').setAttribute('aria-selected', ui.view === 'kit');
   prefs.tab = ui.view === 'list' ? 'lists' : ui.view; savePrefs();
-  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
+  if (ui.view === 'library') renderLibrary(); else if (ui.view === 'list') renderList(); else if (ui.view === 'learn') renderLearn(); else if (ui.view === 'course') renderCourse(); else if (ui.view === 'lighting') renderLighting(); else if (ui.view === 'home') renderHome(); else if (ui.view === 'editing') renderEditing(); else if (ui.view === 'camera') renderCamera(); else if (ui.view === 'colour') renderColour(); else if (ui.view === 'frames') renderGallery(); else if (ui.view === 'treat') renderTreatments(); else if (ui.view === 'kit') renderKit(); else renderLists();
 }
 function go(view, listId) { ui.view = view; ui.listId = listId || null; ui.confirmDel = null; ui.editRow = null; ui.editHead = false; closePop(); rerender(); scrollTo(0, 0); }
 
@@ -3940,6 +4185,9 @@ document.addEventListener('click', e => {
     case 'lfav': lf.fav = !lf.fav; renderLighting(); break;
     case 'ef': { const set = ef[b.dataset.k]; set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v); renderEditing(); break; }
     case 'efav': ef.fav = !ef.fav; renderEditing(); break;
+    case 'gf': { const set = gf[b.dataset.k]; set.has(b.dataset.v) ? set.delete(b.dataset.v) : set.add(b.dataset.v); renderColour(); break; }
+    case 'gfav': gf.fav = !gf.fav; renderColour(); break;
+    case 'gclear': for (const k of ['cat', 'level']) gf[k].clear(); gf.fav = false; renderColour(); break;
     case 'eclear': for (const k of ['cat', 'mood', 'use', 'level']) ef[k].clear(); ef.fav = false; renderEditing(); break;
     case 'lclear': for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; renderLighting(); break;
     case 'favonly': F.fav = !F.fav; renderLibrary(); if (innerWidth <= 860 && b.closest('#filters')) { $('#filters').classList.add('open'); ensureScrim(); } break;
@@ -3948,9 +4196,10 @@ document.addEventListener('click', e => {
     case 'closef': $('#filters').classList.remove('open'); $('.scrim')?.remove(); break;
     case 'open': openShot(id, $('#sheet').hidden ? null : det.list); break;
     case 'openshot': { const cur = ui.view === 'list' && getList(ui.listId); const ids = cur ? [...new Set(groupsOf(cur).flatMap(g => g.items.map(i => i.shotId)))] : []; openShot(id, ids.includes(id) ? ids : SHOTS.map(s => s.id), cur ? { label: cur.title } : { label: 'Shot library' }); break; }
-    case 'crumbcat': { if (isEdit(det.id)) { ui.view = 'editing'; closeShot(); break; } if (isLight(det.id)) { ui.view = 'lighting'; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; lf.cat.add(b.dataset.v); closeShot(); break; } if (ui.view !== 'library') { ui.view = 'library'; ui.listId = null; } for (const k of ['cat', 'mood', 'use', 'gear', 'level']) F[k].clear(); F.fav = false; F.q = ''; F.cat.add(b.dataset.v); closeShot(); scrollTo(0, 0); toast(`Showing ${b.dataset.v} shots`); break; }
+    case 'crumbcat': { if (isGrade(det.id)) { ui.view = 'colour'; closeShot(); break; } if (isEdit(det.id)) { ui.view = 'editing'; closeShot(); break; } if (isLight(det.id)) { ui.view = 'lighting'; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) lf[k].clear(); lf.fav = false; lf.cat.add(b.dataset.v); closeShot(); break; } if (ui.view !== 'library') { ui.view = 'library'; ui.listId = null; } for (const k of ['cat', 'mood', 'use', 'gear', 'level']) F[k].clear(); F.fav = false; F.q = ''; F.cat.add(b.dataset.v); closeShot(); scrollTo(0, 0); toast(`Showing ${b.dataset.v} shots`); break; }
     case 'close': closeShot(); break;
     case 'fav': toggleFav(id); if (!$('#sheet').hidden) $$('#sheet [data-act="fav"]').forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); x.innerHTML = I.star + (isFav(id) ? ' Favourited' : ' Favourite'); });
+      if (ui.view === 'colour') { if (gf.fav) renderColour(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); }
       if (ui.view === 'editing') { if (ef.fav) renderEditing(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); }
       if (ui.view === 'lighting') { if (lf.fav) renderLighting(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); }
       if (ui.view === 'library') { if (F.fav) renderLibrary(); else $$(`.card[data-id="${id}"] .fav`).forEach(x => { x.classList.toggle('on', isFav(id)); x.setAttribute('aria-pressed', isFav(id)); }); } break;
@@ -4078,7 +4327,7 @@ let rsz; addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(
   setSync('Saved in this browser');
   ensureLearn();
   if (prefs.libFilters) { const p = prefs.libFilters; ui.f.q = p.q || ''; ui.f.fav = !!p.fav; for (const k of ['cat', 'mood', 'use', 'gear', 'level']) ui.f[k] = new Set(p[k] || []); ui.sort = p.sort || 'curated'; }
-  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat', 'editing', 'camera'].includes(prefs.tab)) ui.view = prefs.tab;
+  ui.view = 'home'; if (['library', 'lists', 'learn', 'course', 'kit', 'lighting', 'frames', 'treat', 'editing', 'camera', 'colour'].includes(prefs.tab)) ui.view = prefs.tab;
   Img.init(); setTimeout(() => checkInbox(true), 1500); Crit.init().then(() => { if (ui.view === 'frames' || ui.view === 'course') rerender(); });
   lv.finder = null;
   rerender();
