@@ -4206,107 +4206,136 @@ function onThisDayHTML() { ensureTools(); const t = today(); const dd = t.slice(
 /* ---------- 3D camera and lens model with pressable hotspots (Three.js, loaded on demand) ---------- */
 const CAM_PARTS = {
   camera: [
-    { id: 'rec', n: 1, name: 'REC button (top)', pos: [1.55, 1.05, 0.55], desc: 'Start and stop recording. Red = rolling; check the tally lamp too. There is a second REC button on the front of the grip for handheld and a third on the XLR handle.' },
-    { id: 'zoom', n: 2, name: 'Zoom lever (W/T)', pos: [1.55, 1.05, 0.2], desc: 'Drives Clear Image Zoom or a power-zoom lens. With the 24-70 GM II it does nothing to the optics; use the lens ring. Leave it, or assign it to something useful.' },
-    { id: 'shoe', n: 3, name: 'Multi Interface Shoe', pos: [0, 1.1, 0.1], desc: 'The hot shoe with digital audio. The ECM-M1 mic and the XLR handle plug in here with no cable. The handle also gives you 3.5mm and XLR inputs.' },
-    { id: 'threads', n: 4, name: '1/4" mounting threads (top)', pos: [-0.9, 1.05, 0.1], desc: 'Three threaded points on the top plate for the handle or a monitor arm. The Shinobi mounts here on a small arm.' },
-    { id: 'tally', n: 5, name: 'Tally lamp (front)', pos: [1.0, 0.6, 1.25], desc: 'Lights red while recording. Visible to the artist, so they know the take is live. There is one on the back for you.' },
-    { id: 'grip', n: 6, name: 'Grip and front REC', pos: [1.55, 0.2, 1.1], desc: 'Deep grip for handheld work. The front REC button under your fingertip is the one you will use most when moving.' },
-    { id: 'fdial', n: 7, name: 'Front dial', pos: [1.5, 0.95, 1.05], desc: 'Set this to shutter speed in the custom settings. Aperture lives on the lens ring, ISO on the rear dial.' },
-    { id: 'release', n: 8, name: 'Lens release', pos: [-0.75, 0.3, 1.2], desc: 'Press and turn the lens anticlockwise to remove. Cap the body immediately; the sensor is exposed.' },
-    { id: 'screen', n: 9, name: 'Vari-angle LCD (touch)', pos: [-1.2, 0.4, -0.95], desc: 'Flips out and rotates. Touch to place focus on a face. Use Gamma Display Assist so log looks normal here. For outdoor work the Shinobi is brighter.' },
-    { id: 'rdial', n: 10, name: 'Rear dial and control wheel', pos: [1.35, 0.85, -0.85], desc: 'Rear dial: ISO in the suggested setup. The control wheel around the centre button navigates menus and can carry exposure compensation.' },
-    { id: 'joy', n: 11, name: 'Multi-selector (joystick)', pos: [1.35, 0.45, -0.85], desc: 'Moves the focus point and navigates menus. Press to confirm. Faster than the touch screen for precise focus placement.' },
-    { id: 'menu', n: 12, name: 'MENU', pos: [-0.2, 1.0, -0.85], desc: 'The full menu. Use the Fn button for the things you change daily; save the menu for setup.' },
-    { id: 'fn', n: 13, name: 'Fn (function menu)', pos: [1.05, 0.15, -0.85], desc: 'A quick grid of twelve settings: white balance, ISO, picture profile, zebra, peaking, SteadyShot, file format, frame rate. Customise it once and you rarely need the main menu on set.' },
-    { id: 'cbtn', n: 14, name: 'Custom buttons C1–C4', pos: [0.55, 1.0, -0.85], desc: 'Assignable. Suggested: C1 zebra on/off, C2 focus magnifier, C3 Gamma Display Assist, C4 white balance. Set them in Setup → Custom Key.' },
-    { id: 'play', n: 15, name: 'Playback and delete', pos: [-0.75, 0.15, -0.85], desc: 'Review the last take before moving on. Delete is also C4 in some layouts; check before assigning.' },
-    { id: 'power', n: 16, name: 'Power switch', pos: [1.0, 1.0, -0.5], desc: 'Around the mode area on the top right of the body. Power off before swapping lenses or cards. The camera drains slowly on standby; carry the spare battery.' },
-    { id: 'cards', n: 17, name: 'Dual card slots (right side)', pos: [1.85, 0.4, 0], desc: 'Two slots, both take SD (UHS-II) and CFexpress Type A. Set recording to both cards for a live backup, or relay for long takes. V90 SD covers all your modes except the fastest slow-motion.' },
-    { id: 'hdmi', n: 18, name: 'Full-size HDMI', pos: [-1.85, 0.7, 0.2], desc: 'Feeds the Shinobi monitor. Use a short, flexible cable and a clamp so the port is not strained.' },
-    { id: 'usb', n: 19, name: 'USB-C (power and data)', pos: [-1.85, 0.35, 0.2], desc: 'Powers the camera from a USB-PD bank for long sessions, and offloads cards to the PC. Charging while shooting is fine.' },
-    { id: 'audio', n: 20, name: 'Mic in and headphone out (3.5mm)', pos: [-1.85, 0.0, 0.2], desc: 'Mic in for a wired mic; headphone out for the MDR-7506. With the XLR handle the inputs move to the handle.' },
-    { id: 'fan', n: 21, name: 'Cooling fan vents', pos: [-1.5, 0.6, -0.4], desc: 'The FX3 has an internal fan for long takes. Fan Control → Auto normally; Minimum on Standby for quiet interviews. Do not block the vents in a bag while recording.' },
-    { id: 'battery', n: 22, name: 'Battery door (bottom)', pos: [1.0, -0.65, 0.2], desc: 'NP-FZ100. Genuine batteries report charge correctly. The door is under the grip; a tripod plate can block it, so check before mounting.' },
-    { id: 'tripod', n: 23, name: '1/4" tripod socket (bottom)', pos: [0, -0.65, 0.2], desc: 'Standard thread, centred under the lens axis. Use a quick-release plate you leave on all day.' },
+    { id: 'rec', n: 1, name: 'REC button (top)', pos: [-1.5, 1.48, 0.6], desc: 'Start and stop recording. Red = rolling; check the tally lamp too. There is a second REC button on the front of the grip for handheld and a third on the XLR handle.' },
+    { id: 'zoom', n: 2, name: 'Zoom lever (W/T)', pos: [-1.5, 1.46, 0.12], desc: 'Drives Clear Image Zoom or a power-zoom lens. With the 24-70 GM II it does nothing to the optics; use the lens ring. Leave it, or assign it to something useful.' },
+    { id: 'shoe', n: 3, name: 'Multi Interface Shoe', pos: [0, 1.5, -0.15], desc: 'The hot shoe with digital audio. The ECM-M1 mic and the XLR handle plug in here with no cable. The handle also gives you 3.5mm and XLR inputs.' },
+    { id: 'threads', n: 4, name: '1/4" mounting threads (top)', pos: [1.2, 1.42, 0.55], desc: 'Three threaded points on the top plate for the handle or a monitor arm. The Shinobi mounts here on a small arm.' },
+    { id: 'tally', n: 5, name: 'Tally lamp (front)', pos: [1.2, 0.95, 1.1], desc: 'Lights red while recording. Visible to the artist, so they know the take is live. There is one on the back for you.' },
+    { id: 'grip', n: 6, name: 'Grip and front REC', pos: [-1.55, 0.3, 1.35], desc: 'Deep grip for handheld work. The front REC button under your fingertip is the one you will use most when moving.' },
+    { id: 'fdial', n: 7, name: 'Front dial', pos: [-1.35, 1.25, 1.2], desc: 'Set this to shutter speed in the custom settings. Aperture lives on the lens ring, ISO on the rear dial.' },
+    { id: 'release', n: 8, name: 'Lens release', pos: [-0.62, 0.15, 1.1], desc: 'Press and turn the lens anticlockwise to remove. Cap the body immediately; the sensor is exposed.' },
+    { id: 'screen', n: 9, name: 'Vari-angle LCD (touch)', pos: [0.55, 0.3, -1.02], desc: 'Flips out and rotates. Touch to place focus on a face. Use Gamma Display Assist so log looks normal here. For outdoor work the Shinobi is brighter.' },
+    { id: 'rdial', n: 10, name: 'Rear dial and control wheel', pos: [-1.3, 1.05, -1.0], desc: 'Rear dial: ISO in the suggested setup. The control wheel around the centre button navigates menus and can carry exposure compensation.' },
+    { id: 'joy', n: 11, name: 'Multi-selector (joystick)', pos: [-1.3, 0.62, -1.02], desc: 'Moves the focus point and navigates menus. Press to confirm. Faster than the touch screen for precise focus placement.' },
+    { id: 'menu', n: 12, name: 'MENU', pos: [-0.65, 1.05, -1.0], desc: 'The full menu. Use the Fn button for the things you change daily; save the menu for setup.' },
+    { id: 'fn', n: 13, name: 'Fn (function menu)', pos: [-0.95, -0.1, -1.0], desc: 'A quick grid of twelve settings: white balance, ISO, picture profile, zebra, peaking, SteadyShot, file format, frame rate. Customise it once and you rarely need the main menu on set.' },
+    { id: 'cbtn', n: 14, name: 'Custom buttons C1–C4', pos: [-0.65, 0.7, -1.0], desc: 'Assignable. Suggested: C1 zebra on/off, C2 focus magnifier, C3 Gamma Display Assist, C4 white balance. Set them in Setup → Custom Key.' },
+    { id: 'play', n: 15, name: 'Playback and delete', pos: [-1.3, -0.4, -1.0], desc: 'Review the last take before moving on. Delete is also C4 in some layouts; check before assigning.' },
+    { id: 'power', n: 16, name: 'Power switch', pos: [-1.0, 1.42, -0.55], desc: 'Around the mode area on the top right of the body. Power off before swapping lenses or cards. The camera drains slowly on standby; carry the spare battery.' },
+    { id: 'cards', n: 17, name: 'Dual card slots (right side)', pos: [-2.08, 0.35, 0.35], desc: 'Two slots, both take SD (UHS-II) and CFexpress Type A. Set recording to both cards for a live backup, or relay for long takes. V90 SD covers all your modes except the fastest slow-motion.' },
+    { id: 'hdmi', n: 18, name: 'Full-size HDMI', pos: [1.9, 0.7, 0.3], desc: 'Feeds the Shinobi monitor. Use a short, flexible cable and a clamp so the port is not strained.' },
+    { id: 'usb', n: 19, name: 'USB-C (power and data)', pos: [1.9, 0.3, 0.3], desc: 'Powers the camera from a USB-PD bank for long sessions, and offloads cards to the PC. Charging while shooting is fine.' },
+    { id: 'audio', n: 20, name: 'Mic in and headphone out (3.5mm)', pos: [1.9, -0.15, 0.3], desc: 'Mic in for a wired mic; headphone out for the MDR-7506. With the XLR handle the inputs move to the handle.' },
+    { id: 'fan', n: 21, name: 'Cooling fan vents', pos: [1.9, 0.65, -0.6], desc: 'The FX3 has an internal fan for long takes. Fan Control → Auto normally; Minimum on Standby for quiet interviews. Do not block the vents in a bag while recording.' },
+    { id: 'battery', n: 22, name: 'Battery door (bottom)', pos: [-1.4, -0.8, 0.6], desc: 'NP-FZ100. Genuine batteries report charge correctly. The door is under the grip; a tripod plate can block it, so check before mounting.' },
+    { id: 'tripod', n: 23, name: '1/4" tripod socket (bottom)', pos: [0.25, -0.8, 0.1], desc: 'Standard thread, centred under the lens axis. Use a quick-release plate you leave on all day.' },
   ],
   lens: [
-    { id: 'hood', n: 1, name: 'Lens hood', pos: [0, 0, 3.6], desc: 'Keeps side light off the front element (less flare, more contrast) and protects the glass. Bayonets on; reverse it for storage. Remove it to fit the ND.' },
-    { id: 'filter', n: 2, name: '82mm filter thread', pos: [0.65, 0.65, 3.05], desc: 'Your variable ND screws in here. 82mm is the size to buy. Keep the ND in its case; a scratched ND is a soft video.' },
-    { id: 'zoomring', n: 3, name: 'Zoom ring', pos: [0, 1.05, 2.3], desc: 'The wide rubber ring. 24mm to 70mm; markings at 24, 35, 50, 70. Turn it for a zoom move in a take; the camera\'s zoom lever does not drive it.' },
-    { id: 'focusring', n: 4, name: 'Focus ring', pos: [0, 1.05, 1.35], desc: 'Manual focus with Linear Response MF: the same turn always moves focus the same amount, so racks are repeatable. Works only with the AF/MF switch set to MF (or DMF in the camera).' },
-    { id: 'apring', n: 5, name: 'Aperture ring (f/2.8 to f/22, A)', pos: [0, 1.0, 0.55], desc: 'Set aperture on the lens. "A" hands control to the camera. For video, set the click switch to OFF so iris changes in a take are silent and smooth.' },
-    { id: 'click', n: 6, name: 'Click ON/OFF switch', pos: [0.95, -0.35, 0.55], desc: 'ON gives stills-style clicks at each stop. OFF makes the ring smooth for video. You want OFF.' },
-    { id: 'irislock', n: 7, name: 'Iris lock switch', pos: [-0.95, -0.35, 0.55], desc: 'Locks the aperture ring either at A (camera control) or off A (lens control), so a knock cannot change your exposure mid-take.' },
-    { id: 'afmf', n: 8, name: 'AF/MF switch', pos: [-1.0, 0.2, 1.4], desc: 'AF for performance with Face/Eye AF. MF for locked frames, racks and macro inserts. Flick it, do not menu it.' },
-    { id: 'hold', n: 9, name: 'Focus hold buttons (×2)', pos: [1.0, 0.2, 1.4], desc: 'Two buttons on the barrel, assignable in the camera. Eye AF on hold, or AF-ON, are the useful choices for video.' },
-    { id: 'smooth', n: 10, name: 'Zoom smoothness switch (SMOOTH/TIGHT)', pos: [-1.0, 0.2, 2.2], desc: 'TIGHT stops the barrel creeping when the camera points down or sits on a gimbal. SMOOTH for zoom moves during a take.' },
-    { id: 'mount', n: 11, name: 'E-mount (rear)', pos: [0, 0, -0.15], desc: 'Line up the white dots, insert, turn clockwise until it clicks. Weather-sealed against the body. Cap it the moment it comes off.' },
-    { id: 'breath', n: 12, name: 'Breathing compensation (in camera)', pos: [0, -1.05, 1.35], desc: 'Not a physical control: turn it on in the camera menu. The GM II supports it, so the frame does not "zoom" as focus racks.' },
+    { id: 'hood', n: 1, name: 'Lens hood', pos: [0, 0.55, 3.95], desc: 'Keeps side light off the front element (less flare, more contrast) and protects the glass. Bayonets on; reverse it for storage. Remove it to fit the ND.' },
+    { id: 'filter', n: 2, name: '82mm filter thread', pos: [0.8, 0.8, 3.35], desc: 'Your variable ND screws in here. 82mm is the size to buy. Keep the ND in its case; a scratched ND is a soft video.' },
+    { id: 'zoomring', n: 3, name: 'Zoom ring', pos: [0, 1.12, 2.65], desc: 'The wide rubber ring. 24mm to 70mm; markings at 24, 35, 50, 70. Turn it for a zoom move in a take; the camera\'s zoom lever does not drive it.' },
+    { id: 'focusring', n: 4, name: 'Focus ring', pos: [0, 1.1, 1.85], desc: 'Manual focus with Linear Response MF: the same turn always moves focus the same amount, so racks are repeatable. Works only with the AF/MF switch set to MF (or DMF in the camera).' },
+    { id: 'apring', n: 5, name: 'Aperture ring (f/2.8 to f/22, A)', pos: [0, 1.08, 0.5], desc: 'Set aperture on the lens. "A" hands control to the camera. For video, set the click switch to OFF so iris changes in a take are silent and smooth.' },
+    { id: 'click', n: 6, name: 'Click ON/OFF switch', pos: [-0.95, -0.5, 0.95], desc: 'ON gives stills-style clicks at each stop. OFF makes the ring smooth for video. You want OFF.' },
+    { id: 'irislock', n: 7, name: 'Iris lock switch', pos: [-1.0, 0.35, 0.55], desc: 'Locks the aperture ring either at A (camera control) or off A (lens control), so a knock cannot change your exposure mid-take.' },
+    { id: 'afmf', n: 8, name: 'AF/MF switch', pos: [1.02, 0.45, 1.15], desc: 'AF for performance with Face/Eye AF. MF for locked frames, racks and macro inserts. Flick it, do not menu it.' },
+    { id: 'hold', n: 9, name: 'Focus hold buttons (×2)', pos: [1.0, -0.05, 1.15], desc: 'Two buttons on the barrel, assignable in the camera. Eye AF on hold, or AF-ON, are the useful choices for video.' },
+    { id: 'smooth', n: 10, name: 'Zoom smoothness switch (SMOOTH/TIGHT)', pos: [1.02, 0.35, 1.85], desc: 'TIGHT stops the barrel creeping when the camera points down or sits on a gimbal. SMOOTH for zoom moves during a take.' },
+    { id: 'mount', n: 11, name: 'E-mount (rear)', pos: [0, -0.1, -0.05], desc: 'Line up the white dots, insert, turn clockwise until it clicks. Weather-sealed against the body. Cap it the moment it comes off.' },
+    { id: 'breath', n: 12, name: 'Breathing compensation (in camera)', pos: [0, -1.12, 1.85], desc: 'Not a physical control: turn it on in the camera menu. The GM II supports it, so the frame does not "zoom" as focus racks.' },
   ],
 };
-const Cam3D = { ready: null, scene: null, r: null, cam: null, group: null, spots: [], sel: null, yaw: .6, pitch: .35, dist: 7.5, mode: 'both', raf: 0 };
+const Cam3D = { ready: null, scene: null, r: null, cam: null, group: null, spots: [], sel: null, yaw: .6, pitch: .35, dist: 7.8, mode: 'both', raf: 0 };
 function loadThree() { if (window.THREE) return Promise.resolve(); if (Cam3D.ready) return Cam3D.ready; Cam3D.ready = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = res; s.onerror = () => rej(new Error('offline')); document.head.appendChild(s); }); return Cam3D.ready; }
 
+function texCanvas(T, w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); fn(g, c); const t = new T.CanvasTexture(c); t.anisotropy = 4; return t; }
+function knurlTex(T, dark = '#17181a', light = '#2c2d30', n = 24) { const t = texCanvas(T, 256, 64, g => { g.fillStyle = dark; g.fillRect(0, 0, 256, 64); g.fillStyle = light; for (let i = 0; i < 32; i++) g.fillRect(i * 8, 0, 3, 64); }); t.wrapS = T.RepeatWrapping; t.repeat.x = n; return t; }
+function ringTextTex(T, items, bg = '#141517', opts = {}) { const W = 2048, H = 160; return texCanvas(T, W, H, g => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = opts.color || '#e8e8e6'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `${opts.weight || 600} ${opts.size || 64}px "IBM Plex Sans", system-ui, sans-serif`; const span = opts.span || .34; const x0 = W * (.5 - span / 2); items.forEach((it, i) => { const x = x0 + (items.length === 1 ? W * span / 2 : (W * span) * i / (items.length - 1)); g.fillText(it, x, H * (opts.y || .5)); if (opts.ticks) g.fillRect(x - 3, opts.y ? H * .8 : 4, 6, 22); }); }); }
+function rbox(T, w, h, d, r, matl) { r = Math.min(r, w / 2 - .001, h / 2 - .001); const sh = new T.Shape(); const x = -w / 2, y = -h / 2; sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.quadraticCurveTo(x + w, y, x + w, y + r); sh.lineTo(x + w, y + h - r); sh.quadraticCurveTo(x + w, y + h, x + w - r, y + h); sh.lineTo(x + r, y + h); sh.quadraticCurveTo(x, y + h, x, y + h - r); sh.lineTo(x, y + r); sh.quadraticCurveTo(x, y, x + r, y); const bev = Math.min(r * .6, d / 2 - .001); const geo = new T.ExtrudeGeometry(sh, { depth: d - bev * 2, bevelEnabled: true, bevelSize: bev, bevelThickness: bev, bevelSegments: 3, curveSegments: 6 }); geo.translate(0, 0, -(d - bev * 2) / 2); return new T.Mesh(geo, matl); }
 function buildCamera(T) {
-  const g = new T.Group(); const mat = (c, r = .6, m = .1) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m }); const box = (w, h, d, c, x, y, z, r) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), mat(c, r)); m.position.set(x, y, z); g.add(m); return m; }; const cyl = (rt, rb, h, c, x, y, z, rx = 0, rz = 0, seg = 40, r = .5, met = .2) => { const m = new T.Mesh(new T.CylinderGeometry(rt, rb, h, seg), mat(c, r, met)); m.position.set(x, y, z); m.rotation.x = rx; m.rotation.z = rz; g.add(m); return m; };
-  const body = '#1c1d20', dark = '#101114', rubber = '#232426', metal = '#3a3c40';
-  box(3.6, 1.9, 1.7, body, 0, 0.2, 0.15, .55); // main body
-  box(1.0, 1.7, 1.2, rubber, 1.6, 0.15, 0.85, .9); // grip
-  box(3.6, 0.25, 1.7, dark, 0, 1.03, 0.15, .5); // top plate
-  box(0.8, 0.28, 0.9, metal, 0, 1.15, 0.1, .3); // shoe
-  cyl(0.7, 0.7, 0.35, dark, 0, 0.3, 1.15, Math.PI / 2, 0, 48, .4, .3); // mount ring
-  cyl(0.55, 0.55, 0.05, '#0a0b0d', 0, 0.3, 1.36, Math.PI / 2, 0, 48, .2, .6); // mount opening
-  box(2.4, 1.35, 0.12, '#0c0d10', -0.6, 0.35, -0.9, .2); // screen
-  box(2.2, 1.15, 0.02, '#1e2a3a', -0.6, 0.35, -0.97, .1); // screen glass
-  cyl(0.19, 0.19, 0.12, '#c8102e', 1.55, 1.2, 0.55, 0, 0, 24, .4, .1); // REC top
-  cyl(0.32, 0.32, 0.08, dark, 1.55, 1.18, 0.2, 0, 0, 24, .5, .2); // zoom lever collar
-  cyl(0.2, 0.2, 0.18, '#c8102e', 1.6, 0.35, 1.5, Math.PI / 2, 0, 24, .4, .1); // front REC
-  cyl(0.3, 0.3, 0.1, metal, 1.5, 1.0, 1.1, 0, 0, 24, .4, .3); // front dial
-  cyl(0.3, 0.3, 0.08, metal, 1.35, 0.9, -0.95, Math.PI / 2, 0, 24, .4, .3); // rear dial
-  cyl(0.33, 0.33, 0.06, dark, 1.35, 0.15, -0.95, Math.PI / 2, 0, 32, .5, .2); // control wheel
-  cyl(0.12, 0.12, 0.2, rubber, 1.35, 0.5, -0.98, Math.PI / 2, 0, 16, .8, 0); // joystick
-  for (const [x, y] of [[0.35, 1.0], [0.75, 1.0], [-0.2, 1.0], [1.05, 0.15], [-0.75, 0.15], [-0.4, 0.15]]) cyl(0.11, 0.11, 0.06, metal, x, y, -0.98, Math.PI / 2, 0, 16, .5, .3); // buttons
-  for (const x of [-1.2, -0.6, 0.6]) cyl(0.09, 0.09, 0.06, '#8a8c90', x, 1.18, 0.1, 0, 0, 12, .4, .6); // threads
-  cyl(0.09, 0.09, 0.05, '#ff2a2a', 1.0, 0.65, 1.02, Math.PI / 2, 0, 12, .3, 0); // front tally
-  box(0.08, 0.35, 0.25, '#e6e6e6', -1.82, 0.7, 0.2, .4); box(0.08, 0.2, 0.2, '#e6e6e6', -1.82, 0.35, 0.2, .4); box(0.08, 0.15, 0.15, '#e6e6e6', -1.82, 0.0, 0.2, .4); // ports
-  for (let i = 0; i < 5; i++) box(0.5, 0.05, 0.02, '#0a0b0d', -1.5, 0.35 + i * 0.13, -0.72, .8); // vents
-  box(0.08, 0.7, 0.6, '#2b2d31', 1.82, 0.4, 0, .5); // card door
-  box(0.6, 0.06, 0.6, '#2b2d31', 1.0, -0.72, 0.2, .5); cyl(0.12, 0.12, 0.05, metal, 0, -0.73, 0.2, 0, 0, 16, .4, .6); // battery door + tripod thread
-  cyl(0.11, 0.11, 0.08, '#8a8c90', -0.75, 0.3, 1.05, Math.PI / 2, 0, 16, .4, .5); // lens release
+  const g = new T.Group(); const M = (c, r = .6, m = .15, extra = {}) => new T.MeshStandardMaterial({ color: extra.map ? '#ffffff' : c, roughness: r, metalness: m, ...extra });
+  const body = '#1d1e21', dark = '#121316', metal = '#44464b', rub = '#1a1b1d';
+  const add = (m, x, y, z, rx = 0, ry = 0, rz = 0) => { m.position.set(x, y, z); m.rotation.set(rx, ry, rz); g.add(m); return m; };
+  const rb = (w, h, d, r, c, x, y, z, ro = .55, me = .15, extra = {}) => add(rbox(T, w, h, d, r, M(c, ro, me, extra)), x, y, z);
+  const cyl = (rt, rb2, h, c, x, y, z, rx = 0, rz = 0, seg = 40, r = .5, met = .2, extra = {}) => { const m = new T.Mesh(new T.CylinderGeometry(rt, rb2, h, seg), M(c, r, met, extra)); return add(m, x, y, z, rx, 0, rz); };
+  const grain = knurlTex(T, '#1a1b1d', '#222325', 40); grain.wrapT = T.RepeatWrapping; grain.repeat.y = 8;
+  rb(3.7, 2.0, 1.9, .16, body, 0, .25, .1);                       // main body
+  rb(1.1, 1.9, 1.25, .3, rub, -1.55, .25, .78, .95, 0, { map: grain }); // grip, textured
+  rb(3.7, .16, 1.9, .06, dark, 0, 1.32, .1, .45, .25);              // top plate
+  rb(1.1, .16, 1.25, .06, dark, -1.55, 1.32, .78, .45, .25);        // grip top
+  // top: shoe, threads, REC, zoom lever, front dial, C1, power
+  rb(.85, .2, .95, .04, metal, 0, 1.46, -.15, .35, .5); rb(.55, .1, .95, .02, '#0a0b0d', 0, 1.53, -.15, .3, .3);
+  for (const [x, z] of [[1.2, .55], [1.2, -.45], [.35, .75]]) { cyl(.11, .11, .04, '#9a9c9f', x, 1.41, z, 0, 0, 16, .35, .7); cyl(.06, .06, .05, '#0a0b0d', x, 1.42, z, 0, 0, 12, .5, .2); }
+  cyl(.21, .21, .1, '#c8102e', -1.5, 1.44, .6, 0, 0, 28, .4, .1); cyl(.24, .24, .03, dark, -1.5, 1.41, .6, 0, 0, 28, .5, .3); // REC
+  cyl(.3, .3, .06, dark, -1.5, 1.42, .12, 0, 0, 28, .5, .3); cyl(.14, .14, .08, metal, -1.5, 1.44, .12, 0, 0, 20, .4, .5); add(new T.Mesh(new T.BoxGeometry(.5, .04, .1), M(dark, .5, .3)), -1.5, 1.45, .12); // zoom lever
+  cyl(.28, .28, .1, metal, -1.35, 1.2, 1.25, 0, 0, 28, .35, .55, { map: knurlTex(T, '#3a3c40', '#5a5c60', 36) }); // front dial
+  cyl(.12, .12, .05, metal, -.9, 1.42, .3, 0, 0, 16, .4, .5); // C1
+  cyl(.16, .16, .05, dark, -1.0, 1.42, -.55, 0, 0, 20, .4, .4); add(new T.Mesh(new T.BoxGeometry(.06, .06, .28), M('#9a9c9f', .35, .6)), -1.0, 1.45, -.5); // power lever
+  cyl(.06, .06, .04, '#ff2a2a', -1.6, 1.42, -.6, 0, 0, 12, .3, 0, { emissive: '#ff2a2a', emissiveIntensity: .6 }); // rear tally
+  // front: mount, release, tally, badges
+  cyl(.86, .86, .12, dark, .25, .35, 1.1, Math.PI / 2, 0, 56, .45, .3); cyl(.8, .8, .06, '#b9bbbe', .25, .35, 1.19, Math.PI / 2, 0, 56, .3, .85); cyl(.62, .62, .07, '#08090b', .25, .35, 1.2, Math.PI / 2, 0, 56, .25, .5);
+  for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3 + .4; add(new T.Mesh(new T.BoxGeometry(.28, .09, .05), M('#c9cbce', .3, .85)), .25 + Math.cos(a) * .7, .35 + Math.sin(a) * .7, 1.22, 0, 0, a); } // bayonet tabs
+  cyl(.04, .04, .03, '#f0f0f0', .25, 1.2, 1.2, Math.PI / 2, 0, 8, .4, .1); // mount index dot
+  cyl(.12, .12, .1, '#9a9c9f', -.62, .15, 1.08, Math.PI / 2, 0, 16, .4, .5); // lens release
+  cyl(.07, .07, .05, '#ff2a2a', 1.2, .95, 1.07, Math.PI / 2, 0, 12, .3, 0, { emissive: '#ff2a2a', emissiveIntensity: .7 }); // front tally
+  add(new T.Mesh(new T.PlaneGeometry(.55, .18), new T.MeshBasicMaterial({ map: texCanvas(T, 256, 84, g => { g.fillStyle = '#1d1e21'; g.fillRect(0, 0, 256, 84); g.fillStyle = '#d8d8d6'; g.font = '700 62px "IBM Plex Sans",system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('FX3', 128, 44); }) })), 1.2, .5, 1.06); // model badge
+  // rear: screen, dials, buttons
+  rb(2.35, 1.45, .16, .08, '#0d0e11', .55, .3, -.92, .35, .2); add(new T.Mesh(new T.PlaneGeometry(2.1, 1.2), new T.MeshStandardMaterial({ color: '#0f1a26', roughness: .1, metalness: .4, emissive: '#0c1d33', emissiveIntensity: .35 })), .55, .3, -1.005, 0, Math.PI, 0); // vari-angle screen
+  cyl(.3, .3, .1, metal, -1.3, 1.05, -1.0, Math.PI / 2, 0, 28, .35, .55, { map: knurlTex(T, '#3a3c40', '#5a5c60', 36) }); // rear dial
+  cyl(.11, .11, .22, rub, -1.3, .62, -1.05, Math.PI / 2, 0, 16, .85, 0); cyl(.16, .16, .05, rub, -1.3, .62, -1.14, Math.PI / 2, 0, 16, .9, 0); // joystick
+  cyl(.34, .34, .06, dark, -1.3, .1, -1.0, Math.PI / 2, 0, 36, .5, .3); cyl(.13, .13, .05, metal, -1.3, .1, -1.04, Math.PI / 2, 0, 20, .4, .5); // control wheel + centre
+  for (const [x, y] of [[-.65, 1.05], [-.95, 1.05], [-.65, .7], [-.95, .7], [-.95, -.1], [-1.3, -.4], [-.95, -.4]]) cyl(.1, .1, .05, metal, x, y, -1.0, Math.PI / 2, 0, 16, .45, .4); // MENU, C-buttons, Fn, play, delete
+  // left side (operator's left, +x): ports, vents. right side (-x): card door. bottom: battery, tripod
+  rb(.06, .95, .7, .04, '#26282c', 1.86, .3, .3, .5, .2); for (const [y, h, w] of [[.7, .28, .34], [.3, .18, .26], [-.15, .13, .13], [.05, .13, .13]]) add(new T.Mesh(new T.BoxGeometry(.03, h, w), M('#08090b', .4, .3)), 1.9, y, .3); // port door + sockets
+  for (let i = 0; i < 6; i++) add(new T.Mesh(new T.BoxGeometry(.03, .04, .55), M('#08090b', .8, 0)), 1.87, .35 + i * .12, -.6); // fan vents
+  rb(.06, .95, .8, .04, '#26282c', -2.13, .35, .4, .5, .2); // card door
+  rb(.7, .06, .8, .03, '#26282c', -1.4, -.77, .6, .5, .2); cyl(.13, .13, .04, '#9a9c9f', .25, -.77, .1, 0, 0, 16, .35, .7); cyl(.07, .07, .05, '#08090b', .25, -.78, .1, 0, 0, 12, .5, .2); // battery door + tripod thread
   return g;
 }
 function buildLens(T) {
-  const g = new T.Group(); const mat = (c, r = .5, m = .2) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m }); const ring = (r, h, z, c, ro = .5, met = .2, seg = 64) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, seg), mat(c, ro, met)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
-  ring(0.72, 0.15, 0.0, '#3a3c40', .35, .6); // mount
-  ring(0.85, 0.45, 0.35, '#1c1d20', .5, .3); // base
-  ring(0.9, 0.5, 0.55, '#141518', .8, .05); // aperture ring
-  ring(0.86, 0.5, 1.0, '#1c1d20', .5, .3);
-  ring(0.95, 0.7, 1.35, '#232426', .9, 0); // focus ring
-  ring(0.88, 0.4, 1.85, '#1c1d20', .5, .3);
-  ring(0.98, 1.0, 2.3, '#232426', .95, 0); // zoom ring
-  ring(0.9, 0.5, 2.85, '#1c1d20', .5, .3);
-  ring(0.92, 0.12, 3.12, '#3a3c40', .35, .6); // filter thread
-  const glass = new T.Mesh(new T.CylinderGeometry(0.78, 0.78, 0.05, 64), new T.MeshStandardMaterial({ color: '#1a2a4a', roughness: .05, metalness: .8, emissive: '#0a1a33' })); glass.rotation.x = Math.PI / 2; glass.position.z = 3.2; g.add(glass);
-  const hood = new T.Mesh(new T.CylinderGeometry(1.25, 1.0, 0.9, 64, 1, true), new T.MeshStandardMaterial({ color: '#141518', roughness: .8, side: T.DoubleSide })); hood.rotation.x = Math.PI / 2; hood.position.z = 3.65; g.add(hood);
-  const sw = (x, y, z, w = .22, h = .1) => { const m = new T.Mesh(new T.BoxGeometry(w, h, .3), mat('#e6e6e6', .4, .3)); m.position.set(x, y, z); g.add(m); }; sw(0.92, -0.32, 0.55); sw(-0.92, -0.32, 0.55); sw(-0.98, 0.2, 1.4, .1, .22); sw(-0.98, 0.2, 2.2, .1, .22);
-  const hb = new T.Mesh(new T.CylinderGeometry(.09, .09, .06, 16), mat('#8a8c90', .4, .5)); hb.rotation.z = Math.PI / 2; hb.position.set(0.98, 0.2, 1.4); g.add(hb);
-  for (const [z, t] of [[2.55, '24'], [2.35, '35'], [2.15, '50'], [1.95, '70']]) { const m = new T.Mesh(new T.BoxGeometry(.03, .16, .02), mat('#ffffff', .5, 0)); m.position.set(0, 0.99, z); g.add(m); void t; }
+  const g = new T.Group(); const M = (c, r = .5, m = .12, extra = {}) => new T.MeshStandardMaterial({ color: extra.map ? '#ffffff' : c, roughness: r, metalness: m, ...extra });
+  const ring = (r, h, z, c, ro = .5, met = .2, extra = {}, seg = 72) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, seg), M(c, ro, met, extra)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
+  const cone = (rf, rr, h, z, c, ro = .5, met = .2) => { const m = new T.Mesh(new T.CylinderGeometry(rf, rr, h, 72), M(c, ro, met)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
+  const barrel = '#1a1b1e', rub = '#141517';
+  ring(0.82, 0.16, 0.0, '#b9bbbe', .3, .85); ring(0.64, 0.1, -0.06, '#08090b', .3, .4); // E-mount flange + rear element
+  cone(1.0, 0.86, 0.2, 0.18, barrel, .8, .1);
+  ring(1.04, 0.5, 0.5, rub, .75, .05, { map: ringTextTex(T, ['22', '16', '11', '8', '5.6', '4', '2.8', 'A'], '#151618', { size: 58, span: .36, ticks: true, y: .42 }) }); // aperture ring
+  ring(1.0, 0.85, 1.18, barrel, .82, .08); // rear fixed section (switches live here)
+  ring(1.02, 0.08, 0.78, '#2a2b2e', .7, .2); // seam
+  ring(1.08, 0.55, 1.85, rub, .9, 0, { map: knurlTex(T, '#101113', '#2e3035', 64), bumpMap: knurlTex(T, '#000', '#fff', 64), bumpScale: .02 }); // focus ring
+  ring(1.02, 0.12, 2.2, barrel, .8, .1);
+  ring(1.0, 0.24, 2.36, barrel, .8, .1, { map: ringTextTex(T, ['24', '35', '50', '70'], '#1a1b1e', { size: 66, span: .2, ticks: true, y: .4 }) }); // zoom scale band
+  ring(1.12, 0.62, 2.8, rub, .9, 0, { map: knurlTex(T, '#101113', '#2e3035', 72), bumpMap: knurlTex(T, '#000', '#fff', 72), bumpScale: .02 }); // zoom ring
+  ring(1.06, 0.24, 3.24, barrel, .75, .15, { map: ringTextTex(T, ['FE 2.8 / 24-70 GM II'], '#1a1b1e', { size: 54, span: .3, weight: 500, color: '#d6d6d2' }) }); // front name band
+  ring(1.02, 0.06, 3.39, '#9a9c9f', .3, .8); // 82mm filter thread
+  const glass = new T.Mesh(new T.CylinderGeometry(0.9, 0.9, 0.04, 72), new T.MeshStandardMaterial({ color: '#0e1e3a', roughness: .05, metalness: .9, emissive: '#0a2040', emissiveIntensity: .5 })); glass.rotation.x = Math.PI / 2; glass.position.z = 3.4; g.add(glass);
+  const glass2 = new T.Mesh(new T.SphereGeometry(0.72, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: '#16305a', roughness: .05, metalness: .6, emissive: '#0b1e3d', emissiveIntensity: .4 })); glass2.rotation.x = Math.PI / 2; glass2.position.z = 3.4; glass2.scale.y = .3; g.add(glass2);
+  // petal hood
+  const hs = new T.Shape(); const pts = []; for (let i = 0; i <= 72; i++) { const a = i / 72 * Math.PI * 2; const petal = .82 + .18 * Math.max(0, Math.cos(2 * a)) ** 1.5; pts.push([Math.cos(a) * 1.45, Math.sin(a) * 1.45, petal]); }
+  const hoodGeo = new T.CylinderGeometry(1.32, 1.1, .95, 72, 1, true); const posA = hoodGeo.attributes.position; for (let i = 0; i < posA.count; i++) { if (posA.getY(i) > 0) { const x = posA.getX(i), z = posA.getZ(i); const a = Math.atan2(x, z); const petal = .72 + .38 * Math.max(0, Math.cos(2 * a)) ** 1.4; posA.setY(i, -.475 + .95 * petal); } } hoodGeo.computeVertexNormals();
+  const hood = new T.Mesh(hoodGeo, new T.MeshStandardMaterial({ color: '#0f1013', roughness: .95, metalness: .02 })); hood.rotation.x = Math.PI / 2; hood.position.z = 3.85; g.add(hood); const hoodIn = new T.Mesh(hoodGeo, new T.MeshBasicMaterial({ color: '#08090a', side: T.BackSide })); hoodIn.rotation.x = Math.PI / 2; hoodIn.position.z = 3.85; g.add(hoodIn); void hs; void pts;
+  // switches and buttons (operator's left = +x)
+  const sw = (x, y, z, w, h, d, c = '#e6e6e6') => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), M(c, .4, .3)); m.position.set(x, y, z); m.lookAt(0, 0, z); g.add(m); return m; };
+  sw(1.0, .45, 1.15, .14, .3, .12); sw(1.0, .35, 1.85, .14, .3, .12); // AF/MF, SMOOTH/TIGHT
+  sw(-1.0, .35, .55, .14, .28, .12); sw(-.95, -.5, .95, .3, .14, .12); // iris lock, click switch
+  for (const [x, y] of [[1.0, -.05], [0, -1.0]]) { const b = new T.Mesh(new T.CylinderGeometry(.1, .1, .08, 20), M('#8a8c90', .4, .5)); b.position.set(x, y, 1.15); b.lookAt(0, 0, 1.15); b.rotateX(Math.PI / 2); g.add(b); } // focus hold ×2
+  const badge = new T.Mesh(new T.PlaneGeometry(.26, .26), new T.MeshBasicMaterial({ map: texCanvas(T, 128, 128, gc => { gc.fillStyle = '#e8641b'; gc.fillRect(0, 0, 128, 128); gc.fillStyle = '#fff'; gc.font = '800 92px "IBM Plex Sans",system-ui,sans-serif'; gc.textAlign = 'center'; gc.textBaseline = 'middle'; gc.fillText('G', 64, 70); }) })); badge.position.set(1.0, .05, 1.5); badge.lookAt(3, .15, 1.5); g.add(badge); // orange G badge
+  const idx = new T.Mesh(new T.CylinderGeometry(.04, .04, .03, 8), M('#f0f0f0', .4, .1)); idx.position.set(0, .86, .05); g.add(idx); // mount index dot
   return g;
 }
 function initCam3D(host) {
   const T = window.THREE; const W = host.clientWidth, H = Math.max(320, Math.round(W * .62));
   const r = new T.WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); const tipEl = host.querySelector('#cam3dtip'); host.innerHTML = ''; host.appendChild(r.domElement); if (tipEl) host.appendChild(tipEl);
   const scene = new T.Scene(); const cam = new T.PerspectiveCamera(38, W / H, .1, 100);
-  scene.add(new T.HemisphereLight('#dfe6f0', '#2a2c30', 1.1)); const key = new T.DirectionalLight('#fff4e0', 1.3); key.position.set(4, 6, 5); scene.add(key); const rim = new T.DirectionalLight('#6cc3d1', .8); rim.position.set(-5, 3, -6); scene.add(rim);
+  scene.add(new T.HemisphereLight('#e6ebf2', '#33353a', 1.1)); const key = new T.DirectionalLight('#fff4e0', 1.7); key.position.set(4, 6, 5); scene.add(key); const rim = new T.DirectionalLight('#6cc3d1', .7); rim.position.set(-5, 3, -6); scene.add(rim); const fill = new T.DirectionalLight('#ffe9d0', .7); fill.position.set(-4, 1, -4); scene.add(fill); const under = new T.DirectionalLight('#8fa3c0', .35); under.position.set(0, -5, 2); scene.add(under);
   const group = new T.Group(); scene.add(group);
-  const camG = buildCamera(T); const lensG = buildLens(T); lensG.position.set(0, 0.3, 1.4); group.add(camG); group.add(lensG);
+  const camG = buildCamera(T); const lensG = buildLens(T); lensG.position.set(0.25, 0.35, 1.2); group.add(camG); group.add(lensG);
   Cam3D.camG = camG; Cam3D.lensG = lensG;
   const spots = [];
   const badge = (n, col) => { const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.beginPath(); g.arc(48, 48, 40, 0, Math.PI * 2); g.fillStyle = col; g.fill(); g.lineWidth = 6; g.strokeStyle = 'rgba(255,255,255,.85)'; g.stroke(); g.fillStyle = '#0B0D11'; g.font = 'bold 44px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 48, 50); const t = new T.CanvasTexture(c); t.minFilter = T.LinearFilter; return t; };
   const mk = (parts, parent, kind) => { for (const p of parts) { const s = new T.Sprite(new T.SpriteMaterial({ map: badge(p.n, kind === 'camera' ? '#EFA23E' : '#6CC3D1'), transparent: true, depthTest: false })); s.scale.setScalar(.36); s.renderOrder = 10; s.position.set(...p.pos); s.userData = { part: p, kind }; parent.add(s); const halo = new T.Mesh(new T.RingGeometry(.2, .26, 28), new T.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0, side: T.DoubleSide, depthTest: false })); halo.renderOrder = 9; halo.position.copy(s.position); parent.add(halo); s.userData.halo = halo; spots.push(s); } };
   mk(CAM_PARTS.camera, camG, 'camera'); mk(CAM_PARTS.lens, lensG, 'lens');
-  Object.assign(Cam3D, { scene, r, cam, group, spots, host });
+  const solids = []; group.traverse(o => { if (o.isMesh && !o.isSprite) solids.push(o); }); Object.assign(Cam3D, { scene, r, cam, group, spots, host, solids }); const occRay = new T.Raycaster(), wp = new T.Vector3(), dirv = new T.Vector3(); let frame = 0;
   const ray = new T.Raycaster(), v2 = new T.Vector2(); let drag = null, moved = 0, lastPinch = 0;
   const pick = (cx, cy) => { const b = r.domElement.getBoundingClientRect(); v2.x = ((cx - b.left) / b.width) * 2 - 1; v2.y = -((cy - b.top) / b.height) * 2 + 1; ray.setFromCamera(v2, cam); const hits = ray.intersectObjects(spots.filter(s => s.visible)); return hits.length ? hits[0].object : null; };
   r.domElement.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: Cam3D.yaw, pitch: Cam3D.pitch }; moved = 0; r.domElement.setPointerCapture(e.pointerId); });
@@ -4317,13 +4346,13 @@ function initCam3D(host) {
   r.domElement.addEventListener('touchend', () => { lastPinch = 0; });
   r.domElement.style.touchAction = 'none'; r.domElement.style.cursor = 'grab';
   Cam3D.auto = true;
-  const loop = () => { if (!document.body.contains(r.domElement)) { cancelAnimationFrame(Cam3D.raf); return; } if (Cam3D.auto) Cam3D.yaw += .003; const cy = Math.cos(Cam3D.pitch), sy = Math.sin(Cam3D.pitch); const tgt = Cam3D.mode === 'lens' ? new T.Vector3(0, .3, 3.2) : Cam3D.mode === 'camera' ? new T.Vector3(0, .3, 0) : new T.Vector3(0, .3, 1.4); cam.position.set(tgt.x + Math.sin(Cam3D.yaw) * cy * Cam3D.dist, tgt.y + sy * Cam3D.dist, tgt.z + Math.cos(Cam3D.yaw) * cy * Cam3D.dist); cam.lookAt(tgt); const t = performance.now() / 1000; for (const s of spots) { const on = Cam3D.sel === s.userData.part.id; s.scale.setScalar(on ? .52 + Math.sin(t * 6) * .05 : .36); s.userData.halo.visible = s.visible && on; s.userData.halo.lookAt(cam.position); s.userData.halo.scale.setScalar(1.15 + Math.sin(t * 6) * .12); s.userData.halo.material.opacity = on ? .9 : 0; } r.render(scene, cam); Cam3D.raf = requestAnimationFrame(loop); };
+  const loop = () => { if (!document.body.contains(r.domElement)) { cancelAnimationFrame(Cam3D.raf); return; } if (Cam3D.auto) Cam3D.yaw += .003; const cy = Math.cos(Cam3D.pitch), sy = Math.sin(Cam3D.pitch); const tgt = Cam3D.mode === 'lens' ? new T.Vector3(.25, .35, 3.3) : Cam3D.mode === 'camera' ? new T.Vector3(0, .3, 0) : new T.Vector3(.1, .35, 1.6); cam.position.set(tgt.x + Math.sin(Cam3D.yaw) * cy * Cam3D.dist, tgt.y + sy * Cam3D.dist, tgt.z + Math.cos(Cam3D.yaw) * cy * Cam3D.dist); cam.lookAt(tgt); const t = performance.now() / 1000; if (frame++ % 2 === 0) { const vis = solids.filter(o => { let p = o; while (p) { if (p.visible === false) return false; p = p.parent; } return true; }); for (const s of spots) { if (!s.userData.modeOn) continue; s.getWorldPosition(wp); dirv.copy(wp).sub(cam.position); const d = dirv.length(); occRay.set(cam.position, dirv.normalize()); occRay.far = d; const h = occRay.intersectObjects(vis, false); s.userData.occluded = h.length > 0 && h[0].distance < d - .16; s.visible = s.userData.modeOn && !s.userData.occluded; } } for (const s of spots) { const on = Cam3D.sel === s.userData.part.id; s.scale.setScalar(on ? .52 + Math.sin(t * 6) * .05 : .36); s.userData.halo.visible = s.visible && on; s.userData.halo.lookAt(cam.position); s.userData.halo.scale.setScalar(1.15 + Math.sin(t * 6) * .12); s.userData.halo.material.opacity = on ? .9 : 0; } r.render(scene, cam); Cam3D.raf = requestAnimationFrame(loop); };
   cancelAnimationFrame(Cam3D.raf); Cam3D.raf = requestAnimationFrame(loop);
   const onResize = () => { const W2 = host.clientWidth; if (!W2) return; const H2 = Math.max(320, Math.round(W2 * .62)); r.setSize(W2, H2); cam.aspect = W2 / H2; cam.updateProjectionMatrix(); }; addEventListener('resize', onResize);
   setMode3D(Cam3D.mode);
 }
-function setMode3D(m) { Cam3D.mode = m; if (!Cam3D.camG) return; Cam3D.camG.visible = m !== 'lens'; Cam3D.lensG.visible = m !== 'camera'; for (const s of Cam3D.spots) s.visible = (s.userData.kind === 'camera' && m !== 'lens') || (s.userData.kind === 'lens' && m !== 'camera'); $$('[data-act="cam3dmode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m)); }
-function selectPart(id) { Cam3D.sel = id; Cam3D.auto = false; const all = [...CAM_PARTS.camera.map(p => ({ ...p, kind: 'camera' })), ...CAM_PARTS.lens.map(p => ({ ...p, kind: 'lens' }))]; const p = all.find(x => x.id === id); const box = $('#cam3dinfo'); if (!p || !box) return; const tip = $('#cam3dtip'); if (tip) { tip.hidden = false; tip.innerHTML = `<span class="pn ${p.kind === 'camera' ? 'or' : 'cy'}">${p.n}</span><div><b>${esc(p.name)}</b><span>${esc(p.desc)}</span></div>`; } box.innerHTML = `<div class="label" style="color:${p.kind === 'camera' ? 'var(--accent)' : 'var(--cyan)'}">${p.kind === 'camera' ? 'FX3 body' : '24-70mm GM II'} · ${p.n}</div><b>${esc(p.name)}</b><p>${esc(p.desc)}</p>`; $$('.partrow').forEach(r => r.classList.toggle('on', r.dataset.id === id)); const s = Cam3D.spots.find(x => x.userData.part.id === id); if (s) { const wp = new THREE.Vector3(); s.getWorldPosition(wp); const tgt = Cam3D.mode === 'lens' ? { x: 0, z: 3.2 } : Cam3D.mode === 'camera' ? { x: 0, z: 0 } : { x: 0, z: 1.4 }; Cam3D.yaw = Math.atan2(wp.x - tgt.x, wp.z - tgt.z); Cam3D.pitch = Math.max(-.9, Math.min(.9, (wp.y - .3) * .35)); } }
+function setMode3D(m) { Cam3D.mode = m; if (!Cam3D.camG) return; Cam3D.camG.visible = m !== 'lens'; Cam3D.lensG.visible = m !== 'camera'; for (const s of Cam3D.spots) { s.userData.modeOn = (s.userData.kind === 'camera' && m !== 'lens') || (s.userData.kind === 'lens' && m !== 'camera'); s.visible = s.userData.modeOn; } $$('[data-act="cam3dmode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m)); }
+function selectPart(id) { Cam3D.sel = id; Cam3D.auto = false; const all = [...CAM_PARTS.camera.map(p => ({ ...p, kind: 'camera' })), ...CAM_PARTS.lens.map(p => ({ ...p, kind: 'lens' }))]; const p = all.find(x => x.id === id); const box = $('#cam3dinfo'); if (!p || !box) return; const tip = $('#cam3dtip'); if (tip) { tip.hidden = false; tip.innerHTML = `<span class="pn ${p.kind === 'camera' ? 'or' : 'cy'}">${p.n}</span><div><b>${esc(p.name)}</b><span>${esc(p.desc)}</span></div>`; } box.innerHTML = `<div class="label" style="color:${p.kind === 'camera' ? 'var(--accent)' : 'var(--cyan)'}">${p.kind === 'camera' ? 'FX3 body' : '24-70mm GM II'} · ${p.n}</div><b>${esc(p.name)}</b><p>${esc(p.desc)}</p>`; $$('.partrow').forEach(r => r.classList.toggle('on', r.dataset.id === id)); const s = Cam3D.spots.find(x => x.userData.part.id === id); if (s) { const wp = new THREE.Vector3(); s.getWorldPosition(wp); const tgt = Cam3D.mode === 'lens' ? { x: .25, z: 3.3 } : Cam3D.mode === 'camera' ? { x: 0, z: 0 } : { x: .1, z: 1.6 }; Cam3D.yaw = Math.atan2(wp.x - tgt.x, wp.z - tgt.z); Cam3D.pitch = Math.max(-.9, Math.min(.9, (wp.y - .3) * .35)); } }
 function cam3dHTML() { return `<section class="lsec"><div class="lsechead"><h2>3D model</h2><p>Drag to turn, scroll or pinch to zoom, tap a numbered dot for what the control does. Positions are close but not exact: firmware and layouts vary, so treat it as a map to the real thing.</p></div>
   <div class="cam3d"><div class="cam3dstage"><div class="seg" role="group" style="margin-bottom:8px">${[['both', 'Camera + lens'], ['camera', 'Camera only'], ['lens', 'Lens only']].map(([k, l]) => `<button data-act="cam3dmode" data-v="${k}" aria-pressed="${Cam3D.mode === k}">${l}</button>`).join('')}<button data-act="cam3dspin" aria-pressed="${Cam3D.auto !== false}">Auto-spin</button></div><div id="cam3dhost" class="cam3dhost"><div class="empty">Loading the 3D view…</div><div id="cam3dtip" class="cam3dtip" hidden></div></div></div>
   <div class="cam3dside"><div class="box" id="cam3dinfo"><b>Tap a dot</b><p>Orange dots are on the camera body, cyan on the lens. Or pick a part from the list.</p></div>
