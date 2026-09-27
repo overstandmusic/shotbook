@@ -683,6 +683,26 @@ h4.sub:first-child{margin-top:0}
 .songlegend{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin:2px 0 6px}
 .covrow.warn{background:var(--accent-soft)}
 </style>
+<style>
+/* 3D camera model */
+.cam3d{display:grid;grid-template-columns:minmax(0,1.4fr) 320px;gap:16px;align-items:start}
+.cam3dstage .seg{flex-wrap:wrap}
+.cam3dhost{background:#0B0D11;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:320px;position:relative}
+.cam3dhost canvas{display:block;width:100%!important;height:auto!important}
+.cam3dhost .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-align:center}
+.cam3dtip{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:10px;align-items:flex-start;background:rgba(20,22,28,.92);color:#F2F1EC;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 12px;backdrop-filter:blur(6px);pointer-events:none}
+.cam3dtip b{display:block;font-size:14px;margin-bottom:2px}.cam3dtip span:not(.pn){font-size:13px;line-height:1.4;color:#C9C8C2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cam3dside{display:flex;flex-direction:column;gap:10px;position:sticky;top:70px}
+#cam3dinfo{min-height:96px;border-left:3px solid var(--accent)}
+#cam3dinfo b{display:block;font-size:17px;margin:4px 0 6px}
+#cam3dinfo p{margin:0;color:var(--muted);line-height:1.5}
+.partlist{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow:auto;margin:0 -6px}
+.partrow{display:flex;align-items:center;gap:10px;text-align:left;background:none;border:0;color:var(--ink);padding:7px 8px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.partrow:hover{background:var(--surface2)}.partrow.on{background:var(--accent-soft);color:var(--ink)}
+.pn{flex:none;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#0B0D11}
+.pn.or{background:#EFA23E}.pn.cy{background:#6CC3D1}
+@media(max-width:820px){.cam3d{grid-template-columns:1fr}.cam3dside{position:static}.partlist{max-height:220px}}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -3795,14 +3815,16 @@ const CAM_GLOSS = [
 function renderCamera() {
   $('#app').innerHTML = `<div class="wrap learn">
     <div class="pagehead"><div><div class="label">Sony FX3 · FE 24-70mm f/2.8 GM II</div><h1>Camera</h1></div><p style="margin:0;max-width:52ch;color:var(--muted)">Set it up once, then use the shoot-day card. The reference and glossary are for when a setting confuses you. Menu names can differ slightly between firmware versions.</p></div>
-    <div class="camtabs seg" role="group">${[['setup', 'Set up once'], ['day', 'Shoot day'], ['ref', 'Settings reference'], ['gloss', 'Camera glossary']].map(([k, l]) => `<button data-act="camtab" data-v="${k}" aria-pressed="${(cv.camTab || 'setup') === k}">${l}</button>`).join('')}</div>
+    <div class="camtabs seg" role="group">${[['setup', 'Set up once'], ['model', '3D model'], ['day', 'Shoot day'], ['ref', 'Settings reference'], ['gloss', 'Camera glossary']].map(([k, l]) => `<button data-act="camtab" data-v="${k}" aria-pressed="${(cv.camTab || 'setup') === k}">${l}</button>`).join('')}</div>
     ${(cv.camTab || 'setup') === 'setup' ? CAM_SETUP.map(g => `<section class="lsec"><div class="lsechead"><h2>${esc(g.t)}</h2><p>About twenty minutes with the camera on the kitchen table. Tick each one as it is done; it stays ticked.</p></div><div class="checklist">${g.steps.map(([a, b], i) => { const k = 'cam.' + i; const on = ensureCourse().tasks[k]; return `<label class="ck ${on ? 'on' : ''}"><input type="checkbox" data-task="${k}" ${on ? 'checked' : ''}><div><b>${i + 1}. ${esc(a)}</b><span>${esc(b)}</span></div></label>`; }).join('')}</div></section>`).join('') : ''}
     ${(cv.camTab || 'setup') === 'day' ? `<section class="lsec"><div class="lsechead"><h2>Shoot day, in order</h2><p>The same ten things every time, until they are automatic.</p></div><div class="daylist">${CAM_DAY.map(([a, b], i) => `<div class="dayrow"><span class="dn">${i + 1}</span><div><b>${esc(a)}</b><span>${esc(b)}</span></div></div>`).join('')}</div>
       <div class="box" style="margin-top:8px"><h4>The one-line recipe</h4><p style="font-family:var(--mono);color:var(--ink);font-size:14px">4K · XAVC S-I · 25p · 1/50 · S-Log3 (PP8) · ISO 800 or 12,800 · Kelvin set · ND for daylight · Face AF · Active on handheld</p></div></section>` : ''}
     ${(cv.camTab || 'setup') === 'ref' ? `<section class="lsec"><div class="lsechead"><h2>Settings reference</h2><p>What each setting does and when to use it.</p></div><div class="refgrid">${CAM_REF.map(r => `<div class="box"><h4>${esc(r.name)}</h4><div class="fl">${r.rows.map(([a, b]) => `<div class="refrow"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div></div>`).join('')}</div></section>` : ''}
+    ${(cv.camTab || 'setup') === 'model' ? cam3dHTML() : ''}
     ${(cv.camTab || 'setup') === 'gloss' ? `<section class="lsec"><div class="lsechead"><h2>Camera glossary</h2><p>The words the menus and the tutorials use.</p></div><div class="glossbody" style="padding:0">${CAM_GLOSS.map(([a, b]) => `<div class="gterm"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div></section>` : ''}
   </div>`;
   $$('[data-task]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.tasks[cb.dataset.task] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); });
+  if ((cv.camTab || 'setup') === 'model') mountCam3D();
 }
 /* ---------- Colour and exposure: process a real frame through exposure, log, LUT, grade; show scopes ---------- */
 const GradeEngine = (() => {
@@ -4181,6 +4203,133 @@ GLOSS_KEYS.length = 0; GLOSS_KEYS.push(...Object.keys(GLOSSARY).sort((a, b) => b
 { const _b = buildFromTreatment; buildFromTreatment = function (T) { const l = _b(T); if (T.song_timings) { l.song = T.song_timings; const m = String(T.length || '').match(/^(\d+):(\d{2})$/); if (m) l.songLen = +m[1] * 60 + +m[2]; save(); } return l; }; }
 // "on this day": frames from earlier months on the same day of month, shown on Home
 function onThisDayHTML() { ensureTools(); const t = today(); const dd = t.slice(8, 10), ym = t.slice(0, 7); const hits = (store.gallery || []).filter(g => g.date.slice(8, 10) === dd && g.date.slice(0, 7) !== ym && g.kind !== 'practice').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4); if (!hits.length) return ''; return `<section class="lsec"><div class="lsechead"><h2>On this day</h2><p>Frames from earlier months. Has your eye changed?</p></div><div class="recent otd">${hits.map(g => `<div class="recrow"><img data-gid="${g.id}" alt="" style="width:96px;aspect-ratio:4/3;object-fit:cover;border-radius:4px;background:#0C0E12"><div><b>${esc(g.date)}</b><span>${esc(g.saw || g.kind)}</span></div></div>`).join('')}</div></section>`; }
+/* ---------- 3D camera and lens model with pressable hotspots (Three.js, loaded on demand) ---------- */
+const CAM_PARTS = {
+  camera: [
+    { id: 'rec', n: 1, name: 'REC button (top)', pos: [1.55, 1.05, 0.55], desc: 'Start and stop recording. Red = rolling; check the tally lamp too. There is a second REC button on the front of the grip for handheld and a third on the XLR handle.' },
+    { id: 'zoom', n: 2, name: 'Zoom lever (W/T)', pos: [1.55, 1.05, 0.2], desc: 'Drives Clear Image Zoom or a power-zoom lens. With the 24-70 GM II it does nothing to the optics; use the lens ring. Leave it, or assign it to something useful.' },
+    { id: 'shoe', n: 3, name: 'Multi Interface Shoe', pos: [0, 1.1, 0.1], desc: 'The hot shoe with digital audio. The ECM-M1 mic and the XLR handle plug in here with no cable. The handle also gives you 3.5mm and XLR inputs.' },
+    { id: 'threads', n: 4, name: '1/4" mounting threads (top)', pos: [-0.9, 1.05, 0.1], desc: 'Three threaded points on the top plate for the handle or a monitor arm. The Shinobi mounts here on a small arm.' },
+    { id: 'tally', n: 5, name: 'Tally lamp (front)', pos: [1.0, 0.6, 1.25], desc: 'Lights red while recording. Visible to the artist, so they know the take is live. There is one on the back for you.' },
+    { id: 'grip', n: 6, name: 'Grip and front REC', pos: [1.55, 0.2, 1.1], desc: 'Deep grip for handheld work. The front REC button under your fingertip is the one you will use most when moving.' },
+    { id: 'fdial', n: 7, name: 'Front dial', pos: [1.5, 0.95, 1.05], desc: 'Set this to shutter speed in the custom settings. Aperture lives on the lens ring, ISO on the rear dial.' },
+    { id: 'release', n: 8, name: 'Lens release', pos: [-0.75, 0.3, 1.2], desc: 'Press and turn the lens anticlockwise to remove. Cap the body immediately; the sensor is exposed.' },
+    { id: 'screen', n: 9, name: 'Vari-angle LCD (touch)', pos: [-1.2, 0.4, -0.95], desc: 'Flips out and rotates. Touch to place focus on a face. Use Gamma Display Assist so log looks normal here. For outdoor work the Shinobi is brighter.' },
+    { id: 'rdial', n: 10, name: 'Rear dial and control wheel', pos: [1.35, 0.85, -0.85], desc: 'Rear dial: ISO in the suggested setup. The control wheel around the centre button navigates menus and can carry exposure compensation.' },
+    { id: 'joy', n: 11, name: 'Multi-selector (joystick)', pos: [1.35, 0.45, -0.85], desc: 'Moves the focus point and navigates menus. Press to confirm. Faster than the touch screen for precise focus placement.' },
+    { id: 'menu', n: 12, name: 'MENU', pos: [-0.2, 1.0, -0.85], desc: 'The full menu. Use the Fn button for the things you change daily; save the menu for setup.' },
+    { id: 'fn', n: 13, name: 'Fn (function menu)', pos: [1.05, 0.15, -0.85], desc: 'A quick grid of twelve settings: white balance, ISO, picture profile, zebra, peaking, SteadyShot, file format, frame rate. Customise it once and you rarely need the main menu on set.' },
+    { id: 'cbtn', n: 14, name: 'Custom buttons C1–C4', pos: [0.55, 1.0, -0.85], desc: 'Assignable. Suggested: C1 zebra on/off, C2 focus magnifier, C3 Gamma Display Assist, C4 white balance. Set them in Setup → Custom Key.' },
+    { id: 'play', n: 15, name: 'Playback and delete', pos: [-0.75, 0.15, -0.85], desc: 'Review the last take before moving on. Delete is also C4 in some layouts; check before assigning.' },
+    { id: 'power', n: 16, name: 'Power switch', pos: [1.0, 1.0, -0.5], desc: 'Around the mode area on the top right of the body. Power off before swapping lenses or cards. The camera drains slowly on standby; carry the spare battery.' },
+    { id: 'cards', n: 17, name: 'Dual card slots (right side)', pos: [1.85, 0.4, 0], desc: 'Two slots, both take SD (UHS-II) and CFexpress Type A. Set recording to both cards for a live backup, or relay for long takes. V90 SD covers all your modes except the fastest slow-motion.' },
+    { id: 'hdmi', n: 18, name: 'Full-size HDMI', pos: [-1.85, 0.7, 0.2], desc: 'Feeds the Shinobi monitor. Use a short, flexible cable and a clamp so the port is not strained.' },
+    { id: 'usb', n: 19, name: 'USB-C (power and data)', pos: [-1.85, 0.35, 0.2], desc: 'Powers the camera from a USB-PD bank for long sessions, and offloads cards to the PC. Charging while shooting is fine.' },
+    { id: 'audio', n: 20, name: 'Mic in and headphone out (3.5mm)', pos: [-1.85, 0.0, 0.2], desc: 'Mic in for a wired mic; headphone out for the MDR-7506. With the XLR handle the inputs move to the handle.' },
+    { id: 'fan', n: 21, name: 'Cooling fan vents', pos: [-1.5, 0.6, -0.4], desc: 'The FX3 has an internal fan for long takes. Fan Control → Auto normally; Minimum on Standby for quiet interviews. Do not block the vents in a bag while recording.' },
+    { id: 'battery', n: 22, name: 'Battery door (bottom)', pos: [1.0, -0.65, 0.2], desc: 'NP-FZ100. Genuine batteries report charge correctly. The door is under the grip; a tripod plate can block it, so check before mounting.' },
+    { id: 'tripod', n: 23, name: '1/4" tripod socket (bottom)', pos: [0, -0.65, 0.2], desc: 'Standard thread, centred under the lens axis. Use a quick-release plate you leave on all day.' },
+  ],
+  lens: [
+    { id: 'hood', n: 1, name: 'Lens hood', pos: [0, 0, 3.6], desc: 'Keeps side light off the front element (less flare, more contrast) and protects the glass. Bayonets on; reverse it for storage. Remove it to fit the ND.' },
+    { id: 'filter', n: 2, name: '82mm filter thread', pos: [0.65, 0.65, 3.05], desc: 'Your variable ND screws in here. 82mm is the size to buy. Keep the ND in its case; a scratched ND is a soft video.' },
+    { id: 'zoomring', n: 3, name: 'Zoom ring', pos: [0, 1.05, 2.3], desc: 'The wide rubber ring. 24mm to 70mm; markings at 24, 35, 50, 70. Turn it for a zoom move in a take; the camera\'s zoom lever does not drive it.' },
+    { id: 'focusring', n: 4, name: 'Focus ring', pos: [0, 1.05, 1.35], desc: 'Manual focus with Linear Response MF: the same turn always moves focus the same amount, so racks are repeatable. Works only with the AF/MF switch set to MF (or DMF in the camera).' },
+    { id: 'apring', n: 5, name: 'Aperture ring (f/2.8 to f/22, A)', pos: [0, 1.0, 0.55], desc: 'Set aperture on the lens. "A" hands control to the camera. For video, set the click switch to OFF so iris changes in a take are silent and smooth.' },
+    { id: 'click', n: 6, name: 'Click ON/OFF switch', pos: [0.95, -0.35, 0.55], desc: 'ON gives stills-style clicks at each stop. OFF makes the ring smooth for video. You want OFF.' },
+    { id: 'irislock', n: 7, name: 'Iris lock switch', pos: [-0.95, -0.35, 0.55], desc: 'Locks the aperture ring either at A (camera control) or off A (lens control), so a knock cannot change your exposure mid-take.' },
+    { id: 'afmf', n: 8, name: 'AF/MF switch', pos: [-1.0, 0.2, 1.4], desc: 'AF for performance with Face/Eye AF. MF for locked frames, racks and macro inserts. Flick it, do not menu it.' },
+    { id: 'hold', n: 9, name: 'Focus hold buttons (×2)', pos: [1.0, 0.2, 1.4], desc: 'Two buttons on the barrel, assignable in the camera. Eye AF on hold, or AF-ON, are the useful choices for video.' },
+    { id: 'smooth', n: 10, name: 'Zoom smoothness switch (SMOOTH/TIGHT)', pos: [-1.0, 0.2, 2.2], desc: 'TIGHT stops the barrel creeping when the camera points down or sits on a gimbal. SMOOTH for zoom moves during a take.' },
+    { id: 'mount', n: 11, name: 'E-mount (rear)', pos: [0, 0, -0.15], desc: 'Line up the white dots, insert, turn clockwise until it clicks. Weather-sealed against the body. Cap it the moment it comes off.' },
+    { id: 'breath', n: 12, name: 'Breathing compensation (in camera)', pos: [0, -1.05, 1.35], desc: 'Not a physical control: turn it on in the camera menu. The GM II supports it, so the frame does not "zoom" as focus racks.' },
+  ],
+};
+const Cam3D = { ready: null, scene: null, r: null, cam: null, group: null, spots: [], sel: null, yaw: .6, pitch: .35, dist: 7.5, mode: 'both', raf: 0 };
+function loadThree() { if (window.THREE) return Promise.resolve(); if (Cam3D.ready) return Cam3D.ready; Cam3D.ready = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = res; s.onerror = () => rej(new Error('offline')); document.head.appendChild(s); }); return Cam3D.ready; }
+
+function buildCamera(T) {
+  const g = new T.Group(); const mat = (c, r = .6, m = .1) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m }); const box = (w, h, d, c, x, y, z, r) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), mat(c, r)); m.position.set(x, y, z); g.add(m); return m; }; const cyl = (rt, rb, h, c, x, y, z, rx = 0, rz = 0, seg = 40, r = .5, met = .2) => { const m = new T.Mesh(new T.CylinderGeometry(rt, rb, h, seg), mat(c, r, met)); m.position.set(x, y, z); m.rotation.x = rx; m.rotation.z = rz; g.add(m); return m; };
+  const body = '#1c1d20', dark = '#101114', rubber = '#232426', metal = '#3a3c40';
+  box(3.6, 1.9, 1.7, body, 0, 0.2, 0.15, .55); // main body
+  box(1.0, 1.7, 1.2, rubber, 1.6, 0.15, 0.85, .9); // grip
+  box(3.6, 0.25, 1.7, dark, 0, 1.03, 0.15, .5); // top plate
+  box(0.8, 0.28, 0.9, metal, 0, 1.15, 0.1, .3); // shoe
+  cyl(0.7, 0.7, 0.35, dark, 0, 0.3, 1.15, Math.PI / 2, 0, 48, .4, .3); // mount ring
+  cyl(0.55, 0.55, 0.05, '#0a0b0d', 0, 0.3, 1.36, Math.PI / 2, 0, 48, .2, .6); // mount opening
+  box(2.4, 1.35, 0.12, '#0c0d10', -0.6, 0.35, -0.9, .2); // screen
+  box(2.2, 1.15, 0.02, '#1e2a3a', -0.6, 0.35, -0.97, .1); // screen glass
+  cyl(0.19, 0.19, 0.12, '#c8102e', 1.55, 1.2, 0.55, 0, 0, 24, .4, .1); // REC top
+  cyl(0.32, 0.32, 0.08, dark, 1.55, 1.18, 0.2, 0, 0, 24, .5, .2); // zoom lever collar
+  cyl(0.2, 0.2, 0.18, '#c8102e', 1.6, 0.35, 1.5, Math.PI / 2, 0, 24, .4, .1); // front REC
+  cyl(0.3, 0.3, 0.1, metal, 1.5, 1.0, 1.1, 0, 0, 24, .4, .3); // front dial
+  cyl(0.3, 0.3, 0.08, metal, 1.35, 0.9, -0.95, Math.PI / 2, 0, 24, .4, .3); // rear dial
+  cyl(0.33, 0.33, 0.06, dark, 1.35, 0.15, -0.95, Math.PI / 2, 0, 32, .5, .2); // control wheel
+  cyl(0.12, 0.12, 0.2, rubber, 1.35, 0.5, -0.98, Math.PI / 2, 0, 16, .8, 0); // joystick
+  for (const [x, y] of [[0.35, 1.0], [0.75, 1.0], [-0.2, 1.0], [1.05, 0.15], [-0.75, 0.15], [-0.4, 0.15]]) cyl(0.11, 0.11, 0.06, metal, x, y, -0.98, Math.PI / 2, 0, 16, .5, .3); // buttons
+  for (const x of [-1.2, -0.6, 0.6]) cyl(0.09, 0.09, 0.06, '#8a8c90', x, 1.18, 0.1, 0, 0, 12, .4, .6); // threads
+  cyl(0.09, 0.09, 0.05, '#ff2a2a', 1.0, 0.65, 1.02, Math.PI / 2, 0, 12, .3, 0); // front tally
+  box(0.08, 0.35, 0.25, '#e6e6e6', -1.82, 0.7, 0.2, .4); box(0.08, 0.2, 0.2, '#e6e6e6', -1.82, 0.35, 0.2, .4); box(0.08, 0.15, 0.15, '#e6e6e6', -1.82, 0.0, 0.2, .4); // ports
+  for (let i = 0; i < 5; i++) box(0.5, 0.05, 0.02, '#0a0b0d', -1.5, 0.35 + i * 0.13, -0.72, .8); // vents
+  box(0.08, 0.7, 0.6, '#2b2d31', 1.82, 0.4, 0, .5); // card door
+  box(0.6, 0.06, 0.6, '#2b2d31', 1.0, -0.72, 0.2, .5); cyl(0.12, 0.12, 0.05, metal, 0, -0.73, 0.2, 0, 0, 16, .4, .6); // battery door + tripod thread
+  cyl(0.11, 0.11, 0.08, '#8a8c90', -0.75, 0.3, 1.05, Math.PI / 2, 0, 16, .4, .5); // lens release
+  return g;
+}
+function buildLens(T) {
+  const g = new T.Group(); const mat = (c, r = .5, m = .2) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m }); const ring = (r, h, z, c, ro = .5, met = .2, seg = 64) => { const m = new T.Mesh(new T.CylinderGeometry(r, r, h, seg), mat(c, ro, met)); m.rotation.x = Math.PI / 2; m.position.z = z; g.add(m); return m; };
+  ring(0.72, 0.15, 0.0, '#3a3c40', .35, .6); // mount
+  ring(0.85, 0.45, 0.35, '#1c1d20', .5, .3); // base
+  ring(0.9, 0.5, 0.55, '#141518', .8, .05); // aperture ring
+  ring(0.86, 0.5, 1.0, '#1c1d20', .5, .3);
+  ring(0.95, 0.7, 1.35, '#232426', .9, 0); // focus ring
+  ring(0.88, 0.4, 1.85, '#1c1d20', .5, .3);
+  ring(0.98, 1.0, 2.3, '#232426', .95, 0); // zoom ring
+  ring(0.9, 0.5, 2.85, '#1c1d20', .5, .3);
+  ring(0.92, 0.12, 3.12, '#3a3c40', .35, .6); // filter thread
+  const glass = new T.Mesh(new T.CylinderGeometry(0.78, 0.78, 0.05, 64), new T.MeshStandardMaterial({ color: '#1a2a4a', roughness: .05, metalness: .8, emissive: '#0a1a33' })); glass.rotation.x = Math.PI / 2; glass.position.z = 3.2; g.add(glass);
+  const hood = new T.Mesh(new T.CylinderGeometry(1.25, 1.0, 0.9, 64, 1, true), new T.MeshStandardMaterial({ color: '#141518', roughness: .8, side: T.DoubleSide })); hood.rotation.x = Math.PI / 2; hood.position.z = 3.65; g.add(hood);
+  const sw = (x, y, z, w = .22, h = .1) => { const m = new T.Mesh(new T.BoxGeometry(w, h, .3), mat('#e6e6e6', .4, .3)); m.position.set(x, y, z); g.add(m); }; sw(0.92, -0.32, 0.55); sw(-0.92, -0.32, 0.55); sw(-0.98, 0.2, 1.4, .1, .22); sw(-0.98, 0.2, 2.2, .1, .22);
+  const hb = new T.Mesh(new T.CylinderGeometry(.09, .09, .06, 16), mat('#8a8c90', .4, .5)); hb.rotation.z = Math.PI / 2; hb.position.set(0.98, 0.2, 1.4); g.add(hb);
+  for (const [z, t] of [[2.55, '24'], [2.35, '35'], [2.15, '50'], [1.95, '70']]) { const m = new T.Mesh(new T.BoxGeometry(.03, .16, .02), mat('#ffffff', .5, 0)); m.position.set(0, 0.99, z); g.add(m); void t; }
+  return g;
+}
+function initCam3D(host) {
+  const T = window.THREE; const W = host.clientWidth, H = Math.max(320, Math.round(W * .62));
+  const r = new T.WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); const tipEl = host.querySelector('#cam3dtip'); host.innerHTML = ''; host.appendChild(r.domElement); if (tipEl) host.appendChild(tipEl);
+  const scene = new T.Scene(); const cam = new T.PerspectiveCamera(38, W / H, .1, 100);
+  scene.add(new T.HemisphereLight('#dfe6f0', '#2a2c30', 1.1)); const key = new T.DirectionalLight('#fff4e0', 1.3); key.position.set(4, 6, 5); scene.add(key); const rim = new T.DirectionalLight('#6cc3d1', .8); rim.position.set(-5, 3, -6); scene.add(rim);
+  const group = new T.Group(); scene.add(group);
+  const camG = buildCamera(T); const lensG = buildLens(T); lensG.position.set(0, 0.3, 1.4); group.add(camG); group.add(lensG);
+  Cam3D.camG = camG; Cam3D.lensG = lensG;
+  const spots = [];
+  const badge = (n, col) => { const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.beginPath(); g.arc(48, 48, 40, 0, Math.PI * 2); g.fillStyle = col; g.fill(); g.lineWidth = 6; g.strokeStyle = 'rgba(255,255,255,.85)'; g.stroke(); g.fillStyle = '#0B0D11'; g.font = 'bold 44px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 48, 50); const t = new T.CanvasTexture(c); t.minFilter = T.LinearFilter; return t; };
+  const mk = (parts, parent, kind) => { for (const p of parts) { const s = new T.Sprite(new T.SpriteMaterial({ map: badge(p.n, kind === 'camera' ? '#EFA23E' : '#6CC3D1'), transparent: true, depthTest: false })); s.scale.setScalar(.36); s.renderOrder = 10; s.position.set(...p.pos); s.userData = { part: p, kind }; parent.add(s); const halo = new T.Mesh(new T.RingGeometry(.2, .26, 28), new T.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0, side: T.DoubleSide, depthTest: false })); halo.renderOrder = 9; halo.position.copy(s.position); parent.add(halo); s.userData.halo = halo; spots.push(s); } };
+  mk(CAM_PARTS.camera, camG, 'camera'); mk(CAM_PARTS.lens, lensG, 'lens');
+  Object.assign(Cam3D, { scene, r, cam, group, spots, host });
+  const ray = new T.Raycaster(), v2 = new T.Vector2(); let drag = null, moved = 0, lastPinch = 0;
+  const pick = (cx, cy) => { const b = r.domElement.getBoundingClientRect(); v2.x = ((cx - b.left) / b.width) * 2 - 1; v2.y = -((cy - b.top) / b.height) * 2 + 1; ray.setFromCamera(v2, cam); const hits = ray.intersectObjects(spots.filter(s => s.visible)); return hits.length ? hits[0].object : null; };
+  r.domElement.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: Cam3D.yaw, pitch: Cam3D.pitch }; moved = 0; r.domElement.setPointerCapture(e.pointerId); });
+  r.domElement.addEventListener('pointermove', e => { if (!drag) { const h = pick(e.clientX, e.clientY); r.domElement.style.cursor = h ? 'pointer' : 'grab'; return; } const dx = e.clientX - drag.x, dy = e.clientY - drag.y; moved += Math.abs(dx) + Math.abs(dy); Cam3D.yaw = drag.yaw + dx * .01; Cam3D.pitch = Math.max(-1.2, Math.min(1.2, drag.pitch + dy * .01)); Cam3D.auto = false; });
+  r.domElement.addEventListener('pointerup', e => { if (drag && moved < 6) { const h = pick(e.clientX, e.clientY); if (h) selectPart(h.userData.part.id); } drag = null; });
+  r.domElement.addEventListener('wheel', e => { e.preventDefault(); Cam3D.dist = Math.max(4, Math.min(14, Cam3D.dist + e.deltaY * .01)); }, { passive: false });
+  r.domElement.addEventListener('touchmove', e => { if (e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); if (lastPinch) Cam3D.dist = Math.max(4, Math.min(14, Cam3D.dist * lastPinch / d)); lastPinch = d; e.preventDefault(); } }, { passive: false });
+  r.domElement.addEventListener('touchend', () => { lastPinch = 0; });
+  r.domElement.style.touchAction = 'none'; r.domElement.style.cursor = 'grab';
+  Cam3D.auto = true;
+  const loop = () => { if (!document.body.contains(r.domElement)) { cancelAnimationFrame(Cam3D.raf); return; } if (Cam3D.auto) Cam3D.yaw += .003; const cy = Math.cos(Cam3D.pitch), sy = Math.sin(Cam3D.pitch); const tgt = Cam3D.mode === 'lens' ? new T.Vector3(0, .3, 3.2) : Cam3D.mode === 'camera' ? new T.Vector3(0, .3, 0) : new T.Vector3(0, .3, 1.4); cam.position.set(tgt.x + Math.sin(Cam3D.yaw) * cy * Cam3D.dist, tgt.y + sy * Cam3D.dist, tgt.z + Math.cos(Cam3D.yaw) * cy * Cam3D.dist); cam.lookAt(tgt); const t = performance.now() / 1000; for (const s of spots) { const on = Cam3D.sel === s.userData.part.id; s.scale.setScalar(on ? .52 + Math.sin(t * 6) * .05 : .36); s.userData.halo.visible = s.visible && on; s.userData.halo.lookAt(cam.position); s.userData.halo.scale.setScalar(1.15 + Math.sin(t * 6) * .12); s.userData.halo.material.opacity = on ? .9 : 0; } r.render(scene, cam); Cam3D.raf = requestAnimationFrame(loop); };
+  cancelAnimationFrame(Cam3D.raf); Cam3D.raf = requestAnimationFrame(loop);
+  const onResize = () => { const W2 = host.clientWidth; if (!W2) return; const H2 = Math.max(320, Math.round(W2 * .62)); r.setSize(W2, H2); cam.aspect = W2 / H2; cam.updateProjectionMatrix(); }; addEventListener('resize', onResize);
+  setMode3D(Cam3D.mode);
+}
+function setMode3D(m) { Cam3D.mode = m; if (!Cam3D.camG) return; Cam3D.camG.visible = m !== 'lens'; Cam3D.lensG.visible = m !== 'camera'; for (const s of Cam3D.spots) s.visible = (s.userData.kind === 'camera' && m !== 'lens') || (s.userData.kind === 'lens' && m !== 'camera'); $$('[data-act="cam3dmode"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === m)); }
+function selectPart(id) { Cam3D.sel = id; Cam3D.auto = false; const all = [...CAM_PARTS.camera.map(p => ({ ...p, kind: 'camera' })), ...CAM_PARTS.lens.map(p => ({ ...p, kind: 'lens' }))]; const p = all.find(x => x.id === id); const box = $('#cam3dinfo'); if (!p || !box) return; const tip = $('#cam3dtip'); if (tip) { tip.hidden = false; tip.innerHTML = `<span class="pn ${p.kind === 'camera' ? 'or' : 'cy'}">${p.n}</span><div><b>${esc(p.name)}</b><span>${esc(p.desc)}</span></div>`; } box.innerHTML = `<div class="label" style="color:${p.kind === 'camera' ? 'var(--accent)' : 'var(--cyan)'}">${p.kind === 'camera' ? 'FX3 body' : '24-70mm GM II'} · ${p.n}</div><b>${esc(p.name)}</b><p>${esc(p.desc)}</p>`; $$('.partrow').forEach(r => r.classList.toggle('on', r.dataset.id === id)); const s = Cam3D.spots.find(x => x.userData.part.id === id); if (s) { const wp = new THREE.Vector3(); s.getWorldPosition(wp); const tgt = Cam3D.mode === 'lens' ? { x: 0, z: 3.2 } : Cam3D.mode === 'camera' ? { x: 0, z: 0 } : { x: 0, z: 1.4 }; Cam3D.yaw = Math.atan2(wp.x - tgt.x, wp.z - tgt.z); Cam3D.pitch = Math.max(-.9, Math.min(.9, (wp.y - .3) * .35)); } }
+function cam3dHTML() { return `<section class="lsec"><div class="lsechead"><h2>3D model</h2><p>Drag to turn, scroll or pinch to zoom, tap a numbered dot for what the control does. Positions are close but not exact: firmware and layouts vary, so treat it as a map to the real thing.</p></div>
+  <div class="cam3d"><div class="cam3dstage"><div class="seg" role="group" style="margin-bottom:8px">${[['both', 'Camera + lens'], ['camera', 'Camera only'], ['lens', 'Lens only']].map(([k, l]) => `<button data-act="cam3dmode" data-v="${k}" aria-pressed="${Cam3D.mode === k}">${l}</button>`).join('')}<button data-act="cam3dspin" aria-pressed="${Cam3D.auto !== false}">Auto-spin</button></div><div id="cam3dhost" class="cam3dhost"><div class="empty">Loading the 3D view…</div><div id="cam3dtip" class="cam3dtip" hidden></div></div></div>
+  <div class="cam3dside"><div class="box" id="cam3dinfo"><b>Tap a dot</b><p>Orange dots are on the camera body, cyan on the lens. Or pick a part from the list.</p></div>
+  <div class="box"><h4>FX3 body</h4><div class="partlist">${CAM_PARTS.camera.map(p => `<button class="partrow" data-act="cam3dpart" data-id="${p.id}"><span class="pn or">${p.n}</span>${esc(p.name)}</button>`).join('')}</div></div>
+  <div class="box"><h4>FE 24-70mm f/2.8 GM II</h4><div class="partlist">${CAM_PARTS.lens.map(p => `<button class="partrow" data-act="cam3dpart" data-id="${p.id}"><span class="pn cy">${p.n}</span>${esc(p.name)}</button>`).join('')}</div></div></div></div></section>`; }
+function mountCam3D() { const host = $('#cam3dhost'); if (!host) return; loadThree().then(() => { if ($('#cam3dhost')) initCam3D($('#cam3dhost')); }).catch(() => { host.innerHTML = '<div class="empty"><b>The 3D view needs a connection the first time</b>It loads a small library online and is cached for offline use afterwards.</div>'; }); }
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -4442,6 +4591,9 @@ document.addEventListener('click', e => {
     case 'gocamera': go('camera'); break;
     case 'gohome': toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go('home'); break;
     case 'camtab': cv.camTab = b.dataset.v; renderCamera(); break;
+    case 'cam3dmode': setMode3D(b.dataset.v); break;
+    case 'cam3dspin': Cam3D.auto = !Cam3D.auto; b.setAttribute('aria-pressed', Cam3D.auto); break;
+    case 'cam3dpart': selectPart(b.dataset.id); break;
     case 'guide': cv.guide = b.dataset.v; renderGuides(); break;
     case 'goguide': cv.guide = b.dataset.v; go('guides'); break;
     case 'export': exportBackup(false); break;
@@ -4531,4 +4683,5 @@ function saveTreatForm() { const f = $('form[data-form="treat"]'); if (!f) retur
 
 function toggleMenu(force) { const m = $('#menu'), b = $('.menubtn'); const open = force == null ? m.hidden : force; m.hidden = !open; b.setAttribute('aria-expanded', open); $$('.mitem').forEach(x => x.classList.toggle('on', x.getAttribute('aria-selected') === 'true')); }
 </script>
+
 <script>if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script></body></html>
