@@ -2913,7 +2913,7 @@ function openShootMode(listId) {
   const draw = () => {
     const G = groupsOf(l), p = progress(l);
     sh.innerHTML = `<div class="sheetin shootin" role="dialog" aria-modal="true" aria-label="Shoot mode"><nav class="shotnav"><button class="btn backbtn" data-act="close">${I.back}<span>Exit shoot mode</span></button><div class="crumbs"><b>${esc(l.title)}</b></div><span class="mono" style="font-size:13px;color:var(--muted)">${p.d}/${p.n} done</span></nav>
-      <div class="shootbody"><details class="preroll" ${Object.values(l.preroll || {}).filter(Boolean).length < PREROLL.length ? 'open' : ''}><summary>Before you roll <span class="mono">${Object.values(l.preroll || {}).filter(Boolean).length}/${PREROLL.length}</span></summary><div class="checklist">${PREROLL.map((t, i) => `<button class="ck ${(l.preroll || {})[i] ? 'on' : ''}" data-act="preroll" data-id="${l.id}" data-i="${i}"><span class="check ${(l.preroll || {})[i] ? 'on' : ''}" style="width:22px;height:22px">${I.check}</span><div><b style="font-weight:500">${esc(t)}</b></div></button>`).join('')}</div><button class="btn ghost sm" data-act="prerollreset" data-id="${l.id}">Reset for the next shoot</button></details>${G.map(g => `${g.name !== null ? `<h3 class="shooth">${I.pin}${esc(g.name)} <span>${g.all.filter(i => i.done).length}/${g.all.length}</span></h3>` : ''}${g.items.map(it => { const s = BY_ID[it.shotId]; return `<div class="shootwrap"><button class="shootrow ${it.done ? 'done' : ''}" data-act="shootdone" data-id="${it.id}"><span class="check ${it.done ? 'on' : ''}">${I.check}</span><canvas data-shot="${s.id}"></canvas><div><b>${esc(s.name)}</b>${it.light && BY_ID[it.light] ? `<span>💡 ${esc(BY_ID[it.light].name)}</span>` : ''}${it.note ? `<span>${esc(it.note)}</span>` : ''}<small>${l.fields.map(f => it.vals[f.id] ? `${esc(f.name)}: ${esc(it.vals[f.id])}` : '').filter(Boolean).join(' · ')}</small></div></button><div class="takes"><span class="label">Takes</span><button class="iconbtn" data-act="take" data-d="-1" data-id="${it.id}" aria-label="Fewer">−</button><b>${it.takes || 0}</b><button class="iconbtn" data-act="take" data-d="1" data-id="${it.id}" aria-label="Add a take">+</button><button class="btn sm ${it.best ? 'on' : ''}" data-act="best" data-id="${it.id}" title="Mark the current take as the best">${it.best ? 'best: T' + it.best : 'best?'}</button><span class="mono" style="font-size:11px;color:var(--faint)">${it.mins == null ? 15 : it.mins} min</span></div></div>`; }).join('') || '<div class="empty" style="padding:16px">All done here.</div>'}`).join('')}
+      <div class="shootbody"><details class="preroll" ${Object.values(l.preroll || {}).filter(Boolean).length < PREROLL.length ? 'open' : ''}><summary>Before you roll <span class="mono">${Object.values(l.preroll || {}).filter(Boolean).length}/${PREROLL.length}</span></summary><div class="checklist">${PREROLL.map((t, i) => `<button class="ck ${(l.preroll || {})[i] ? 'on' : ''}" data-act="preroll" data-id="${l.id}" data-i="${i}"><span class="check ${(l.preroll || {})[i] ? 'on' : ''}" style="width:22px;height:22px">${I.check}</span><div><b style="font-weight:500">${esc(t)}</b></div></button>`).join('')}</div><button class="btn ghost sm" data-act="prerollreset" data-id="${l.id}">Reset for the next shoot</button> <button class="btn ghost sm" data-act="godirect">How to call a take</button></details>${G.map(g => `${g.name !== null ? `<h3 class="shooth">${I.pin}${esc(g.name)} <span>${g.all.filter(i => i.done).length}/${g.all.length}</span></h3>` : ''}${g.items.map(it => { const s = BY_ID[it.shotId]; return `<div class="shootwrap"><button class="shootrow ${it.done ? 'done' : ''}" data-act="shootdone" data-id="${it.id}"><span class="check ${it.done ? 'on' : ''}">${I.check}</span><canvas data-shot="${s.id}"></canvas><div><b>${esc(s.name)}</b>${it.light && BY_ID[it.light] ? `<span>💡 ${esc(BY_ID[it.light].name)}</span>` : ''}${it.note ? `<span>${esc(it.note)}</span>` : ''}<small>${l.fields.map(f => it.vals[f.id] ? `${esc(f.name)}: ${esc(it.vals[f.id])}` : '').filter(Boolean).join(' · ')}</small></div></button><div class="takes"><span class="label">Takes</span><button class="iconbtn" data-act="take" data-d="-1" data-id="${it.id}" aria-label="Fewer">−</button><b>${it.takes || 0}</b><button class="iconbtn" data-act="take" data-d="1" data-id="${it.id}" aria-label="Add a take">+</button><button class="btn sm ${it.best ? 'on' : ''}" data-act="best" data-id="${it.id}" title="Mark the current take as the best">${it.best ? 'best: T' + it.best : 'best?'}</button><span class="mono" style="font-size:11px;color:var(--faint)">${it.mins == null ? 15 : it.mins} min</span></div></div>`; }).join('') || '<div class="empty" style="padding:16px">All done here.</div>'}`).join('')}
       <div class="shootfoot"><label class="switch"><input type="checkbox" id="shHide" ${l.hideDone ? 'checked' : ''}> Hide completed</label><span class="mono" style="font-size:12px;color:var(--faint)">Tap a row to tick it off. Big targets for cold hands.</span></div></div></div>`;
     paintThumbs(sh); $('#shHide').onchange = e => { l.hideDone = e.target.checked; save(); draw(); };
   };
@@ -3815,12 +3815,13 @@ const CAM_GLOSS = [
 function renderCamera() {
   $('#app').innerHTML = `<div class="wrap learn">
     <div class="pagehead"><div><div class="label">Sony FX3 · FE 24-70mm f/2.8 GM II</div><h1>Camera</h1></div><p style="margin:0;max-width:52ch;color:var(--muted)">Set it up once, then use the shoot-day card. The reference and glossary are for when a setting confuses you. Menu names can differ slightly between firmware versions.</p></div>
-    <div class="camtabs seg" role="group">${[['setup', 'Set up once'], ['model', '3D model'], ['day', 'Shoot day'], ['ref', 'Settings reference'], ['gloss', 'Camera glossary']].map(([k, l]) => `<button data-act="camtab" data-v="${k}" aria-pressed="${(cv.camTab || 'setup') === k}">${l}</button>`).join('')}</div>
+    <div class="camtabs seg" role="group">${[['setup', 'Set up once'], ['model', '3D model'], ['day', 'Shoot day'], ['direct', 'Directing a take'], ['ref', 'Settings reference'], ['gloss', 'Camera glossary']].map(([k, l]) => `<button data-act="camtab" data-v="${k}" aria-pressed="${(cv.camTab || 'setup') === k}">${l}</button>`).join('')}</div>
     ${(cv.camTab || 'setup') === 'setup' ? CAM_SETUP.map(g => `<section class="lsec"><div class="lsechead"><h2>${esc(g.t)}</h2><p>About twenty minutes with the camera on the kitchen table. Tick each one as it is done; it stays ticked.</p></div><div class="checklist">${g.steps.map(([a, b], i) => { const k = 'cam.' + i; const on = ensureCourse().tasks[k]; return `<label class="ck ${on ? 'on' : ''}"><input type="checkbox" data-task="${k}" ${on ? 'checked' : ''}><div><b>${i + 1}. ${esc(a)}</b><span>${esc(b)}</span></div></label>`; }).join('')}</div></section>`).join('') : ''}
     ${(cv.camTab || 'setup') === 'day' ? `<section class="lsec"><div class="lsechead"><h2>Shoot day, in order</h2><p>The same ten things every time, until they are automatic.</p></div><div class="daylist">${CAM_DAY.map(([a, b], i) => `<div class="dayrow"><span class="dn">${i + 1}</span><div><b>${esc(a)}</b><span>${esc(b)}</span></div></div>`).join('')}</div>
       <div class="box" style="margin-top:8px"><h4>The one-line recipe</h4><p style="font-family:var(--mono);color:var(--ink);font-size:14px">4K · XAVC S-I · 25p · 1/50 · S-Log3 (PP8) · ISO 800 or 12,800 · Kelvin set · ND for daylight · Face AF · Active on handheld</p></div></section>` : ''}
     ${(cv.camTab || 'setup') === 'ref' ? `<section class="lsec"><div class="lsechead"><h2>Settings reference</h2><p>What each setting does and when to use it.</p></div><div class="refgrid">${CAM_REF.map(r => `<div class="box"><h4>${esc(r.name)}</h4><div class="fl">${r.rows.map(([a, b]) => `<div class="refrow"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div></div>`).join('')}</div></section>` : ''}
     ${(cv.camTab || 'setup') === 'model' ? cam3dHTML() : ''}
+    ${(cv.camTab || 'setup') === 'direct' ? directingHTML() : ''}
     ${(cv.camTab || 'setup') === 'gloss' ? `<section class="lsec"><div class="lsechead"><h2>Camera glossary</h2><p>The words the menus and the tutorials use.</p></div><div class="glossbody" style="padding:0">${CAM_GLOSS.map(([a, b]) => `<div class="gterm"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div></section>` : ''}
   </div>`;
   $$('[data-task]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.tasks[cb.dataset.task] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); });
@@ -4145,6 +4146,7 @@ function searchAll(q) {
   for (const [k, v] of CHEATSHEET) if (hit(k + ' ' + v)) out.push({ kind: 'Cheat sheet', title: k, sub: v, act: 'gocamera' });
   for (const r of CAM_REF) for (const [a, b] of r.rows) if (hit(r.name + ' ' + a + ' ' + b)) out.push({ kind: 'Camera', title: r.name + ': ' + a, sub: b, act: 'gocamera' });
   for (const [a, b] of CAM_GLOSS) if (hit(a + ' ' + b)) out.push({ kind: 'Camera glossary', title: a, sub: b, act: 'gocamera' });
+  for (const rows of [DIRECT_PREP, DIRECT_TALENT, DIRECT_CALLS, DIRECT_SLATE, DIRECT_MV, DIRECT_FAULTS]) for (const [a, b] of rows) if (hit(a + ' ' + b)) out.push({ kind: 'Directing', title: a, sub: b, act: 'godirect' });
   for (const g of GUIDES) for (const s of g.sections) for (const [a, b] of s.rows) if (hit(g.name + ' ' + s.h + ' ' + a + ' ' + b)) out.push({ kind: 'Guide', title: g.name + ' · ' + a, sub: b, act: 'goguide', v: g.id });
   for (const c of COMPARES) if (hit(c.title + ' ' + c.lesson)) out.push({ kind: 'Compare', title: c.title, sub: c.lesson, act: 'compare', id: c.id });
   for (const r of RECIPES) if (hit(r.name + ' ' + r.blurb)) out.push({ kind: 'Recipe', title: r.name, sub: r.blurb, act: 'gohome' });
@@ -4359,6 +4361,81 @@ function cam3dHTML() { return `<section class="lsec"><div class="lsechead"><h2>3
   <div class="box"><h4>FX3 body</h4><div class="partlist">${CAM_PARTS.camera.map(p => `<button class="partrow" data-act="cam3dpart" data-id="${p.id}"><span class="pn or">${p.n}</span>${esc(p.name)}</button>`).join('')}</div></div>
   <div class="box"><h4>FE 24-70mm f/2.8 GM II</h4><div class="partlist">${CAM_PARTS.lens.map(p => `<button class="partrow" data-act="cam3dpart" data-id="${p.id}"><span class="pn cy">${p.n}</span>${esc(p.name)}</button>`).join('')}</div></div></div></div></section>`; }
 function mountCam3D() { const host = $('#cam3dhost'); if (!host) return; loadThree().then(() => { if ($('#cam3dhost')) initCam3D($('#cam3dhost')); }).catch(() => { host.innerHTML = '<div class="empty"><b>The 3D view needs a connection the first time</b>It loads a small library online and is cached for offline use afterwards.</div>'; }); }
+/* ---------- Directing a take: prep, talent, calls, slates, what to say ---------- */
+const DIRECT_PREP = [
+  ['Walk the frame before anyone stands in it', 'Put the camera where the shot list says, look through it, and fix the background first: bins, cables, a bright window, a door that will open. Move the camera or the junk, whichever is quicker.'],
+  ['Mark the positions', 'A bit of tape on the floor for where the artist starts and where they end. On a music video the mark is where the chorus lands. Without marks, focus and framing drift every take.'],
+  ['Set exposure and white balance on a stand-in', 'Have anyone stand on the mark while you set ISO, ND, Kelvin and focus. The artist should step in to a lit, focused frame, not wait while you fiddle.'],
+  ['Test the playback', 'Play the track from the speaker once, at the volume you will use, and check everyone can hear the count-in. Decide who presses play (not you).'],
+  ['Tell the room the plan', 'Thirty seconds, out loud: "We are doing the chorus, three takes, wide first, then a close-up. Then we move to the stairs." People relax when they know the shape of the next hour.'],
+  ['Rehearse once, camera off', 'One pass at half energy so everyone learns the move. Watch the artist, not the monitor. Then one rehearsal with the camera rolling; call it a rehearsal but keep it, it is often the best take.'],
+];
+const DIRECT_TALENT = [
+  ['Give a verb, not an adjective', '"Be more energetic" is a mood. "Hit the camera lens with the word LOVE and hold it" is a thing they can do. Playable direction is always an action.'],
+  ['One note per take', 'After a take, pick the single most useful change and say only that. Three notes at once produce a take that half-does all three.'],
+  ['Say what you liked first, precisely', '"The turn on the second line was perfect, keep that exactly. This time come in closer to the lens at the end." Specific praise tells them what to protect.'],
+  ['Show the frame', 'Let the artist see the monitor once. When they know the frame ends at their chest, they stop dancing out of it.'],
+  ['Give the eyeline', '"Look here" is not enough. Point: into the lens, just off the lens at your hand, or at a mark on the wall. Off-lens looks are the most common wasted take.'],
+  ['Name the moment', 'Tell them where the emotional peak is and where to save energy. "Walk it until the drop, then give me everything for eight bars."'],
+  ['Protect the performance', 'Keep the crew quiet between takes, keep the artist warm, keep the gap short. Energy leaks in silence. If you need five minutes, say "five minutes, relax," so they can switch off.'],
+  ['Never say "one more" more than once', 'If you truly need more, say why: "one more for the ending, we have the start." Endless "one mores" tell the artist you do not know what you want.'],
+];
+const DIRECT_CALLS = [
+  ['"Quiet on set" / "Settle"', 'Stops chatter. Wait for actual silence before the next call. On a two-person shoot it still matters: it is the switch from prep to take.'],
+  ['"Roll sound"', 'Only if you are recording sound separately. The recordist replies "sound speed" once the recorder is rolling. Skip this for playback-only music video.'],
+  ['"Roll camera"', 'Press REC. Check the tally is red. Reply "rolling" or "speed" out loud so everyone hears it.'],
+  ['"Slate" / "Mark it"', 'Say the scene, shot and take, then clap or slate: "Chorus, wide, take three" ... clap. On music videos the count-in on the playback often replaces the clap.'],
+  ['"Playback"', 'The person on the speaker starts the track from the agreed cue. Use a two-bar count-in so the artist is moving before the lyric arrives.'],
+  ['"Action"', 'Give it a beat after playback starts, then say it clearly. For a walk-in, "action" is when they step off the mark.'],
+  ['"Cut"', 'Only you say it. Let the shot run three seconds past the end before you say it; the editor needs handles. Then say whether it is good: "Cut. That one is good, we are moving on" or "Cut. Going again."'],
+  ['"Check the gate" / "Playback check"', 'After a take you will keep, glance at the last few seconds in playback to be sure focus and framing held. Do this on the take you are relying on, not every take.'],
+  ['"Moving on" / "That is a wrap on this set-up"', 'Tells everyone the set-up is done and the next one starts. On a wrap, say thank you to the artist first, then the crew.'],
+];
+const DIRECT_SLATE = [
+  ['Name every shot', 'Use the shot list names: "Chorus wide, take 2". The name goes in the take log and on the slate, and it is what you search for in the edit.'],
+  ['Count takes from 1 per set-up', 'A set-up is one camera position and lens. Move the camera or change the lens and the take count restarts. Take numbers only make sense inside a set-up.'],
+  ['Say the take number on camera', 'Speak it into the frame at the start of every take, even if no one is slating. Three seconds of you saying "wide, take four" saves an hour in the edit.'],
+  ['Circle the good ones', 'In the take log, mark the takes you would use (a circle on paper, a star in Shoot mode). The editor starts with those. Rate them while the memory is fresh: good, usable, no.'],
+  ['Log what changed', 'A note per take: "faster walk", "eyeline to lens", "lost focus at the end". Later you will not remember why take 3 exists.'],
+  ['Tail slate when you forget', 'If you rolled without slating, say the slate at the end of the take, upside down clap if you have a slate. Say "tail slate" so the editor knows to look at the end.'],
+  ['Match the playback timecode', 'For lip-sync, always start the track from the same cue point (the top of the section) so every take lines up in the edit by waveform.'],
+];
+const DIRECT_MV = [
+  ['Playback loud, count-in audible', 'The artist needs to hear the beat over the room. Loud playback also hides your calls in the audio, which is fine; you will use the master track.'],
+  ['Full-song passes first, sections later', 'One or two full-song wides give you a safety cut. Then work sections: chorus, verse, bridge, each with its own set-ups. Do not start with the detail shots.'],
+  ['Lip-sync: mouth the words at full voice', 'Ask the artist to actually sing, not whisper. Mouth shapes match the record only when they sing with real breath.'],
+  ['Give the lens a job', '"Look into the lens on every "you"." The camera is the audience. Direct the relationship with it, not just the moves.'],
+  ['Change the energy, not just the shot', 'Same frame, three different performances: intimate, confident, unhinged. In the edit, energy shifts feel like new material even from one set-up.'],
+  ['Catch the in-between', 'Roll before the count-in and after the section ends. Laughing, resetting, walking back to the mark: half the best B-roll in music videos is this.'],
+  ['Keep a shot for the last chorus', 'Save something new for the final chorus: a new location, a wide reveal, a colour change. The ending needs a lift the edit cannot invent.'],
+];
+const DIRECT_FAULTS = [
+  ['Talking while rolling', 'Your voice is on every take and it interrupts the artist. Give the note, then roll.'],
+  ['Watching the monitor instead of the person', 'Check the frame on the rehearsal, then watch the artist during the take. You will catch the good take with your eyes, not the screen.'],
+  ['Cutting early', 'Let it breathe after the last line. The reaction after the ending is often the shot.'],
+  ['Moving on without a check', 'A focus miss on the only close-up cannot be fixed later. Ten seconds of playback on the keeper take.'],
+  ['Not saying "that was good"', 'Silence after a take reads as failure. Say what you are keeping, out loud, every time.'],
+  ['Too many set-ups, not enough takes', 'Three good takes of six set-ups beats one take of eighteen. Coverage without a usable performance is not coverage.'],
+];
+const DIRECT_SCRIPT = [
+  ['Before the take', '"OK, this one is chorus, close-up, take two. Same as before, but come in closer on the last line and hold it. Everyone quiet please."'],
+  ['Rolling', '"Rolling ... chorus close-up, take two ... playback ... (beat) ... action."'],
+  ['During', 'Nothing. If it goes wrong early: "Cut, resetting, go again from the top" with no blame in your voice.'],
+  ['After', '"Cut. That is good. The hold at the end was exactly it. One more for safety, then we move to the stairs."'],
+  ['Moving on', '"Moving on. Stairs next, wide first. Ten minutes to move the light. Grab water."'],
+];
+function directingHTML() {
+  const sec = (title, blurb, rows, numbered = true) => `<section class="lsec"><div class="lsechead"><h2>${esc(title)}</h2><p>${esc(blurb)}</p></div><div class="daylist">${rows.map(([a, b], i) => `<div class="dayrow"><span class="dn">${numbered ? i + 1 : '·'}</span><div><b>${esc(a)}</b><span>${esc(b)}</span></div></div>`).join('')}</div></section>`;
+  return `
+    <div class="box" style="margin-bottom:14px"><h4>The short version</h4><p style="margin:0;color:var(--muted);line-height:1.55">Prepare the frame before the artist arrives. Tell them one clear, playable thing. Call the take the same way every time. Let it run past the end. Say what you are keeping. Write it down. Everything below is those six sentences in detail. Shoot mode (in any shot list) has the take counter and pre-roll checklist that go with this.</p></div>
+    ${sec('Before anyone says action', 'Most bad takes were lost before the camera rolled. Work this list for every set-up.', DIRECT_PREP)}
+    ${sec('Directing the artist', 'They can only play what they can do. Your job is to turn what you want into something doable, one thing at a time.', DIRECT_TALENT)}
+    ${sec('The calls, in order', 'The same words in the same order, every take. The rhythm tells everyone where they are, and it keeps your own head clear.', DIRECT_CALLS)}
+    ${sec('Take numbers, slates and the log', 'Ten seconds per take here saves hours in the edit. Shoot mode logs takes and ratings for you; this is the discipline behind it.', DIRECT_SLATE)}
+    ${sec('Music video specifics', 'Playback, lip-sync and performance energy change the routine. These are the habits that make performance shoots work.', DIRECT_MV)}
+    <section class="lsec"><div class="lsechead"><h2>What to say, word for word</h2><p>A script for one take. Copy the shape until it is yours.</p></div><div class="refgrid">${DIRECT_SCRIPT.map(([a, b]) => `<div class="box"><h4>${esc(a)}</h4><p style="margin:0;font-family:var(--mono);font-size:13.5px;line-height:1.5;color:var(--ink)">${esc(b)}</p></div>`).join('')}</div></section>
+    ${sec('Things that quietly ruin takes', 'Each of these is common, invisible on the day, and obvious in the edit.', DIRECT_FAULTS, false)}`;
+}
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -4618,6 +4695,7 @@ document.addEventListener('click', e => {
     case 'pracclose': b.closest('.pracform').hidden = true; break;
     case 'songtoggle': cv.songOpen = cv.songOpen === id ? null : id; renderList(); break;
     case 'gocamera': go('camera'); break;
+    case 'godirect': cv.camTab = 'direct'; go('camera'); break;
     case 'gohome': toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go('home'); break;
     case 'camtab': cv.camTab = b.dataset.v; renderCamera(); break;
     case 'cam3dmode': setMode3D(b.dataset.v); break;
