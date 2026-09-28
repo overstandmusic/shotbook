@@ -704,6 +704,15 @@ h4.sub:first-child{margin-top:0}
 .pn.or{background:#EFA23E}.pn.cy{background:#6CC3D1}
 @media(max-width:820px){.cam3d{grid-template-columns:1fr}.cam3dside{position:static}.partlist{max-height:220px}}
 </style>
+<style>
+.lib>.hint{grid-column:1/-1;margin-bottom:0}
+.matchsec{margin-top:28px}
+.matchd{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 14px;margin-bottom:10px}
+.matchd summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.matchd summary .mono{color:var(--muted);font-size:12px}
+.matchd[open] summary{border-bottom:1px solid var(--line);margin-bottom:12px}
+.matchd .daylist,.matchd .checklist{margin-bottom:14px}
+</style>
 
 </head><body><header class="top">
   <div class="wrap">
@@ -4022,8 +4031,9 @@ function renderColour() {
     <section class="libmain"><div class="kitnote"><b>Exposure and colour.</b> Each lesson processes a real frame from the library through the camera's exposure, S-Log3, the LUT and a grade, with a waveform beside it so you learn to read the scope, not the screen. Then try the exposure drill in the daily eye test.</div>
       <div class="toolbar"><button class="btn fbtn" data-act="openf">${I.filter} Filters${n ? ` <span class="count">${n}</span>` : ''}</button><label class="search">${I.search}<input id="gq" class="field" type="search" placeholder="Search…" value="${esc(gf.q)}"></label></div>
       <div class="resline"><span><b style="color:var(--ink)">${r.length}</b> of ${GRADES.length} lessons</span></div>
-      ${r.length ? `<div class="grid">${r.map(cardHTML).join('')}</div>` : `<div class="empty"><b>No lessons match</b></div>`}</section></div>`;
+      ${r.length ? `<div class="grid">${r.map(cardHTML).join('')}</div>` : `<div class="empty"><b>No lessons match</b></div>`}${matchHTML()}</section></div>`;
   paintThumbs($('#app'));
+  $$('[data-task]').forEach(cb => cb.onchange = () => { const c = ensureCourse(); c.tasks[cb.dataset.task] = cb.checked; save(); cb.closest('.ck').classList.toggle('on', cb.checked); const d = cb.closest('details'); const m = d && d.querySelector('summary .mono'); if (m) m.textContent = `${MATCH_CHECK.filter((_, i) => c.tasks['match.' + i]).length}/${MATCH_CHECK.length}`; });
   const q = $('#gq'); q.oninput = () => { gf.q = q.value; const pos = q.selectionStart; renderColour(); const nq = $('#gq'); nq.focus(); nq.setSelectionRange(pos, pos); };
   $$('.thumb', $('#app')).forEach(b => { const cv = $('canvas', b); b.onmouseenter = () => hoverPlay(cv); b.onmouseleave = hoverStop; });
 }
@@ -4158,6 +4168,7 @@ function searchAll(q) {
   for (const [k, v] of CHEATSHEET) if (hit(k + ' ' + v)) out.push({ kind: 'Cheat sheet', title: k, sub: v, act: 'gocamera' });
   for (const r of CAM_REF) for (const [a, b] of r.rows) if (hit(r.name + ' ' + a + ' ' + b)) out.push({ kind: 'Camera', title: r.name + ': ' + a, sub: b, act: 'gocamera' });
   for (const [a, b] of CAM_GLOSS) if (hit(a + ' ' + b)) out.push({ kind: 'Camera glossary', title: a, sub: b, act: 'gocamera' });
+  for (const rows of [MATCH_ON_SET, MATCH_LENSES, MATCH_GRADE, MATCH_PHONES]) for (const [a, b] of rows) if (hit(a + ' ' + b)) out.push({ kind: 'Matching cameras', title: a, sub: b, act: 'gomatch' });
   for (const rows of [DIRECT_PREP, DIRECT_TALENT, DIRECT_CALLS, DIRECT_SLATE, DIRECT_MV, DIRECT_FAULTS]) for (const [a, b] of rows) if (hit(a + ' ' + b)) out.push({ kind: 'Directing', title: a, sub: b, act: 'godirect' });
   for (const g of GUIDES) for (const s of g.sections) for (const [a, b] of s.rows) if (hit(g.name + ' ' + s.h + ' ' + a + ' ' + b)) out.push({ kind: 'Guide', title: g.name + ' · ' + a, sub: b, act: 'goguide', v: g.id });
   for (const c of COMPARES) if (hit(c.title + ' ' + c.lesson)) out.push({ kind: 'Compare', title: c.title, sub: c.lesson, act: 'compare', id: c.id });
@@ -4448,6 +4459,52 @@ function directingHTML() {
     <section class="lsec"><div class="lsechead"><h2>What to say, word for word</h2><p>A script for one take. Copy the shape until it is yours.</p></div><div class="refgrid">${DIRECT_SCRIPT.map(([a, b]) => `<div class="box"><h4>${esc(a)}</h4><p style="margin:0;font-family:var(--mono);font-size:13.5px;line-height:1.5;color:var(--ink)">${esc(b)}</p></div>`).join('')}</div></section>
     ${sec('Things that quietly ruin takes', 'Each of these is common, invisible on the day, and obvious in the edit.', DIRECT_FAULTS, false)}`;
 }
+/* ---------- Colour: matching two cameras and lenses ---------- */
+const MATCH_ON_SET = [
+  ['Same frame rate and shutter', 'Both cameras at 25p and 1/50 (or 50p and 1/100). Mismatched motion blur reads as a different camera faster than colour does, and nothing in the grade fixes it.'],
+  ['Same white balance, in Kelvin', 'Set both to the same number, never Auto. Auto WB drifts shot to shot and the two cameras will drift differently. If a camera only has presets, pick the preset and set the FX3 to that Kelvin value.'],
+  ['Same picture profile family, or both flat', 'FX3 in S-Log3 and the second camera in its own log (Canon C-Log, Panasonic V-Log, Fuji F-Log, S-Log2 or Cine on older Sonys). If the second camera has no log, use its flattest profile (Neutral, contrast and saturation down) or shoot the FX3 in S-Cinetone to meet it halfway. Two flat pictures match; one flat and one baked-in look do not.'],
+  ['Match exposure with a grey card, not the monitor', 'Same grey card in the same light, read with zebras or the waveform on each camera. Put grey at the same level on both scopes (about 41% for S-Log3, the second camera\'s log has its own number; look it up once). Screens lie, scopes do not.'],
+  ['Shoot a colour chart on both', 'A ColorChecker, or failing that a white card, grey card and something red, green and blue, filmed by both cameras in the same light at the start of every set-up. Ten seconds. This is what Resolve\'s colour match uses.'],
+  ['Same shot, same light', 'A second camera in a different position sees different light: more backlight, a brighter wall. Before blaming the camera, check the two frames are actually lit the same. Sometimes the fix is moving a flag.'],
+  ['Give the second camera the easier job', 'The lower-spec camera gets the wide, the locked-off master, the B-roll. Faces, skin and the close-ups go on the FX3. A wide shot hides noise, softness and a rougher colour response; a close-up shows all three.'],
+  ['ISO within the sensor\'s comfort', 'Cheaper cameras fall apart above their base ISO. Light the scene for the weaker camera, then stop the FX3 down or add ND rather than starving the second camera and pushing it.'],
+  ['Slate both cameras together', 'One clap in front of both, or the count-in from the speaker. Two cameras that are not synced cost an hour per hour in the edit.'],
+];
+const MATCH_LENSES = [
+  ['Lenses shift colour too', 'Different glass has different warmth and contrast. The GM II is neutral and high-contrast; an older or cheaper lens is often warmer, lower contrast and softer at the edges. The chart catches this; grade the difference out with the camera.'],
+  ['Match field of view, not focal length', 'A 24mm on the full-frame FX3 is a 16mm on an APS-C camera and a 12mm on Micro Four Thirds. Match what the frame shows, not the number on the lens.'],
+  ['Match depth of field within reason', 'Smaller sensors give deeper focus at the same f-stop. If the FX3 is at f/2.8 and the second camera at f/2.8, the second frame will look sharper front to back. Open the second camera up, or close the FX3 down to f/4, so backgrounds fall off similarly.'],
+  ['Filters in front of both, or neither', 'A diffusion or ND filter on one camera and not the other is an instant mismatch. If you use a mist filter on the FX3 for the look, add a little softening in the grade on the other camera, or skip the filter for the two-camera set-ups.'],
+  ['Same-ish contrast and flare', 'A cheap lens flares more and lifts blacks against backlight. Keep strong lights out of the second camera\'s frame, or embrace it and add a matching bloom to the FX3 shot in the grade.'],
+];
+const MATCH_GRADE = [
+  ['1. Normalise both to the same working space', 'In Resolve, use a colour space transform (or the CST node) on each camera\'s clips: S-Log3/S-Gamut3.Cine in for the FX3, the second camera\'s log in for the other, Rec.709 (or DaVinci Wide Gamut) out. Now both are in the same language before you touch a dial. Do not apply the Sony LUT to the second camera.'],
+  ['2. Match exposure and white balance first', 'Compare the two chart shots side by side (split-screen in Resolve). Bring the grey patch to the same level and the same neutral. Most of the "different camera" feeling is these two things.'],
+  ['3. Use colour match on the chart', 'Resolve\'s Colour Match (Colour tab, with a ColorChecker in the frame) builds the correction automatically for each camera. Do it per camera, per set-up, then copy the node to all clips from that camera in that set-up.'],
+  ['4. Then match skin', 'Put the two close-ups side by side with the vectorscope on. Push the second camera\'s hue until skin sits on the skin-tone line at the same angle and saturation as the FX3. Skin is the only colour the viewer remembers.'],
+  ['5. Match texture last', 'A sharper camera looks more expensive. Add slight softening or a touch of grain to the FX3 to meet the second camera, rather than sharpening the weaker one. Noise reduction on the second camera if it was pushed.'],
+  ['6. Apply the look on top', 'Only after the cameras match, add the look node (from the "A look, and matching shots" lesson) on the timeline or a shared node above both. One look, two matched sources.'],
+  ['7. Check on a cut, not a still', 'Build a short sequence that cuts A to B to A and watch it play. Small mismatches show at the cut, not in a side-by-side. Adjust, play again.'],
+];
+const MATCH_PHONES = [
+  ['Phones are the hardest match', 'They sharpen, denoise, lift shadows and pump saturation before you see the file. If the phone can shoot a flat or log profile (some can, with a third-party camera app), use it. Otherwise lock exposure and white balance in the app and treat the phone as a stylistic B-camera.'],
+  ['Make the difference a choice', 'When two cameras will not match, stop trying and make the second one a look: black and white, a phone-style vertical frame, a VHS treatment, a hard crush. The audience reads intent, not spec.'],
+  ['Cut them apart', 'Use the second camera for sections rather than shot-reverse-shot with the FX3. Verse on camera A, cutaways on camera B, the mismatch reads as a section change.'],
+];
+const MATCH_CHECK = ['Both cameras: 25p, 1/50, same Kelvin', 'Both flat (log or neutral), no in-camera looks', 'Grey card exposed to the same scope level on each', 'Chart filmed by both in the set-up light', 'Field of view and depth of field matched by eye', 'Filters on both or neither', 'One clap or count-in for sync', 'Second camera on the wide or the B-roll, FX3 on faces'];
+function matchHTML() {
+  const rows = r => `<div class="daylist">${r.map(([a, b], i) => `<div class="dayrow"><span class="dn">${i + 1}</span><div><b>${esc(a)}</b><span>${esc(b)}</span></div></div>`).join('')}</div>`;
+  const c = ensureCourse(); c.tasks = c.tasks || {};
+  return `<section class="lsec matchsec"><div class="lsechead"><h2>Matching two cameras</h2><p>When the second camera is older or cheaper than the FX3, the match is made on set, with a chart, and finished in Resolve in a fixed order. Colour is the last thing to fix; motion, exposure and white balance come first.</p></div>
+    <div class="box" style="margin-bottom:12px"><h4>The rule</h4><p style="margin:0;color:var(--muted);line-height:1.55">Match the cheaper camera on set (same motion, same white balance, both flat, same grey level) and let the FX3 come down to meet it in the grade. It is far easier to make a good camera look a little worse than a weak camera look better.</p></div>
+    <details class="matchd" open><summary>On set: nine things before the first take</summary>${rows(MATCH_ON_SET)}</details>
+    <details class="matchd"><summary>Lenses: why the same camera setting still looks different</summary>${rows(MATCH_LENSES)}</details>
+    <details class="matchd"><summary>In Resolve: the order that works</summary>${rows(MATCH_GRADE)}</details>
+    <details class="matchd"><summary>Phones and cameras that will not match</summary>${rows(MATCH_PHONES)}</details>
+    <details class="matchd"><summary>Two-camera checklist <span class="mono">${MATCH_CHECK.filter((_, i) => c.tasks['match.' + i]).length}/${MATCH_CHECK.length}</span></summary><div class="checklist">${MATCH_CHECK.map((t, i) => { const k = 'match.' + i, on = c.tasks[k]; return `<label class="ck ${on ? 'on' : ''}"><input type="checkbox" data-task="${k}" ${on ? 'checked' : ''}><div><b>${esc(t)}</b></div></label>`; }).join('')}</div><button class="btn ghost sm" data-act="matchreset" style="margin-top:8px">Reset for the next shoot</button></details>
+  </section>`;
+}
 /* ---------- Shotbook app, part 2: add-to-list popover, shot lists, boot ---------- */
 const getList = id => store.lists.find(l => l.id === id);
 const touch = l => { l.updated = Date.now(); };
@@ -4707,6 +4764,8 @@ document.addEventListener('click', e => {
     case 'pracclose': b.closest('.pracform').hidden = true; break;
     case 'songtoggle': cv.songOpen = cv.songOpen === id ? null : id; renderList(); break;
     case 'gocamera': go('camera'); break;
+    case 'matchreset': { const c = ensureCourse(); MATCH_CHECK.forEach((_, i) => { delete c.tasks['match.' + i]; }); save(); renderColour(); toast('Checklist reset'); break; }
+    case 'gomatch': go('colour'); setTimeout(() => { const el = $('.matchsec'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); break;
     case 'godirect': cv.camTab = 'direct'; go('camera'); break;
     case 'gohome': toggleMenu(false); if (!$('#sheet').hidden) closeShot(); go('home'); break;
     case 'camtab': cv.camTab = b.dataset.v; renderCamera(); break;
