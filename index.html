@@ -3768,8 +3768,8 @@ const CAM_SETUP = [
     ['Peaking', 'Focus → Peaking Display → Peaking Display: On, Peaking Level: Mid, Peaking Color: Red. It outlines whatever is sharp, so you can see focus on the small screen. It is in the Focus tab, not Exposure.'],
     ['Autofocus', 'Focus → AF Transition Speed 3, AF Subject Shift Sensitivity 3, Face/Eye AF → On, Human. Touch the screen to pick a face.'],
     ['Stabilisation', 'SteadyShot → Active for handheld (a slight crop). Off on the tripod.'],
-    ['Breathing compensation', 'Shooting → Breathing Comp → On. The GM II supports it; it keeps the frame size steady when focus racks.'],
-    ['Custom buttons', 'Set C1 = Zebra on/off, C2 = Focus magnifier, C3 = Display LUT Switch, C4 = White balance. Put ISO on the rear dial and shutter on the front dial.'],
+    ['Breathing compensation', 'Shooting → Image Quality/Rec → Lens Compensation → Breathing Comp. → On. It is a movie-only setting inside Lens Compensation, next to Shading, Chromatic Aberration and Distortion. Needs firmware 3.00 or later (check Setup → Setup Option → Version). The GM II supports it; it keeps the frame size steady when focus racks, at the cost of a very slight crop.'],
+    ['Custom buttons', 'The FX3 has six buttons marked 1 to 6 on the body, and their factory jobs are printed next to them: C1/IRIS (front of the grip, by the shutter button), C2/WB and C3/ISO (top plate, behind the REC button), C4/Delete (rear, bottom right), C5/FOCUS MAG (rear, beside the rear dial) and C6/REC (front of the grip). Change them in Setup → Operation Customize → Custom Key/Dial Set. (the movie-camera icon): the screen shows a drawing of the camera; pick a button, then the function. Suggested: keep C2 = White Balance, C3 = ISO and C5 = Focus Magnifier as they are. Set C1 = Zebra Display (you set aperture on the lens ring, so IRIS is spare) and C4 = Display LUT Switch. Leave C6 as REC. Then in the same menu set the rear dial to ISO and the front dial to shutter speed.'],
     ['Audio', 'With the XLR handle: Input 1 = the hot-shoe mic or a scratch feed, level Auto for now. Record audio on every take, even for music video: it is what you sync to.'],
     ['Fan and heat', 'Fan Control → Auto. For long takes in a warm room, Minimum on Standby. Keep the screen open a little from the body.'],
   ] },
@@ -4235,29 +4235,32 @@ function onThisDayHTML() { ensureTools(); const t = today(); const dd = t.slice(
 /* ---------- 3D camera and lens model with pressable hotspots (Three.js, loaded on demand) ---------- */
 const CAM_PARTS = {
   camera: [
-    { id: 'rec', n: 1, name: 'REC button (top)', pos: [-1.5, 1.48, 0.6], desc: 'Start and stop recording. Red = rolling; check the tally lamp too. There is a second REC button on the front of the grip for handheld and a third on the XLR handle.' },
-    { id: 'zoom', n: 2, name: 'Zoom lever (W/T)', pos: [-1.5, 1.46, 0.12], desc: 'Drives Clear Image Zoom or a power-zoom lens. With the 24-70 GM II it does nothing to the optics; use the lens ring. Leave it, or assign it to something useful.' },
-    { id: 'shoe', n: 3, name: 'Multi Interface Shoe', pos: [0, 1.5, -0.15], desc: 'The hot shoe with digital audio. The ECM-M1 mic and the XLR handle plug in here with no cable. The handle also gives you 3.5mm and XLR inputs.' },
-    { id: 'threads', n: 4, name: '1/4" mounting threads (top)', pos: [1.2, 1.42, 0.55], desc: 'Three threaded points on the top plate for the handle or a monitor arm. The Shinobi mounts here on a small arm.' },
-    { id: 'tally', n: 5, name: 'Tally lamp (front)', pos: [1.2, 0.95, 1.1], desc: 'Lights red while recording. Visible to the artist, so they know the take is live. There is one on the back for you.' },
-    { id: 'grip', n: 6, name: 'Grip and front REC', pos: [-1.55, 0.3, 1.35], desc: 'Deep grip for handheld work. The front REC button under your fingertip is the one you will use most when moving.' },
-    { id: 'fdial', n: 7, name: 'Front dial', pos: [-1.35, 1.25, 1.2], desc: 'Set this to shutter speed in the custom settings. Aperture lives on the lens ring, ISO on the rear dial.' },
-    { id: 'release', n: 8, name: 'Lens release', pos: [-0.62, 0.15, 1.1], desc: 'Press and turn the lens anticlockwise to remove. Cap the body immediately; the sensor is exposed.' },
-    { id: 'screen', n: 9, name: 'Vari-angle LCD (touch)', pos: [0.55, 0.3, -1.02], desc: 'Flips out and rotates. Touch to place focus on a face. Turn Display LUT on (Setup → Display Option) so log looks normal here. For outdoor work the Shinobi is brighter.' },
-    { id: 'rdial', n: 10, name: 'Rear dial and control wheel', pos: [-1.3, 1.05, -1.0], desc: 'Rear dial: ISO in the suggested setup. The control wheel around the centre button navigates menus and can carry exposure compensation.' },
-    { id: 'joy', n: 11, name: 'Multi-selector (joystick)', pos: [-1.3, 0.62, -1.02], desc: 'Moves the focus point and navigates menus. Press to confirm. Faster than the touch screen for precise focus placement.' },
-    { id: 'menu', n: 12, name: 'MENU', pos: [-0.65, 1.05, -1.0], desc: 'The full menu. Use the Fn button for the things you change daily; save the menu for setup.' },
-    { id: 'fn', n: 13, name: 'Fn (function menu)', pos: [-0.95, -0.1, -1.0], desc: 'A quick grid of twelve settings: white balance, ISO, log shooting / picture profile, zebra, peaking, SteadyShot, file format, frame rate. Customise it once and you rarely need the main menu on set.' },
-    { id: 'cbtn', n: 14, name: 'Custom buttons C1–C4', pos: [-0.65, 0.7, -1.0], desc: 'Assignable. Suggested: C1 zebra on/off, C2 focus magnifier, C3 Display LUT Switch, C4 white balance. Set them in Setup → Custom Key.' },
-    { id: 'play', n: 15, name: 'Playback and delete', pos: [-1.3, -0.4, -1.0], desc: 'Review the last take before moving on. Delete is also C4 in some layouts; check before assigning.' },
-    { id: 'power', n: 16, name: 'Power switch', pos: [-1.0, 1.42, -0.55], desc: 'Around the mode area on the top right of the body. Power off before swapping lenses or cards. The camera drains slowly on standby; carry the spare battery.' },
-    { id: 'cards', n: 17, name: 'Dual card slots (right side)', pos: [-2.08, 0.35, 0.35], desc: 'Two slots, both take SD (UHS-II) and CFexpress Type A. Set recording to both cards for a live backup, or relay for long takes. V90 SD covers all your modes except the fastest slow-motion.' },
-    { id: 'hdmi', n: 18, name: 'Full-size HDMI', pos: [1.9, 0.7, 0.3], desc: 'Feeds the Shinobi monitor. Use a short, flexible cable and a clamp so the port is not strained.' },
-    { id: 'usb', n: 19, name: 'USB-C (power and data)', pos: [1.9, 0.3, 0.3], desc: 'Powers the camera from a USB-PD bank for long sessions, and offloads cards to the PC. Charging while shooting is fine.' },
-    { id: 'audio', n: 20, name: 'Mic in and headphone out (3.5mm)', pos: [1.9, -0.15, 0.3], desc: 'Mic in for a wired mic; headphone out for the MDR-7506. With the XLR handle the inputs move to the handle.' },
-    { id: 'fan', n: 21, name: 'Cooling fan vents', pos: [1.9, 0.65, -0.6], desc: 'The FX3 has an internal fan for long takes. Fan Control → Auto normally; Minimum on Standby for quiet interviews. Do not block the vents in a bag while recording.' },
-    { id: 'battery', n: 22, name: 'Battery door (bottom)', pos: [-1.4, -0.8, 0.6], desc: 'NP-FZ100. Genuine batteries report charge correctly. The door is under the grip; a tripod plate can block it, so check before mounting.' },
-    { id: 'tripod', n: 23, name: '1/4" tripod socket (bottom)', pos: [0.25, -0.8, 0.1], desc: 'Standard thread, centred under the lens axis. Use a quick-release plate you leave on all day.' },
+    { id: 'rec', n: 1, name: 'REC button (top of grip)', pos: [-1.5, 1.48, 0.25], desc: 'The big red one. Start and stop recording; it lights red while rolling. Check the tally lamp too. There is a second REC (C6) on the front of the grip and a third on the XLR handle.' },
+    { id: 'zoom', n: 2, name: 'Shutter button and W/T lever', pos: [-1.5, 1.46, 0.85], desc: 'At the front of the grip top. The shutter button takes a still; the W/T lever around it drives Clear Image Zoom or a power-zoom lens. With the 24-70 GM II it does nothing to the optics: use the lens ring.' },
+    { id: 'c1', n: 3, name: 'C1 / IRIS (front of grip)', pos: [-1.15, 1.44, 0.8], desc: 'Custom button 1, factory job IRIS (aperture). You set aperture on the lens ring, so it is spare: assign Zebra Display to it in Setup → Operation Customize → Custom Key/Dial Set.' },
+    { id: 'cbtn', n: 4, name: 'C2 / WB and C3 / ISO (top)', pos: [-1.15, 1.46, -0.15], desc: 'Custom buttons 2 and 3 on the top plate behind the REC button. Factory jobs white balance and ISO, which are exactly what you want them to do. Leave them.' },
+    { id: 'joy', n: 5, name: 'Multi-selector (joystick, top)', pos: [-0.85, 1.5, -0.5], desc: 'On the top plate at the back, not on the rear like most cameras. Moves the focus point and navigates menus; press to confirm. Faster than the touch screen for precise focus placement.' },
+    { id: 'shoe', n: 6, name: 'Multi Interface Shoe', pos: [0, 1.5, -0.15], desc: 'The hot shoe with digital audio. The ECM-M1 mic and the XLR handle plug in here with no cable. The handle also gives you 3.5mm and XLR inputs.' },
+    { id: 'threads', n: 7, name: '1/4" mounting threads (top)', pos: [1.2, 1.42, 0.55], desc: 'Threaded points on the top plate for the handle or a monitor arm (1/4-20, screws under 5.5mm). The Shinobi mounts here on a small arm.' },
+    { id: 'power', n: 8, name: 'Power switch (rear, top left)', pos: [0.3, 1.1, -1.0], desc: 'On the back at the top, towards the screen side. Power off before swapping lenses or cards. The camera drains slowly on standby; carry the spare battery.' },
+    { id: 'tally', n: 9, name: 'Tally lamp (front)', pos: [1.2, 0.95, 1.1], desc: 'Lights red while recording. Visible to the artist, so they know the take is live. There is one on the back for you.' },
+    { id: 'grip', n: 10, name: 'Grip and C6 / front REC', pos: [-1.55, 0.3, 1.35], desc: 'Deep grip for handheld work. Custom button 6 on the front of the grip is REC by default, under your fingertip; it is the one you will use most when moving.' },
+    { id: 'fdial', n: 11, name: 'Front dial', pos: [-1.35, 1.25, 1.2], desc: 'Below the shutter button on the front of the grip. Set it to shutter speed in Custom Key/Dial Set. Aperture lives on the lens ring, ISO on the rear dial.' },
+    { id: 'release', n: 12, name: 'Lens release', pos: [-0.62, 0.15, 1.1], desc: 'Press and turn the lens anticlockwise to remove. Cap the body immediately; the sensor is exposed.' },
+    { id: 'screen', n: 13, name: 'Vari-angle LCD (touch)', pos: [0.55, 0.3, -1.02], desc: 'Flips out and rotates. Touch to place focus on a face. Turn Display LUT on (Setup → Display Option) so log looks normal here. For outdoor work the Shinobi is brighter.' },
+    { id: 'rdial', n: 14, name: 'Rear dial', pos: [-1.3, 1.05, -1.0], desc: 'Top right on the back. ISO in the suggested setup. Beside it: C5 / FOCUS MAG, which magnifies the picture to check focus.' },
+    { id: 'c45', n: 15, name: 'C5 / FOCUS MAG and C4 / Delete (rear)', pos: [-0.95, 0.7, -1.0], desc: 'Custom button 5 (focus magnifier, keep it) sits by the rear dial; custom button 4 is at the bottom right and doubles as Delete in playback. Suggested: C4 = Display LUT Switch, so one press shows you the raw log.' },
+    { id: 'menu', n: 16, name: 'MENU and MODE', pos: [-0.65, 1.05, -1.0], desc: 'MENU opens the full menu; use the Fn button for the things you change daily. MODE switches between Movie, S&Q (slow and quick) and Stills.' },
+    { id: 'fn', n: 17, name: 'Fn (function menu)', pos: [-0.95, -0.1, -1.0], desc: 'A quick grid of twelve settings: white balance, ISO, log shooting / picture profile, zebra, peaking, SteadyShot, file format, frame rate. Customise it once and you rarely need the main menu on set.' },
+    { id: 'wheel', n: 18, name: 'Control wheel', pos: [-1.3, 0.1, -1.0], desc: 'The ring around the centre button. Navigates menus and can carry exposure compensation. Turn it slowly; it is easy to knock.' },
+    { id: 'play', n: 19, name: 'Playback', pos: [-1.3, -0.4, -1.0], desc: 'Review the last take before moving on. In playback, C4 becomes Delete.' },
+    { id: 'cards', n: 20, name: 'Dual card slots (right side)', pos: [-2.08, 0.35, 0.35], desc: 'Two slots, both take SD (UHS-II) and CFexpress Type A. Set recording to both cards for a live backup, or relay for long takes. V90 SD covers all your modes except the fastest slow-motion.' },
+    { id: 'hdmi', n: 21, name: 'Full-size HDMI (left side)', pos: [1.9, 0.7, 0.3], desc: 'Feeds the Shinobi monitor. Use a short, flexible cable and a clamp so the port is not strained.' },
+    { id: 'usb', n: 22, name: 'USB-C (power and data)', pos: [1.9, 0.3, 0.3], desc: 'Powers the camera from a USB-PD bank for long sessions, and offloads cards to the PC. Charging while shooting is fine.' },
+    { id: 'audio', n: 23, name: 'Mic in and headphone out (3.5mm)', pos: [1.9, -0.15, 0.3], desc: 'Mic in for a wired mic; headphone out for the MDR-7506. With the XLR handle the inputs move to the handle.' },
+    { id: 'fan', n: 24, name: 'Cooling fan vents', pos: [1.9, 0.65, -0.6], desc: 'The FX3 has an internal fan for long takes. Fan Control → Auto normally; Minimum on Standby for quiet interviews. Do not block the vents in a bag while recording.' },
+    { id: 'battery', n: 25, name: 'Battery door (bottom)', pos: [-1.4, -0.8, 0.6], desc: 'NP-FZ100. Genuine batteries report charge correctly. The door is under the grip; a tripod plate can block it, so check before mounting.' },
+    { id: 'tripod', n: 26, name: '1/4" tripod socket (bottom)', pos: [0.25, -0.8, 0.1], desc: 'Standard thread, centred under the lens axis. Use a quick-release plate you leave on all day.' },
   ],
   lens: [
     { id: 'hood', n: 1, name: 'Lens hood', pos: [0, 0.55, 3.95], desc: 'Keeps side light off the front element (less flare, more contrast) and protects the glass. Bayonets on; reverse it for storage. Remove it to fit the ND.' },
@@ -4295,11 +4298,12 @@ function buildCamera(T) {
   // top: shoe, threads, REC, zoom lever, front dial, C1, power
   rb(.85, .2, .95, .04, metal, 0, 1.46, -.15, .35, .5); rb(.55, .1, .95, .02, '#0a0b0d', 0, 1.53, -.15, .3, .3);
   for (const [x, z] of [[1.2, .55], [1.2, -.45], [.35, .75]]) { cyl(.11, .11, .04, '#9a9c9f', x, 1.41, z, 0, 0, 16, .35, .7); cyl(.06, .06, .05, '#0a0b0d', x, 1.42, z, 0, 0, 12, .5, .2); }
-  cyl(.21, .21, .1, '#c8102e', -1.5, 1.44, .6, 0, 0, 28, .4, .1); cyl(.24, .24, .03, dark, -1.5, 1.41, .6, 0, 0, 28, .5, .3); // REC
-  cyl(.3, .3, .06, dark, -1.5, 1.42, .12, 0, 0, 28, .5, .3); cyl(.14, .14, .08, metal, -1.5, 1.44, .12, 0, 0, 20, .4, .5); add(new T.Mesh(new T.BoxGeometry(.5, .04, .1), M(dark, .5, .3)), -1.5, 1.45, .12); // zoom lever
+  cyl(.21, .21, .1, '#c8102e', -1.5, 1.44, .25, 0, 0, 28, .4, .1); cyl(.24, .24, .03, dark, -1.5, 1.41, .25, 0, 0, 28, .5, .3); // REC
+  cyl(.3, .3, .06, dark, -1.5, 1.42, .85, 0, 0, 28, .5, .3); cyl(.14, .14, .08, metal, -1.5, 1.44, .85, 0, 0, 20, .4, .5); add(new T.Mesh(new T.BoxGeometry(.5, .04, .1), M(dark, .5, .3)), -1.5, 1.45, .85); // shutter + W/T lever
   cyl(.28, .28, .1, metal, -1.35, 1.2, 1.25, 0, 0, 28, .35, .55, { map: knurlTex(T, '#3a3c40', '#5a5c60', 36) }); // front dial
-  cyl(.12, .12, .05, metal, -.9, 1.42, .3, 0, 0, 16, .4, .5); // C1
-  cyl(.16, .16, .05, dark, -1.0, 1.42, -.55, 0, 0, 20, .4, .4); add(new T.Mesh(new T.BoxGeometry(.06, .06, .28), M('#9a9c9f', .35, .6)), -1.0, 1.45, -.5); // power lever
+  cyl(.1, .1, .05, metal, -1.15, 1.42, .8, 0, 0, 16, .4, .5); cyl(.1, .1, .05, metal, -1.3, 1.42, -.15, 0, 0, 16, .4, .5); cyl(.1, .1, .05, metal, -1.0, 1.42, -.15, 0, 0, 16, .4, .5); // C1 front, C2/C3 top
+  cyl(.11, .11, .2, rub, -.85, 1.5, -.5, 0, 0, 16, .85, 0); cyl(.16, .16, .04, rub, -.85, 1.42, -.5, 0, 0, 16, .9, 0); // multi-selector on top
+  add(new T.Mesh(new T.BoxGeometry(.3, .12, .05), M(dark, .5, .3)), .3, 1.1, -1.0); add(new T.Mesh(new T.BoxGeometry(.1, .06, .06), M('#9a9c9f', .35, .6)), .22, 1.1, -1.03); // power switch rear top-left
   cyl(.06, .06, .04, '#ff2a2a', -1.6, 1.42, -.6, 0, 0, 12, .3, 0, { emissive: '#ff2a2a', emissiveIntensity: .6 }); // rear tally
   // front: mount, release, tally, badges
   cyl(.86, .86, .12, dark, .25, .35, 1.1, Math.PI / 2, 0, 56, .45, .3); cyl(.8, .8, .06, '#b9bbbe', .25, .35, 1.19, Math.PI / 2, 0, 56, .3, .85); cyl(.62, .62, .07, '#08090b', .25, .35, 1.2, Math.PI / 2, 0, 56, .25, .5);
@@ -4311,9 +4315,9 @@ function buildCamera(T) {
   // rear: screen, dials, buttons
   rb(2.35, 1.45, .16, .08, '#0d0e11', .55, .3, -.92, .35, .2); add(new T.Mesh(new T.PlaneGeometry(2.1, 1.2), new T.MeshStandardMaterial({ color: '#0f1a26', roughness: .1, metalness: .4, emissive: '#0c1d33', emissiveIntensity: .35 })), .55, .3, -1.005, 0, Math.PI, 0); // vari-angle screen
   cyl(.3, .3, .1, metal, -1.3, 1.05, -1.0, Math.PI / 2, 0, 28, .35, .55, { map: knurlTex(T, '#3a3c40', '#5a5c60', 36) }); // rear dial
-  cyl(.11, .11, .22, rub, -1.3, .62, -1.05, Math.PI / 2, 0, 16, .85, 0); cyl(.16, .16, .05, rub, -1.3, .62, -1.14, Math.PI / 2, 0, 16, .9, 0); // joystick
+  cyl(.1, .1, .05, metal, -1.3, .62, -1.0, Math.PI / 2, 0, 16, .45, .4); // C5 / FOCUS MAG
   cyl(.34, .34, .06, dark, -1.3, .1, -1.0, Math.PI / 2, 0, 36, .5, .3); cyl(.13, .13, .05, metal, -1.3, .1, -1.04, Math.PI / 2, 0, 20, .4, .5); // control wheel + centre
-  for (const [x, y] of [[-.65, 1.05], [-.95, 1.05], [-.65, .7], [-.95, .7], [-.95, -.1], [-1.3, -.4], [-.95, -.4]]) cyl(.1, .1, .05, metal, x, y, -1.0, Math.PI / 2, 0, 16, .45, .4); // MENU, C-buttons, Fn, play, delete
+  for (const [x, y] of [[-.65, 1.05], [-.95, 1.05], [-.95, .7], [-.95, -.1], [-1.3, -.4], [-.95, -.4]]) cyl(.1, .1, .05, metal, x, y, -1.0, Math.PI / 2, 0, 16, .45, .4); // MENU, MODE, C5, Fn, play, C4
   // left side (operator's left, +x): ports, vents. right side (-x): card door. bottom: battery, tripod
   rb(.06, .95, .7, .04, '#26282c', 1.86, .3, .3, .5, .2); for (const [y, h, w] of [[.7, .28, .34], [.3, .18, .26], [-.15, .13, .13], [.05, .13, .13]]) add(new T.Mesh(new T.BoxGeometry(.03, h, w), M('#08090b', .4, .3)), 1.9, y, .3); // port door + sockets
   for (let i = 0; i < 6; i++) add(new T.Mesh(new T.BoxGeometry(.03, .04, .55), M('#08090b', .8, 0)), 1.87, .35 + i * .12, -.6); // fan vents
